@@ -1,0 +1,151 @@
+state 10,shift/reduce conflict:
+  used:[ 5: tag -> . <lt> <id> properties <gt> innerTag <lt> </> <id> <gt>, { <lt>, } ] (s7)
+  discarded:[ 9: innerTag -> ., { <lt>, } ] (r)
+
+i0
+[ 0: (accept) -> . xml, { <EOF>, } ]* (s1)
+[ 1: xml -> . head body, { <EOF>, } ] (s2)
+[ 2: head -> . <lt?> <id> properties <gt?>, { <lt>, } ] (s20)
+[ 3: head -> ., { <lt>, } ] (r)
+
+i1
+[ 0: (accept) -> xml ., { <EOF>, } ]* (r)
+
+i2
+[ 1: xml -> head . body, { <EOF>, } ]* (s3)
+[ 4: body -> . tag, { <EOF>, } ] (s4)
+[ 5: tag -> . <lt> <id> properties <gt> innerTag <lt> </> <id> <gt>, { <EOF>, } ] (s7)
+[ 6: tag -> . <lt> <id> properties </> <gt>, { <EOF>, } ] (s7)
+
+i3
+[ 1: xml -> head body ., { <EOF>, } ]* (r)
+
+i4
+[ 4: body -> tag ., { <EOF>, } ]* (r)
+
+i5
+[ 7: innerTag -> tag ., { <lt>, } ]* (r)
+
+i6
+[ 8: innerTag -> <content> ., { <lt>, } ]* (r)
+
+i7
+[ 5: tag -> <lt> . <id> properties <gt> innerTag <lt> </> <id> <gt>, { <EOF>,<lt>, } ]* (s8)
+[ 6: tag -> <lt> . <id> properties </> <gt>, { <EOF>, } ]* (s8)
+
+i8
+[ 5: tag -> <lt> <id> . properties <gt> innerTag <lt> </> <id> <gt>, { <EOF>,<lt>, } ]* (s9)
+[ 6: tag -> <lt> <id> . properties </> <gt>, { <EOF>, } ]* (s9)
+[ 10: properties -> . properties property, { <gt>,</>,<id>, } ] (s9)
+[ 11: properties -> ., { <gt>,</>,<id>, } ] (r)
+
+i9
+[ 5: tag -> <lt> <id> properties . <gt> innerTag <lt> </> <id> <gt>, { <EOF>,<lt>, } ]* (s10)
+[ 6: tag -> <lt> <id> properties . </> <gt>, { <EOF>, } ]* (s16)
+[ 10: properties -> properties . property, { <gt>,</>,<id>, } ]* (s24)
+[ 12: property -> . propertyName, { <gt>,</>,<id>, } ] (s25)
+[ 13: property -> . propertyName <=> <string>, { <gt>,</>,<id>, } ] (s25)
+[ 14: propertyName -> . <id> <:> <id>, { <gt>,<=>,</>,<id>, } ] (s26)
+[ 15: propertyName -> . <id>, { <gt>,<=>,</>,<id>, } ] (s26)
+
+i10
+[ 5: tag -> <lt> <id> properties <gt> . innerTag <lt> </> <id> <gt>, { <EOF>,<lt>, } ]* (s11)
+[ 7: innerTag -> . tag, { <lt>, } ] (s5)
+[ 8: innerTag -> . <content>, { <lt>, } ] (s6)
+[ 9: innerTag -> ., { <lt>, } ] (r)
+[ 5: tag -> . <lt> <id> properties <gt> innerTag <lt> </> <id> <gt>, { <lt>, } ] (s7)
+[ 6: tag -> . <lt> <id> properties </> <gt>, { <lt>, } ] (s7)
+
+i11
+[ 5: tag -> <lt> <id> properties <gt> innerTag . <lt> </> <id> <gt>, { <EOF>,<lt>, } ]* (s12)
+
+i12
+[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> . </> <id> <gt>, { <EOF>,<lt>, } ]* (s13)
+
+i13
+[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> </> . <id> <gt>, { <EOF>,<lt>, } ]* (s14)
+
+i14
+[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> </> <id> . <gt>, { <EOF>,<lt>, } ]* (s15)
+
+i15
+[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> </> <id> <gt> ., { <EOF>,<lt>, } ]* (r)
+
+i16
+[ 6: tag -> <lt> <id> properties </> . <gt>, { <EOF>, } ]* (s17)
+
+i17
+[ 6: tag -> <lt> <id> properties </> <gt> ., { <EOF>, } ]* (r)
+
+i18
+[ 13: property -> propertyName <=> . <string>, { <gt>,</>,<id>, } ]* (s19)
+
+i19
+[ 13: property -> propertyName <=> <string> ., { <gt>,</>,<id>, } ]* (r)
+
+i20
+[ 2: head -> <lt?> . <id> properties <gt?>, { <lt>, } ]* (s21)
+
+i21
+[ 2: head -> <lt?> <id> . properties <gt?>, { <lt>, } ]* (s22)
+[ 10: properties -> . properties property, { <gt?>,<id>, } ] (s22)
+[ 11: properties -> ., { <gt?>,<id>, } ] (r)
+
+i22
+[ 2: head -> <lt?> <id> properties . <gt?>, { <lt>, } ]* (s23)
+[ 10: properties -> properties . property, { <gt?>,<id>, } ]* (s24)
+[ 12: property -> . propertyName, { <gt?>,<id>, } ] (s25)
+[ 13: property -> . propertyName <=> <string>, { <gt?>,<id>, } ] (s25)
+[ 14: propertyName -> . <id> <:> <id>, { <=>,<gt?>,<id>, } ] (s26)
+[ 15: propertyName -> . <id>, { <=>,<gt?>,<id>, } ] (s26)
+
+i23
+[ 2: head -> <lt?> <id> properties <gt?> ., { <lt>, } ]* (r)
+
+i24
+[ 10: properties -> properties property ., { <gt>,<gt?>,</>,<id>, } ]* (r)
+
+i25
+[ 12: property -> propertyName ., { <gt>,<gt?>,</>,<id>, } ]* (r)
+[ 13: property -> propertyName . <=> <string>, { <gt>,</>,<id>, } ]* (s18)
+
+i26
+[ 14: propertyName -> <id> . <:> <id>, { <gt>,<=>,<gt?>,</>,<id>, } ]* (s27)
+[ 15: propertyName -> <id> ., { <gt>,<=>,</>,<id>, } ]* (r)
+
+i27
+[ 14: propertyName -> <id> <:> . <id>, { <gt>,<=>,<gt?>,</>,<id>, } ]* (s28)
+
+i28
+[ 14: propertyName -> <id> <:> <id> ., { <gt>,<=>,<gt?>,</>,<id>, } ]* (r)
+
+test 1:
+| <lt> <id> <id> <=> <string> <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 ]
+head | <lt> <id> <id> <=> <string> <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 ]
+head <lt> | <id> <id> <=> <string> <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 ]
+head <lt> <id> | <id> <=> <string> <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 ]
+head <lt> <id> properties | <id> <=> <string> <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 ]
+head <lt> <id> properties <id> | <=> <string> <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 26 ]
+head <lt> <id> properties propertyName | <=> <string> <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 25 ]
+head <lt> <id> properties propertyName <=> | <string> <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 25 18 ]
+head <lt> <id> properties propertyName <=> <string> | <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 25 18 19 ]
+head <lt> <id> properties property | <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 24 ]
+head <lt> <id> properties | <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 ]
+head <lt> <id> properties <gt> | <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 ]
+head <lt> <id> properties <gt> <lt> | <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 ]
+head <lt> <id> properties <gt> <lt> <id> | <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 ]
+head <lt> <id> properties <gt> <lt> <id> properties | <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 ]
+head <lt> <id> properties <gt> <lt> <id> properties <id> | <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 26 ]
+head <lt> <id> properties <gt> <lt> <id> properties propertyName | <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 25 ]
+head <lt> <id> properties <gt> <lt> <id> properties propertyName <=> | <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 25 18 ]
+head <lt> <id> properties <gt> <lt> <id> properties propertyName <=> <string> | <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 25 18 19 ]
+head <lt> <id> properties <gt> <lt> <id> properties property | <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 24 ]
+head <lt> <id> properties <gt> <lt> <id> properties | <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 ]
+head <lt> <id> properties <gt> <lt> <id> properties <gt> | <lt> <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 10 ]
+head <lt> <id> properties <gt> <lt> <id> properties <gt> <lt> | <id> </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 10 7 ]
+head <lt> <id> properties <gt> <lt> <id> properties <gt> <lt> <id> | </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 10 7 8 ]
+head <lt> <id> properties <gt> <lt> <id> properties <gt> <lt> <id> properties | </> <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 10 7 8 9 ]
+head <lt> <id> properties <gt> <lt> <id> properties <gt> <lt> <id> properties </> | <gt> <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 10 7 8 9 16 ]
+head <lt> <id> properties <gt> <lt> <id> properties <gt> <lt> <id> properties </> <gt> | <lt> <id> </> <gt> [0 2 7 8 9 10 7 8 9 10 7 8 9 16 17 ]
+syntax error!unexpected token 'lt' (LT)
+

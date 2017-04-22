@@ -1,0 +1,26 @@
+state 0,reduce/reduce conflict:
+  used:[ 2: A -> ., { <EOF>, } ] (r)
+  discarded:[ 3: B -> ., { <EOF>, } ] (r)
+
+state 2,reduce/reduce conflict:
+  used:[ 2: A -> ., { <EOF>, } ] (r)
+  discarded:[ 3: B -> ., { <EOF>, } ] (r)
+
+i0
+[ 0: (accept) -> . A, { <EOF>, } ]* (s1)
+[ 1: A -> . B A, { <EOF>, } ] (s2)
+[ 2: A -> ., { <EOF>, } ] (r)
+[ 3: B -> ., { <EOF>, } ] (r)
+
+i1
+[ 0: (accept) -> A ., { <EOF>, } ]* (r)
+
+i2
+[ 1: A -> B . A, { <EOF>, } ]* (s3)
+[ 1: A -> . B A, { <EOF>, } ] (s2)
+[ 2: A -> ., { <EOF>, } ] (r)
+[ 3: B -> ., { <EOF>, } ] (r)
+
+i3
+[ 1: A -> B A ., { <EOF>, } ]* (r)
+

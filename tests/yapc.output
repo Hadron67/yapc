@@ -1,0 +1,126 @@
+state 14,shift/reduce conflict:
+  used:[ 18: ruleItem -> . <id>, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (s17)
+  discarded:[ 14: ruleBody -> ruleBody <|> ruleItems ., { <%test>,<%%>,<|>,<id>, } ]* (r)
+
+state 19,shift/reduce conflict:
+  used:[ 18: ruleItem -> . <id>, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (s17)
+  discarded:[ 13: ruleBody -> ruleItems ., { <%test>,<%%>,<|>,<id>, } ]* (r)
+
+i0
+[ 0: (accept) -> . file, { <EOF>, } ]* (s1)
+[ 1: file -> . options <%%> body <%%>, { <EOF>, } ] (s2)
+[ 2: options -> . options option, { <%token>,<%%>, } ] (s2)
+[ 3: options -> ., { <%token>,<%%>, } ] (r)
+
+i1
+[ 0: (accept) -> file ., { <EOF>, } ]* (r)
+
+i2
+[ 1: file -> options . <%%> body <%%>, { <EOF>, } ]* (s3)
+[ 2: options -> options . option, { <%token>,<%%>, } ]* (s24)
+[ 4: option -> . <%token> <token> <string>, { <%token>,<%%>, } ] (s25)
+
+i3
+[ 1: file -> options <%%> . body <%%>, { <EOF>, } ]* (s4)
+[ 5: body -> . body bodyItem, { <%test>,<%%>,<id>, } ] (s4)
+[ 6: body -> . bodyItem, { <%test>,<%%>,<id>, } ] (s7)
+[ 7: bodyItem -> . rule, { <%test>,<%%>,<id>, } ] (s8)
+[ 8: bodyItem -> . test, { <%test>,<%%>,<id>, } ] (s9)
+[ 12: rule -> . <id> <:> ruleBody, { <%test>,<%%>,<id>, } ] (s10)
+[ 9: test -> . <%test> tokenList <;>, { <%test>,<%%>,<id>, } ] (s20)
+
+i4
+[ 1: file -> options <%%> body . <%%>, { <EOF>, } ]* (s5)
+[ 5: body -> body . bodyItem, { <%test>,<%%>,<id>, } ]* (s6)
+[ 7: bodyItem -> . rule, { <%test>,<%%>,<id>, } ] (s8)
+[ 8: bodyItem -> . test, { <%test>,<%%>,<id>, } ] (s9)
+[ 12: rule -> . <id> <:> ruleBody, { <%test>,<%%>,<id>, } ] (s10)
+[ 9: test -> . <%test> tokenList <;>, { <%test>,<%%>,<id>, } ] (s20)
+
+i5
+[ 1: file -> options <%%> body <%%> ., { <EOF>, } ]* (r)
+
+i6
+[ 5: body -> body bodyItem ., { <%test>,<%%>,<id>, } ]* (r)
+
+i7
+[ 6: body -> bodyItem ., { <%test>,<%%>,<id>, } ]* (r)
+
+i8
+[ 7: bodyItem -> rule ., { <%test>,<%%>,<id>, } ]* (r)
+
+i9
+[ 8: bodyItem -> test ., { <%test>,<%%>,<id>, } ]* (r)
+
+i10
+[ 12: rule -> <id> . <:> ruleBody, { <%test>,<%%>,<id>, } ]* (s11)
+
+i11
+[ 12: rule -> <id> <:> . ruleBody, { <%test>,<%%>,<id>, } ]* (s12)
+[ 13: ruleBody -> . ruleItems, { <%test>,<%%>,<|>,<id>, } ] (s19)
+[ 14: ruleBody -> . ruleBody <|> ruleItems, { <%test>,<%%>,<|>,<id>, } ] (s12)
+[ 15: ruleItems -> . ruleItems ruleItem, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (s19)
+[ 16: ruleItems -> ., { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (r)
+
+i12
+[ 12: rule -> <id> <:> ruleBody ., { <%test>,<%%>,<id>, } ]* (r)
+[ 14: ruleBody -> ruleBody . <|> ruleItems, { <%test>,<%%>,<|>,<id>, } ]* (s13)
+
+i13
+[ 14: ruleBody -> ruleBody <|> . ruleItems, { <%test>,<%%>,<|>,<id>, } ]* (s14)
+[ 15: ruleItems -> . ruleItems ruleItem, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (s14)
+[ 16: ruleItems -> ., { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (r)
+
+i14
+[ 14: ruleBody -> ruleBody <|> ruleItems ., { <%test>,<%%>,<|>,<id>, } ]* (r)
+[ 15: ruleItems -> ruleItems . ruleItem, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ]* (s15)
+[ 17: ruleItem -> . <token>, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (s16)
+[ 18: ruleItem -> . <id>, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (s17)
+[ 19: ruleItem -> . <block>, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (s18)
+
+i15
+[ 15: ruleItems -> ruleItems ruleItem ., { <%test>,<%%>,<|>,<id>,<token>,<block>, } ]* (r)
+
+i16
+[ 17: ruleItem -> <token> ., { <%test>,<%%>,<|>,<id>,<token>,<block>, } ]* (r)
+
+i17
+[ 18: ruleItem -> <id> ., { <%test>,<%%>,<|>,<id>,<token>,<block>, } ]* (r)
+
+i18
+[ 19: ruleItem -> <block> ., { <%test>,<%%>,<|>,<id>,<token>,<block>, } ]* (r)
+
+i19
+[ 13: ruleBody -> ruleItems ., { <%test>,<%%>,<|>,<id>, } ]* (r)
+[ 15: ruleItems -> ruleItems . ruleItem, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ]* (s15)
+[ 17: ruleItem -> . <token>, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (s16)
+[ 18: ruleItem -> . <id>, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (s17)
+[ 19: ruleItem -> . <block>, { <%test>,<%%>,<|>,<id>,<token>,<block>, } ] (s18)
+
+i20
+[ 9: test -> <%test> . tokenList <;>, { <%test>,<%%>,<id>, } ]* (s21)
+[ 10: tokenList -> . tokenList <token>, { <;>,<token>, } ] (s21)
+[ 11: tokenList -> ., { <;>,<token>, } ] (r)
+
+i21
+[ 9: test -> <%test> tokenList . <;>, { <%test>,<%%>,<id>, } ]* (s22)
+[ 10: tokenList -> tokenList . <token>, { <;>,<token>, } ]* (s23)
+
+i22
+[ 9: test -> <%test> tokenList <;> ., { <%test>,<%%>,<id>, } ]* (r)
+
+i23
+[ 10: tokenList -> tokenList <token> ., { <;>,<token>, } ]* (r)
+
+i24
+[ 2: options -> options option ., { <%token>,<%%>, } ]* (r)
+
+i25
+[ 4: option -> <%token> . <token> <string>, { <%token>,<%%>, } ]* (s26)
+
+i26
+[ 4: option -> <%token> <token> . <string>, { <%token>,<%%>, } ]* (s27)
+
+i27
+[ 4: option -> <%token> <token> <string> ., { <%token>,<%%>, } ]* (r)
+

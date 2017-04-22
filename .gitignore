@@ -1,0 +1,9 @@
+# cmake files
+CMakeFiles/**
+CMakeCache.txt
+cmake_install.cmake
+
+tests/*.out
+
+yapc
+

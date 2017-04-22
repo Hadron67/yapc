@@ -1,0 +1,79 @@
+i0
+[ 0: (accept) -> . start, { <EOF>, } ]* (s1)
+[ 1: start -> . expr, { <EOF>, } ] (s2)
+[ 3: expr -> . expr <+> @1 atom, { <EOF>,<+>, } ] (s2)
+[ 4: expr -> . atom, { <EOF>,<+>, } ] (s6)
+[ 7: atom -> . @3 @2 <id>, { <EOF>,<+>, } ] (s7)
+[ 9: atom -> . @4 <num>, { <EOF>,<+>, } ] (s10)
+[ 6: @3 -> ., { <id>, } ] (r)
+[ 8: @4 -> ., { <num>, } ] (r)
+
+i1
+[ 0: (accept) -> start ., { <EOF>, } ]* (r)
+
+i2
+[ 1: start -> expr ., { <EOF>, } ]* (r)
+[ 3: expr -> expr . <+> @1 atom, { <EOF>,<+>, } ]* (s3)
+
+i3
+[ 3: expr -> expr <+> . @1 atom, { <EOF>,<+>, } ]* (s4)
+[ 2: @1 -> ., { <EOF>,<id>,<+>,<num>, } ] (r)
+
+i4
+[ 3: expr -> expr <+> @1 . atom, { <EOF>,<+>, } ]* (s5)
+[ 7: atom -> . @3 @2 <id>, { <EOF>,<+>, } ] (s7)
+[ 9: atom -> . @4 <num>, { <EOF>,<+>, } ] (s10)
+[ 6: @3 -> ., { <id>, } ] (r)
+[ 8: @4 -> ., { <num>, } ] (r)
+
+i5
+[ 3: expr -> expr <+> @1 atom ., { <EOF>,<+>, } ]* (r)
+
+i6
+[ 4: expr -> atom ., { <EOF>,<+>, } ]* (r)
+
+i7
+[ 7: atom -> @3 . @2 <id>, { <EOF>,<+>, } ]* (s8)
+[ 5: @2 -> ., { <id>, } ] (r)
+
+i8
+[ 7: atom -> @3 @2 . <id>, { <EOF>,<+>, } ]* (s9)
+
+i9
+[ 7: atom -> @3 @2 <id> ., { <EOF>,<+>, } ]* (r)
+
+i10
+[ 9: atom -> @4 . <num>, { <EOF>,<+>, } ]* (s11)
+
+i11
+[ 9: atom -> @4 <num> ., { <EOF>,<+>, } ]* (r)
+
+test 1:
+| <num> <+> <id> <+> <num> <+> <id> [0 ]
+@4 | <num> <+> <id> <+> <num> <+> <id> [0 10 ]
+@4 <num> | <+> <id> <+> <num> <+> <id> [0 10 11 ]
+atom | <+> <id> <+> <num> <+> <id> [0 6 ]
+expr | <+> <id> <+> <num> <+> <id> [0 2 ]
+expr <+> | <id> <+> <num> <+> <id> [0 2 3 ]
+expr <+> @1 | <id> <+> <num> <+> <id> [0 2 3 4 ]
+expr <+> @1 @3 | <id> <+> <num> <+> <id> [0 2 3 4 7 ]
+expr <+> @1 @3 @2 | <id> <+> <num> <+> <id> [0 2 3 4 7 8 ]
+expr <+> @1 @3 @2 <id> | <+> <num> <+> <id> [0 2 3 4 7 8 9 ]
+expr <+> @1 atom | <+> <num> <+> <id> [0 2 3 4 5 ]
+expr | <+> <num> <+> <id> [0 2 ]
+expr <+> | <num> <+> <id> [0 2 3 ]
+expr <+> @1 | <num> <+> <id> [0 2 3 4 ]
+expr <+> @1 @4 | <num> <+> <id> [0 2 3 4 10 ]
+expr <+> @1 @4 <num> | <+> <id> [0 2 3 4 10 11 ]
+expr <+> @1 atom | <+> <id> [0 2 3 4 5 ]
+expr | <+> <id> [0 2 ]
+expr <+> | <id> [0 2 3 ]
+expr <+> @1 | <id> [0 2 3 4 ]
+expr <+> @1 @3 | <id> [0 2 3 4 7 ]
+expr <+> @1 @3 @2 | <id> [0 2 3 4 7 8 ]
+expr <+> @1 @3 @2 <id> | [0 2 3 4 7 8 9 ]
+expr <+> @1 atom | [0 2 3 4 5 ]
+expr | [0 2 ]
+start | [0 1 ]
+accepted!
+
