@@ -1,15 +1,31 @@
+%{
+
+#include <stdio.h>
+#include "grammar_builder.h"
+#include "grammar.h"
+#include "spool.h"
+
+%}
 
 %token <%token> "TOKEN_DIR"
+%token <%type> "TYPE_DIR"
+%token <%datatype> "DATATYPE_DIR"
 %token <%test> "TEST_DIR"
+%token <%empty> "EMPTY_DIR"
 %token <%%> "SEPERATOR"
-%token <:> "COLLON"
+%token <:> "ARROW"
 %token <|> "OR"
-%token <;> "SEMI_COLLON"
+%token <;> "EOL"
 
-%token <id> "ID"
+%token <name> "NAME"
 %token <token> "TOKEN"
 %token <string> "STRING"
 %token <block> "BLOCK"
+%token <prologue> "PROLOGUE"
+
+%type "size_t"
+
+%datatype "YGBuilder"
 
 %%
 
@@ -17,7 +33,10 @@ file: options <%%> body <%%>;
 
 options: options option | /* empty */;
 
-option: <%token> <token> <string>;
+option: 
+    <%token> <token> <string> { YGBuilder_addToken(yydata,$2,$3); } |
+    <%type> <string> { YGBuilder_setTokenType(yydata,$2); } |
+    <%datatype> <string> { YGBuilder_setDataType(yydata,$2); } ;
 
 body: body bodyItem | bodyItem;
 
@@ -27,12 +46,12 @@ test: <%test> tokenList <;>;
 
 tokenList: tokenList <token> | /* empty */;
 
-rule: <id> <:> ruleBody;
+rule: <name> <:> ruleBody;
 
 ruleBody: ruleItems | ruleBody <|> ruleItems;
 
 ruleItems: ruleItems ruleItem | /* empty */;
 
-ruleItem: <token> | <id> | <block>;
+ruleItem: <token> | <name> | <block>;
 
 %%

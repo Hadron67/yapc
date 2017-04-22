@@ -92,10 +92,12 @@ static const char *yynonTerminals[] = {
 static int yyParser_reduce(yyParser *yyparser,int yyrule){
     YYCHECK_PUSH_TOKEN();
     int yyval;
+    void *yydata = (void *)yyparser->userData;
     switch(yyrule){
         case 0:
             /* (accept) -> start  */
             /* no action. */
+            yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
@@ -103,8 +105,8 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 1:
             /* start -> expr  */
             #line 25 "./action.y"
-            {  printf("accept");yyval = (yyparser->sp[-1]); }
-            #line 108 "./action.c"
+            { printf("accept");yyval = (yyparser->sp[-1]); }
+            #line 110 "./action.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
@@ -112,15 +114,15 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 2:
             /* @1 ->  */
             #line 27 "./action.y"
-            {  printf("i saw a plus");yyval = 0; }
-            #line 117 "./action.c"
+            { printf("i saw a plus");yyval = 0; }
+            #line 119 "./action.c"
             *yyparser->sp++ = yyval;
             break;
         case 3:
             /* expr -> expr <+> @1 atom  */
             #line 27 "./action.y"
-            {  yyval = (yyparser->sp[-4]) + (yyparser->sp[-2]); }
-            #line 124 "./action.c"
+            { yyval = (yyparser->sp[-4]) + (yyparser->sp[-2]); }
+            #line 126 "./action.c"
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
@@ -128,8 +130,8 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 4:
             /* expr -> atom  */
             #line 27 "./action.y"
-            {  yyval = (yyparser->sp[-1]); }
-            #line 133 "./action.c"
+            { yyval = (yyparser->sp[-1]); }
+            #line 135 "./action.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
@@ -137,20 +139,20 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 5:
             /* @2 ->  */
             #line 29 "./action.y"
-            {  printf("a new node"); }
-            #line 142 "./action.c"
+            { printf("a new node"); }
+            #line 144 "./action.c"
             break;
         case 6:
             /* @3 ->  */
             #line 29 "./action.y"
-            {  printf("i'm expecting an id"); }
-            #line 148 "./action.c"
+            { printf("i'm expecting an id"); }
+            #line 150 "./action.c"
             break;
         case 7:
             /* atom -> @3 @2 <id>  */
             #line 29 "./action.y"
-            {  yyval = (yyparser->sp[-1]); }
-            #line 154 "./action.c"
+            { yyval = (yyparser->sp[-1]); }
+            #line 156 "./action.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
@@ -158,14 +160,14 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 8:
             /* @4 ->  */
             #line 29 "./action.y"
-            {  printf("i'm expecting a num"); }
-            #line 163 "./action.c"
+            { printf("i'm expecting a num"); }
+            #line 165 "./action.c"
             break;
         case 9:
             /* atom -> @4 <num>  */
             #line 29 "./action.y"
-            {  yyval = (yyparser->sp[-1]); }
-            #line 169 "./action.c"
+            { yyval = (yyparser->sp[-1]); }
+            #line 171 "./action.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
@@ -180,6 +182,7 @@ int yyParser_init(yyParser *yyparser,yyalloc altor,yyrealloc rtor,yyfree dtor){
     yyparser->dtor = dtor;
     yyparser->rtor = rtor;
     yyparser->sLen = 1;
+    yyparser->done = 0;
     yyparser->sSize = yyparser->pSize = 16;
     yyparser->state = (int *)altor(sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
@@ -202,6 +205,10 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
             shifted = 1;
         }
         else if(yyaction < 0){
+            if(yyaction == -1){
+                yyparser->done = 1;
+                return 0;
+            }
             yyParser_reduce(yyparser,-1 - yyaction);
         }
         else {
@@ -215,11 +222,11 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
 int yyParser_printError(yyParser *yyparser,FILE *out){
     if(yyparser->error){
         int index = YYSTATE() * yytokenCount;
-        fprintf(out,"unexpected token '%s',was expecting one of:\n",yytokenNames[yyparser->errToken]);
+        fprintf(out,"unexpected token '%s' (%s),was expecting one of:\n",yytokenNames[yyparser->errToken],yytokenAlias[yyparser->errToken]);
         int i;
         for(i = 0;i < yytokenCount;i++){
             if(yyshift[index + i] != 0){
-                fprintf(out,"    '%s' ...\n",yytokenNames[i]);
+                fprintf(out,"    '%s' (%s) ...\n",yytokenNames[i],yytokenAlias[i]);
             }
         }
     }

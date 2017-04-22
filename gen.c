@@ -1,3 +1,22 @@
+/*  
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+
+    Copyright (C) 2017  Chen FeiYu
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -321,11 +340,12 @@ int YItemSetList_number(YItemSetList *list){
 
 int yGenItemSets(YGrammar *g,YItemSetList *doneList){
     int index = 0;
-    YItemSetList todoList,incList;
+    YItemSetList todoList,incList,trash;
     YFirstSets *fsets = YGrammar_generateFirstSets(g);
 
     YItemSetList_init(&todoList);
     YItemSetList_init(&incList);
+    YItemSetList_init(&trash);
 
     YItemSetList_append(&todoList,yGenInitialItemSet(g));
 
@@ -341,7 +361,9 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
                 if(item->actionType == YACTION_NONE){
                     assert(YItem_canShift(item));
                     YRuleItem *shift = YItem_getShift(item);
-                    YItemSet *newSet = YItemSet_new(g);
+                    YItemSet *newSet = trash.size > 0 ? YItemSetList_poll(&trash) : YItemSet_new(g);
+                    newSet->len = 0;
+                    newSet->complete = 0;
                     newSet->index = index++;
                     YItemSetList_append(&todoList,newSet);
 
@@ -388,7 +410,8 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
                             }
                         }
                     }
-                    YItemSet_free(set);
+                    YItemSetList_append(&trash,set);
+                    //YItemSet_free(set);
                     set = NULL;
                     break;
                 }
@@ -409,7 +432,7 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
                                 }
                             }
                         }
-                        YItemSet_free(set);
+                        YItemSetList_append(&trash,set);
                         set = NULL;
                         break;
                     }
@@ -427,6 +450,7 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
         }
     }
     YFirstSets_free(fsets);
+    YItemSetList_clear(&trash);
     YItemSetList_number(doneList);
     return 0;
 }

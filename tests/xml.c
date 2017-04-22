@@ -192,10 +192,12 @@ static const char *yynonTerminals[] = {
 static int yyParser_reduce(yyParser *yyparser,int yyrule){
     YYCHECK_PUSH_TOKEN();
     int yyval;
+    void *yydata = (void *)yyparser->userData;
     switch(yyrule){
         case 0:
             /* (accept) -> xml  */
             /* no action. */
+            yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
@@ -203,6 +205,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 1:
             /* xml -> head body  */
             /* no action. */
+            yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
             yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
@@ -210,6 +213,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 2:
             /* head -> <lt?> <id> properties <gt?>  */
             /* no action. */
+            yyval = yyparser->sp[-4];
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
@@ -217,11 +221,13 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 3:
             /* head ->  */
             /* no action. */
+            yyval = yyparser->sp[0];
             *yyparser->sp++ = yyval;
             break;
         case 4:
             /* body -> tag  */
             /* no action. */
+            yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
@@ -229,6 +235,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 5:
             /* tag -> <lt> <id> properties <gt> innerTag <lt> </> <id> <gt>  */
             /* no action. */
+            yyval = yyparser->sp[-9];
             yyparser->sp -= 9;
             yyparser->sLen -= 9;
             *yyparser->sp++ = yyval;
@@ -236,6 +243,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 6:
             /* tag -> <lt> <id> properties </> <gt>  */
             /* no action. */
+            yyval = yyparser->sp[-5];
             yyparser->sp -= 5;
             yyparser->sLen -= 5;
             *yyparser->sp++ = yyval;
@@ -243,6 +251,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 7:
             /* innerTag -> tag  */
             /* no action. */
+            yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
@@ -250,6 +259,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 8:
             /* innerTag -> <content>  */
             /* no action. */
+            yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
@@ -257,11 +267,13 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 9:
             /* innerTag ->  */
             /* no action. */
+            yyval = yyparser->sp[0];
             *yyparser->sp++ = yyval;
             break;
         case 10:
             /* properties -> properties property  */
             /* no action. */
+            yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
             yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
@@ -269,11 +281,13 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 11:
             /* properties ->  */
             /* no action. */
+            yyval = yyparser->sp[0];
             *yyparser->sp++ = yyval;
             break;
         case 12:
             /* property -> propertyName  */
             /* no action. */
+            yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
@@ -281,6 +295,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 13:
             /* property -> propertyName <=> <string>  */
             /* no action. */
+            yyval = yyparser->sp[-3];
             yyparser->sp -= 3;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
@@ -288,6 +303,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 14:
             /* propertyName -> <id> <:> <id>  */
             /* no action. */
+            yyval = yyparser->sp[-3];
             yyparser->sp -= 3;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
@@ -295,6 +311,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 15:
             /* propertyName -> <id>  */
             /* no action. */
+            yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
@@ -309,6 +326,7 @@ int yyParser_init(yyParser *yyparser,yyalloc altor,yyrealloc rtor,yyfree dtor){
     yyparser->dtor = dtor;
     yyparser->rtor = rtor;
     yyparser->sLen = 1;
+    yyparser->done = 0;
     yyparser->sSize = yyparser->pSize = 16;
     yyparser->state = (int *)altor(sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
@@ -331,6 +349,10 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
             shifted = 1;
         }
         else if(yyaction < 0){
+            if(yyaction == -1){
+                yyparser->done = 1;
+                return 0;
+            }
             yyParser_reduce(yyparser,-1 - yyaction);
         }
         else {
@@ -344,11 +366,11 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
 int yyParser_printError(yyParser *yyparser,FILE *out){
     if(yyparser->error){
         int index = YYSTATE() * yytokenCount;
-        fprintf(out,"unexpected token '%s',was expecting one of:\n",yytokenNames[yyparser->errToken]);
+        fprintf(out,"unexpected token '%s' (%s),was expecting one of:\n",yytokenNames[yyparser->errToken],yytokenAlias[yyparser->errToken]);
         int i;
         for(i = 0;i < yytokenCount;i++){
             if(yyshift[index + i] != 0){
-                fprintf(out,"    '%s' ...\n",yytokenNames[i]);
+                fprintf(out,"    '%s' (%s) ...\n",yytokenNames[i],yytokenAlias[i]);
             }
         }
     }

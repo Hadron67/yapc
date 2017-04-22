@@ -27,8 +27,12 @@ typedef struct _yyParser{
     //current token,this token would be accepted
     //when yyParser_acceptTokenis called.
     int token;
+    //this would be set to 1 when input is accepted.
+    int done;
     //this would be set to 1 when a syntax error is detected.
     int error,errToken;
+    //the generic pointer that user can set
+    void *userData;
 }yyParser;
 
 

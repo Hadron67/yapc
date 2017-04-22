@@ -1,3 +1,22 @@
+/*  
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+
+    Copyright (C) 2017  Chen FeiYu
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -228,8 +247,14 @@ static int yGenHeader(YGen *g,FILE *out){
         YYTAB "//when %sParser_acceptTokenis called.\n"
         YYTAB "%s token;\n"
 
+        YYTAB "//this would be set to 1 when input is accepted.\n"
+        YYTAB "int done;\n"
+
         YYTAB "//this would be set to 1 when a syntax error is detected.\n"
         YYTAB "int error,errToken;\n"
+
+        YYTAB "//the generic pointer that user can set\n"
+        YYTAB "void *userData;\n"
         "}%sParser;\n"
         ,ns,ns,ns,ns
         ,stype
@@ -257,7 +282,7 @@ static int yGenHeader(YGen *g,FILE *out){
 }
 
 static int yConvertActionBlock(YGen *g,FILE *out,const char *action,int stackOffset){
-    fprintf(out,"{ ");
+    fprintf(out,"{");
     int on = 1;
     while(*action){
         if(*action == '\n'){
@@ -322,12 +347,14 @@ static int yGenReduce(YGen *g,FILE *out){
         "static int %sParser_reduce(%sParser *%sparser,int %srule){\n"
         YYTAB "YYCHECK_PUSH_TOKEN();\n"
         YYTAB "%s %sval;\n"
+        YYTAB "%s *%sdata = (%s *)%sparser->userData;\n"
         YYTAB "switch(%srule){\n"
         ,g->g->nameSpace,g->g->nameSpace,g->g->nameSpace,g->g->nameSpace
         ,g->g->stype,g->g->nameSpace
+        ,g->g->dataType,g->g->nameSpace,g->g->dataType,g->g->nameSpace
         ,g->g->nameSpace
     );
-    g->line2 += 4;
+    g->line2 += 5;
 
     int i;
     for(i = 0;i < g->g->ruleCount;i++){
@@ -350,7 +377,12 @@ static int yGenReduce(YGen *g,FILE *out){
         }
         else {
             fprintf(out,YYTAB YYTAB YYTAB "/* no action. */\n");
-            g->line2++;
+            fprintf(out,
+                YYTAB YYTAB YYTAB "%sval = %sparser->sp[%d];\n"
+                ,g->g->nameSpace,g->g->nameSpace
+                ,-rule->stackOffset
+            );
+            g->line2 += 2;
         }
         if(!rule->isGen){
             if(rule->stackOffset > 0){
@@ -478,6 +510,7 @@ static int yGenParseCode(YGen *g,FILE *out){
         YYTAB "%sparser->dtor = dtor;\n"
         YYTAB "%sparser->rtor = rtor;\n"
         YYTAB "%sparser->sLen = 1;\n"
+        YYTAB "%sparser->done = 0;\n"
         YYTAB "%sparser->sSize = %sparser->pSize = 16;\n"
         YYTAB "%sparser->state = (int *)altor(sizeof(int) * %sparser->sSize);\n"
         YYTAB "%sparser->state[0] = 0;\n"
@@ -489,12 +522,13 @@ static int yGenParseCode(YGen *g,FILE *out){
         ,ns
         ,ns
         ,ns
+        ,ns
         ,ns,ns
         ,ns,ns
         ,ns
         ,ns,ns,stype,stype,ns
     );
-    g->line2 += 10;
+    g->line2 += 12;
 
     fprintf(out,
         "int %sParser_free(%sParser *%sparser){\n"
@@ -520,6 +554,10 @@ static int yGenParseCode(YGen *g,FILE *out){
         YYTAB YYTAB YYTAB "shifted = 1;\n"
         YYTAB YYTAB "}\n"
         YYTAB YYTAB "else if(%saction < 0){\n"
+        YYTAB YYTAB YYTAB "if(%saction == -1){\n"
+        YYTAB YYTAB YYTAB YYTAB "%sparser->done = 1;\n"
+        YYTAB YYTAB YYTAB YYTAB "return 0;\n"
+        YYTAB YYTAB YYTAB "}\n"
         YYTAB YYTAB YYTAB "%sParser_reduce(%sparser,-1 - %saction);\n"
         YYTAB YYTAB "}\n"
         YYTAB YYTAB "else {\n"
@@ -536,21 +574,23 @@ static int yGenParseCode(YGen *g,FILE *out){
         ,ns,ns
         ,ns,ns
         ,ns
+        ,ns
+        ,ns
         ,ns,ns,ns
         ,ns
         ,ns,ns
     );
-    g->line2 += 18;
+    g->line2 += 25;
 
     fprintf(out,
         "int %sParser_printError(%sParser *%sparser,FILE *out){\n"
         YYTAB "if(%sparser->error){\n"
         YYTAB YYTAB "int index = YYSTATE() * %stokenCount;\n"
-        YYTAB YYTAB "fprintf(out,\"unexpected token '%cs',was expecting one of:\\n\",%stokenNames[%sparser->errToken]);\n"
+        YYTAB YYTAB "fprintf(out,\"unexpected token '%cs' (%cs),was expecting one of:\\n\",%stokenNames[%sparser->errToken],%stokenAlias[%sparser->errToken]);\n"
         YYTAB YYTAB "int i;\n"
         YYTAB YYTAB "for(i = 0;i < %stokenCount;i++){\n"
         YYTAB YYTAB YYTAB "if(%sshift[index + i] != 0){\n"
-        YYTAB YYTAB YYTAB YYTAB "fprintf(out,\"    '%cs' ...\\n\",%stokenNames[i]);\n"
+        YYTAB YYTAB YYTAB YYTAB "fprintf(out,\"    '%cs' (%cs) ...\\n\",%stokenNames[i],%stokenAlias[i]);\n"
         YYTAB YYTAB YYTAB "}\n"
         YYTAB YYTAB "}\n"
         YYTAB "}\n"
@@ -559,10 +599,10 @@ static int yGenParseCode(YGen *g,FILE *out){
         ,ns,ns,ns
         ,ns
         ,ns
-        ,'%',ns,ns
+        ,'%','%',ns,ns,ns,ns
         ,ns
         ,ns
-        ,'%',ns
+        ,'%','%',ns,ns
     );
     return 0;
 }

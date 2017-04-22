@@ -5,15 +5,19 @@
 #include <stdio.h>
 #define T_EOF 0
 #define T_TOKEN_DIR 1
-#define T_TEST_DIR 2
-#define T_SEPERATOR 3
-#define T_COLLON 4
-#define T_OR 5
-#define T_SEMI_COLLON 6
-#define T_ID 7
-#define T_TOKEN 8
-#define T_STRING 9
-#define T_BLOCK 10
+#define T_TYPE_DIR 2
+#define T_DATATYPE_DIR 3
+#define T_TEST_DIR 4
+#define T_EMPTY_DIR 5
+#define T_SEPERATOR 6
+#define T_ARROW 7
+#define T_OR 8
+#define T_EOL 9
+#define T_NAME 10
+#define T_TOKEN 11
+#define T_STRING 12
+#define T_BLOCK 13
+#define T_PROLOGUE 14
 
 
 typedef void *(*yyalloc)(size_t size);
@@ -29,13 +33,17 @@ typedef struct _yyParser{
     int *state;
     int sLen,sSize;
     //sematic stack
-    int *pstack,*sp;
+    size_t *pstack,*sp;
     int pSize;
     //current token,this token would be accepted
     //when yyParser_acceptTokenis called.
-    int token;
+    size_t token;
+    //this would be set to 1 when input is accepted.
+    int done;
     //this would be set to 1 when a syntax error is detected.
     int error,errToken;
+    //the generic pointer that user can set
+    void *userData;
 }yyParser;
 
 

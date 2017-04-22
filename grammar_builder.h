@@ -1,3 +1,22 @@
+/*  
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+
+    Copyright (C) 2017  Chen FeiYu
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef __GRAMMAR_BUILDER_H__
 #define __GRAMMAR_BUILDER_H__
 #include <stdio.h>
@@ -49,6 +68,7 @@ typedef struct _YGBuilder{
     size_t nameSpace;
     size_t tokenPrefix;
     size_t stype;
+    size_t dataType;
 
     size_t prologue;
 
@@ -59,6 +79,8 @@ int YGBuilder_init(YGBuilder *gb);
 int YGBuilder_free(YGBuilder *gb,char **spool);
 int YGBuilder_setPrologue(YGBuilder *gb,const char *prologue);
 int YGBuilder_setTokenType(YGBuilder *gb,const char *type);
+int YGBuilder_setNameSpace(YGBuilder *gb,const char *ns);
+int YGBuilder_setDataType(YGBuilder *gb,const char *type);
 int YGBuilder_addToken(YGBuilder *gb,const char *tk,const char *alias);
 int YGBuilder_prepareRule(YGBuilder *gb,const char *lhs);
 int YGBuilder_commitRule(YGBuilder *gb);

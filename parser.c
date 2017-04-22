@@ -1,3 +1,22 @@
+/*  
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+
+    Copyright (C) 2017  Chen FeiYu
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <stdarg.h>
 #include <string.h>
 #include "parser.h"
@@ -121,6 +140,32 @@ static int YGParser_scan(YGParser *parser){
                             NC();
                             tk->id = T_TYPE_DIR;
                             return 0;
+                        }
+                    }
+                }
+            }
+            else if(C() == 'd'){
+                NC();
+                if(C() == 'a'){
+                    NC();
+                    if(C() == 't'){
+                        NC();
+                        if(C() == 'a'){
+                            NC();
+                            if(C() == 't'){
+                                NC();
+                                if(C() == 'y'){
+                                    NC();
+                                    if(C() == 'p'){
+                                        NC();
+                                        if(C() == 'e'){
+                                            NC();
+                                            tk->id = T_DATATYPE_DIR;
+                                            return 0;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -336,7 +381,8 @@ static void YGParser_file(YGParser *parser){
     options() ->
     [ <PROLOGUE> ]
     ( %token <TOKEN> <STRING> |
-        %type <STRING>)*
+    %type <STRING> |
+    %datatype <STRING> )*
 */
 static void YGParser_options(YGParser *parser){
     if(T.id == T_PROLOGUE){
@@ -354,7 +400,7 @@ static void YGParser_options(YGParser *parser){
                 EXPECT(T_STRING);
                 size_t alias = T.image;
                 if(YGBuilder_addToken(&parser->builder,STR(tname),STR(alias))){
-                    YGParser_err(parser,"cannot redefine token '%s' or its alias '%s'",tname,alias);
+                    YGParser_err(parser,"cannot redefine token '%s' or its alias '%s'",STR(tname),STR(alias));
                 }
                 YGParser_popString(parser);
                 YGParser_popString(parser);
@@ -364,6 +410,13 @@ static void YGParser_options(YGParser *parser){
                 NT();
                 EXPECT(T_STRING);
                 YGBuilder_setTokenType(&parser->builder,STR(T.image));
+                YGParser_popString(parser);
+                NT();
+                break;
+            case T_DATATYPE_DIR:
+                NT();
+                EXPECT(T_STRING);
+                YGBuilder_setDataType(&parser->builder,STR(T.image));
                 YGParser_popString(parser);
                 NT();
                 break;

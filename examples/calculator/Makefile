@@ -1,8 +1,8 @@
 
 
-SRCS = $(wildcard *.c)
-HDRS = $(wildcard *.h)
 OBJS = $(SRCS:%.c=%.o)
+SRCS = parser.c main.c 
+HDRS = parser.h
 
 CFLAGS = -g -ggdb -fvisibility=hidden -Wall
 LDFLAGS = -lm

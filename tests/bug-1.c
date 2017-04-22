@@ -59,10 +59,12 @@ static const char *yynonTerminals[] = {
 static int yyParser_reduce(yyParser *yyparser,int yyrule){
     YYCHECK_PUSH_TOKEN();
     int yyval;
+    void *yydata = (void *)yyparser->userData;
     switch(yyrule){
         case 0:
             /* (accept) -> A  */
             /* no action. */
+            yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
@@ -70,6 +72,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 1:
             /* A -> B A  */
             /* no action. */
+            yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
             yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
@@ -77,11 +80,13 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
         case 2:
             /* A ->  */
             /* no action. */
+            yyval = yyparser->sp[0];
             *yyparser->sp++ = yyval;
             break;
         case 3:
             /* B ->  */
             /* no action. */
+            yyval = yyparser->sp[0];
             *yyparser->sp++ = yyval;
             break;
     }
@@ -94,6 +99,7 @@ int yyParser_init(yyParser *yyparser,yyalloc altor,yyrealloc rtor,yyfree dtor){
     yyparser->dtor = dtor;
     yyparser->rtor = rtor;
     yyparser->sLen = 1;
+    yyparser->done = 0;
     yyparser->sSize = yyparser->pSize = 16;
     yyparser->state = (int *)altor(sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
@@ -116,6 +122,10 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
             shifted = 1;
         }
         else if(yyaction < 0){
+            if(yyaction == -1){
+                yyparser->done = 1;
+                return 0;
+            }
             yyParser_reduce(yyparser,-1 - yyaction);
         }
         else {
@@ -129,11 +139,11 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
 int yyParser_printError(yyParser *yyparser,FILE *out){
     if(yyparser->error){
         int index = YYSTATE() * yytokenCount;
-        fprintf(out,"unexpected token '%s',was expecting one of:\n",yytokenNames[yyparser->errToken]);
+        fprintf(out,"unexpected token '%s' (%s),was expecting one of:\n",yytokenNames[yyparser->errToken],yytokenAlias[yyparser->errToken]);
         int i;
         for(i = 0;i < yytokenCount;i++){
             if(yyshift[index + i] != 0){
-                fprintf(out,"    '%s' ...\n",yytokenNames[i]);
+                fprintf(out,"    '%s' (%s) ...\n",yytokenNames[i],yytokenAlias[i]);
             }
         }
     }
