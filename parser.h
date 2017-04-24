@@ -1,5 +1,5 @@
 /*  
-    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generator
 
     Copyright (C) 2017  Chen FeiYu
 
@@ -37,7 +37,9 @@ typedef enum _ytoken_t{
     T_EMPTY_DIR,
     T_PROLOGUE,
     T_TYPE_DIR,
-    T_DATATYPE_DIR
+    T_DATATYPE_DIR,
+    T_NS_DIR,
+    T_TOKEN_PREFIX_DIR
 }ytoken_t;
 
 typedef struct _YToken{

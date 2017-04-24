@@ -1,19 +1,31 @@
 #include "./test.h"
-static int yytokenCount = 30;
-static int yyntCount = 31;
-#define YYPUSH_STATE(parser,s) \
-    if(parser->sLen >= parser->sSize){ \
-        parser->sSize *= 2; \
-        parser->state = (int *)parser->rtor(parser->state,sizeof(int) * parser->sSize); \
+static const int yytokenCount = 30;
+static const int yyntCount = 31;
+#ifndef YYMALLOC
+    #define YYMALLOC malloc
+#endif
+#ifndef YYREALLOC
+    #define YYREALLOC realloc
+#endif
+#ifndef YYFREE
+    #define YYFREE free
+#endif
+#ifndef YYDESTRUCTOR
+    #define YYDESTRUCTOR(a)
+#endif
+#define YYPUSH_STATE(s) \
+    if(yyparser->sLen >= yyparser->sSize){ \
+        yyparser->sSize *= 2; \
+        yyparser->state = (int *)YYREALLOC(yyparser->state,sizeof(int) * yyparser->sSize); \
     } \
-    parser->state[parser->sLen++] = (s);
+    yyparser->state[yyparser->sLen++] = (s);
 
 #define YYSTATE() (yyparser->state[yyparser->sLen - 1])
 #define YYCHECK_PUSH_TOKEN() \
     if(yyparser->sp - yyparser->pstack >= yyparser->pSize){\
         size_t offset = yyparser->sp - yyparser->pstack;\
         yyparser->pSize *= 2;\
-        yyparser->pstack = (int *)yyparser->rtor(yyparser->pstack,sizeof(int) * yyparser->pSize);\
+        yyparser->pstack = (int *)YYREALLOC(yyparser->pstack,sizeof(int) * yyparser->pSize);\
         yyparser->sp = yyparser->pstack + offset;\
     }
 /** shift action table
@@ -1051,7 +1063,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* @1 ->  */
             #line 43 "./test.y"
             { printf("before expression"); }
-            #line 1055 "./test.c"
+            #line 1067 "./test.c"
             break;
         case 11:
             /* ifStatement -> <if> @1 <(> exprList <)> statement elseStatement  */
@@ -1215,7 +1227,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* multiplyExpr -> multiplyExpr <*> unaryExpr  */
             #line 63 "./test.y"
             { yyval = (yyparser->sp[-3]) + (yyparser->sp[-1]); }
-            #line 1219 "./test.c"
+            #line 1231 "./test.c"
             yyparser->sp -= 3;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
@@ -1468,24 +1480,28 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
     }
     int yyindex = YYSTATE() * yyntCount + yylhs[yyrule];
-    YYPUSH_STATE(yyparser,yygoto[yyindex] - 1);
+    YYPUSH_STATE(yygoto[yyindex] - 1);
     return 0;
 }
-int yyParser_init(yyParser *yyparser,yyalloc altor,yyrealloc rtor,yyfree dtor){
-    yyparser->altor = altor;
-    yyparser->dtor = dtor;
-    yyparser->rtor = rtor;
+int yyParser_init(yyParser *yyparser){
     yyparser->sLen = 1;
     yyparser->done = 0;
     yyparser->sSize = yyparser->pSize = 16;
-    yyparser->state = (int *)altor(sizeof(int) * yyparser->sSize);
+    yyparser->state = (int *)YYMALLOC(sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
-    yyparser->sp = yyparser->pstack = (int *)altor(sizeof(int) * yyparser->pSize);
+    yyparser->sp = yyparser->pstack = (int *)YYMALLOC(sizeof(int) * yyparser->pSize);
+    return 0;
+}
+int yyParser_reInit(yyParser *yyparser){
+    yyparser->sLen = 0;
+    yyparser->done = 0;
+    yyparser->state[0] = 0;
+    yyparser->sp = yyparser->pstack;
     return 0;
 }
 int yyParser_free(yyParser *yyparser){
-    yyparser->dtor(yyparser->state);
-    yyparser->dtor(yyparser->pstack);
+    YYFREE(yyparser->state);
+    YYFREE(yyparser->pstack);
     return 0;
 }
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
@@ -1495,7 +1511,7 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
         if(yyaction > 0){
             YYCHECK_PUSH_TOKEN();
             *yyparser->sp++ = yyparser->token;
-            YYPUSH_STATE(yyparser,yyaction - 1);
+            YYPUSH_STATE(yyaction - 1);
             shifted = 1;
         }
         else if(yyaction < 0){
@@ -1523,6 +1539,12 @@ int yyParser_printError(yyParser *yyparser,FILE *out){
                 fprintf(out,"    '%s' (%s) ...\n",yytokenNames[i],yytokenAlias[i]);
             }
         }
+    }
+    return 0;
+}
+int yyParser_clearStack(yyParser *yyparser){
+    while(yyparser->sp != yyparser->pstack){
+        YYDESTRUCTOR(--yyparser->sp);
     }
     return 0;
 }

@@ -6,8 +6,13 @@
 double _Complex eval(const char *s,int *err){
     int tokenid;
     const char *sp = s;
+    
+    //this is the parser object
     yyParser parser;
-    yyParser_init(&parser,malloc,realloc,free);
+    
+    //initialize the parser
+    yyParser_init(&parser);
+    
     //since in yapc,the tokenizer calls the parser,
     //we should first scan the token from the input.
 yylex:
@@ -59,8 +64,26 @@ yylex:
                 sp++;
                 if(*sp == 'n'){
                     sp++;
-                    tokenid = T_SIN;
-                    goto yyparse;
+                    if(*sp == 'h'){
+                        sp++;
+                        tokenid = T_SINH;
+                        goto yyparse;
+                    }
+                    else{
+                        tokenid = T_SIN;
+                        goto yyparse;
+                    }
+                }
+            }
+            else if(*sp == 'q'){
+                sp++;
+                if(*sp == 'r'){
+                    sp++;
+                    if(*sp == 't'){
+                        sp++;
+                        tokenid = T_SQRT;
+                        goto yyparse;
+                    }
                 }
             }
             goto yyunexpected;
@@ -70,8 +93,15 @@ yylex:
                 sp++;
                 if(*sp == 's'){
                     sp++;
-                    tokenid = T_COS;
-                    goto yyparse;
+                    if(*sp == 'h'){
+                        sp++;
+                        tokenid = T_COSH;
+                        goto yyparse;
+                    }
+                    else{
+                        tokenid = T_COS;
+                        goto yyparse;
+                    }
                 }
             }
             goto yyunexpected;
@@ -81,8 +111,15 @@ yylex:
                 sp++;
                 if(*sp == 'n'){
                     sp++;
-                    tokenid = T_TAN;
-                    goto yyparse;
+                    if(*sp == 'h'){
+                        sp++;
+                        tokenid = T_TANH;
+                        goto yyparse;
+                    }
+                    else{
+                        tokenid = T_TAN;
+                        goto yyparse;
+                    }
                 }
             }
             goto yyunexpected;
@@ -163,6 +200,15 @@ yylex:
                     num *= 10;
                     num += *sp - '0';
                     sp++;
+                }
+                if(*sp == '.'){
+                    sp++;
+                    double i = 10;
+                    while(*sp >= '0' && *sp <= '9'){
+                        num += (*sp - '0') / i;
+                        i *= 10;
+                        sp++;
+                    }
                 }
                 tokenid = T_NUM;
                 parser.token = num;

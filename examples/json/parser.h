@@ -4,9 +4,20 @@
 #include <stdlib.h>
 #include <stdio.h>
 #define T_EOF 0
-#define T_PLUS 1
-#define T_MULTIPLY 2
-#define T_ID 3
+#define T_STRING 1
+#define T_NUM 2
+#define T_TRUE 3
+#define T_FALSE 4
+#define T_NULL 5
+#define T_UNDEFINED 6
+#define T_BRA 7
+#define T_KET 8
+#define T_CBRA 9
+#define T_CKET 10
+#define T_BBRA 11
+#define T_BKET 12
+#define T_COLLON 13
+#define T_COMMA 14
 
 
 
@@ -16,11 +27,11 @@ typedef struct _yyParser{
     int *state;
     int sLen,sSize;
     //sematic stack
-    int *pstack,*sp;
+    jsonval *pstack,*sp;
     int pSize;
     //current token,this token would be accepted
     //when yyParser_acceptTokenis called.
-    int token;
+    jsonval token;
     //this would be set to 1 when input is accepted.
     int done;
     //this would be set to 1 when a syntax error is detected.

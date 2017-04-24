@@ -1,10 +1,17 @@
 # YAPC
 
+[English Documentation](README-us_EN.md)
+
 另一个解析器生成器
 
-Yet Another Parser Compiler
+## 特点
+* 使用[hanolee算法](http://david.tribble.com/text/honalee.html)生成LR(1)分析表，这是一种比LALR(1)更强的解析算法，能够解析所有的LR(1)型文法，而当文法是LALR(1)时生成的状态表的大小和LALR(1)相当。
 
-使用[hanolee算法](http://david.tribble.com/text/honalee.html)生成LR(1)分析表，这是一种比LALR(1)更强的解析算法，能够解析所有的LR(1)型文法，而当文法是LALR(1)时生成的状态表的大小和LALR(1)相当。
+* 不像yacc会生成一些全局变量，yapc是将所有需要的变量保存在一个结构体中的，就像c++的类一样，这就允许了**多个解析器同时运行**，不管是单线程还是多线程。
+
+* 简单易用的API，使你可以在其他程序中方便地调用yapc。
+
+***
 
 ## 编译及安装
 用以下命令即可编译
@@ -79,21 +86,36 @@ example.c，example.h，test.txt。其中test.txt和example.output内容完全�
 ```
 这个类型默认是void，即不执行强转。
 
+#### 名字空间定义
+在生成解析器代码的时候，所有的变量名、结构体名、函数名都加上了前缀以防止对你的命名空间的污染。这个前缀默认是“yy”。你可以用一下指令自定义这个前缀：
+```yacc
+%ns "命名空间名"
+```
+#### 关键字前缀
+与名字空间类似，在对所有关键字定义宏的时候都会给宏名加前缀，默认是“T_”。同样，用以下指令可修改：
+```yacc
+%token_prefix "前缀名"
+```
+
 ### 文法定义
 文法定义的格式和yacc相似，只不过所有的终结符（关键字）都要用尖括号"<>"括起来。如在yacc中的定义
 ```
+%token T_NUM
+...
 A: T_NUM;
 ```
 应写成
 ```
-A: <T_NUM>;
+%token <num> "T_NUM"
+...
+A: <num>;
 ```
-其中尖括号里面的内容就是之前定义的关键字名。
+其中尖括号里面定义的关键字名可以是任何名称。
 
-#### 动作（action）
-与yacc类似，在每个文法规则最后及中间都可以定义动作块，用花括号“{}”括起来。在动作内部使用“$$”代表这条规则的返回值，$+整数代表这条规则中的各个元素的返回值，其中返回值的类型就是之前用%type定义的。
+#### 语义动作
+与yacc类似，在每个文法规则最后及中间都可以定义动作块，用花括号“{}”括起来。每个终结符和非终结符都有一个语义值。在动作内部使用“$$”代表这条规则的语义值，$n代表这条规则中第n个元素（终结符或非终结符）的值。语义值的类型就是之前用%type定义的。
 
-#### 测试指令 %test
+#### 测试指令
 测试指令可用于测试对一个关键字串的解析。使用了测试指令后yapc会在.output文件里面打印出测试的结果，即对这个关键字串的解析过程，以及出错信息。这样方便了对文法规则的检验和调试。
 测试指令可以出现在文法定义块中文法规则外的任何位置。
 用法：
@@ -106,16 +128,19 @@ A: <T_NUM>;
 当文法存在冲突时yapc会在终端以及.output文件里面打印出冲突的信息以及解决的方式。当出现移进/规约冲突时yapc会选择移进，出现规约/规约冲突时写在前面的规则会被选择。目前暂时还没有实现%left,%right等解决方式。
 
 ### 生成的源码及使用方法
-yapc会生成四个函数
+yapc会生成五个函数
 ```c
-int yyParser_init(yyParser *yyparser,yyalloc altor,yyrealloc rtor,yyfree dtor);
+int yyParser_init(yyParser *yyparser);
+int yyParser_reInit(yyParser *yyparser);
 int yyParser_free(yyParser *yyparser);
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid);
 int yyParser_printError(yyParser *yyparser,FILE *out);
+int yyParser_clearStack(yyParser *yyparser);
 ```
 及一个结构体yyParser。在解析器生成部分yapc和lemon比较类似，即词法扫描器调用解析器。基本使用方法是：扫描器每扫描一个关键词就调用yyParser_acceptToken使解析器移进（shift）一个关键字，如果出现了语法错误这个函数就会返回-1,这时候就调用
 yyParser_printError来打印错误信息，直到解析完成。具体的例子请参考examples。
 
+### .output输出文件
 .output文件包含三个部分：文法的冲突信息、生成的LR(1)项目集合及状态转移表、测试输出。
 
 ### API
@@ -159,6 +184,9 @@ yDestroyContext(ctx);
 ## Bug
 欢迎大家在issues上提交bug！
 
-## License
+## 版本记录
+### v0.1-rc，2017-4-23（最新）
+* 第一个版本
+
+## 许可证
 YAPC使用的许可证是GPL v3
-YAPC is licenced under GPL v3

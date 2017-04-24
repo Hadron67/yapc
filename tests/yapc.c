@@ -1,4 +1,3 @@
-#include "./yapc.h"
 
 
 #include <stdio.h>
@@ -6,21 +5,34 @@
 #include "grammar.h"
 #include "spool.h"
 
-static int yytokenCount = 15;
-static int yyntCount = 12;
-#define YYPUSH_STATE(parser,s) \
-    if(parser->sLen >= parser->sSize){ \
-        parser->sSize *= 2; \
-        parser->state = (int *)parser->rtor(parser->state,sizeof(int) * parser->sSize); \
+#include "./yapc.h"
+static const int yytokenCount = 15;
+static const int yyntCount = 12;
+#ifndef YYMALLOC
+    #define YYMALLOC malloc
+#endif
+#ifndef YYREALLOC
+    #define YYREALLOC realloc
+#endif
+#ifndef YYFREE
+    #define YYFREE free
+#endif
+#ifndef YYDESTRUCTOR
+    #define YYDESTRUCTOR(a)
+#endif
+#define YYPUSH_STATE(s) \
+    if(yyparser->sLen >= yyparser->sSize){ \
+        yyparser->sSize *= 2; \
+        yyparser->state = (int *)YYREALLOC(yyparser->state,sizeof(int) * yyparser->sSize); \
     } \
-    parser->state[parser->sLen++] = (s);
+    yyparser->state[yyparser->sLen++] = (s);
 
 #define YYSTATE() (yyparser->state[yyparser->sLen - 1])
 #define YYCHECK_PUSH_TOKEN() \
     if(yyparser->sp - yyparser->pstack >= yyparser->pSize){\
         size_t offset = yyparser->sp - yyparser->pstack;\
         yyparser->pSize *= 2;\
-        yyparser->pstack = (size_t *)yyparser->rtor(yyparser->pstack,sizeof(size_t) * yyparser->pSize);\
+        yyparser->pstack = (size_t *)YYREALLOC(yyparser->pstack,sizeof(size_t) * yyparser->pSize);\
         yyparser->sp = yyparser->pstack + offset;\
     }
 /** shift action table
@@ -286,7 +298,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* option -> <%token> <token> <string>  */
             #line 37 "./yapc.y"
             { YGBuilder_addToken(yydata,(yyparser->sp[-2]),(yyparser->sp[-1])); }
-            #line 290 "./yapc.c"
+            #line 302 "./yapc.c"
             yyparser->sp -= 3;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
@@ -295,7 +307,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* option -> <%type> <string>  */
             #line 38 "./yapc.y"
             { YGBuilder_setTokenType(yydata,(yyparser->sp[-1])); }
-            #line 299 "./yapc.c"
+            #line 311 "./yapc.c"
             yyparser->sp -= 2;
             yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
@@ -304,7 +316,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* option -> <%datatype> <string>  */
             #line 39 "./yapc.y"
             { YGBuilder_setDataType(yydata,(yyparser->sp[-1])); }
-            #line 308 "./yapc.c"
+            #line 320 "./yapc.c"
             yyparser->sp -= 2;
             yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
@@ -427,24 +439,28 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
     }
     int yyindex = YYSTATE() * yyntCount + yylhs[yyrule];
-    YYPUSH_STATE(yyparser,yygoto[yyindex] - 1);
+    YYPUSH_STATE(yygoto[yyindex] - 1);
     return 0;
 }
-int yyParser_init(yyParser *yyparser,yyalloc altor,yyrealloc rtor,yyfree dtor){
-    yyparser->altor = altor;
-    yyparser->dtor = dtor;
-    yyparser->rtor = rtor;
+int yyParser_init(yyParser *yyparser){
     yyparser->sLen = 1;
     yyparser->done = 0;
     yyparser->sSize = yyparser->pSize = 16;
-    yyparser->state = (int *)altor(sizeof(int) * yyparser->sSize);
+    yyparser->state = (int *)YYMALLOC(sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
-    yyparser->sp = yyparser->pstack = (size_t *)altor(sizeof(size_t) * yyparser->pSize);
+    yyparser->sp = yyparser->pstack = (size_t *)YYMALLOC(sizeof(size_t) * yyparser->pSize);
+    return 0;
+}
+int yyParser_reInit(yyParser *yyparser){
+    yyparser->sLen = 0;
+    yyparser->done = 0;
+    yyparser->state[0] = 0;
+    yyparser->sp = yyparser->pstack;
     return 0;
 }
 int yyParser_free(yyParser *yyparser){
-    yyparser->dtor(yyparser->state);
-    yyparser->dtor(yyparser->pstack);
+    YYFREE(yyparser->state);
+    YYFREE(yyparser->pstack);
     return 0;
 }
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
@@ -454,7 +470,7 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
         if(yyaction > 0){
             YYCHECK_PUSH_TOKEN();
             *yyparser->sp++ = yyparser->token;
-            YYPUSH_STATE(yyparser,yyaction - 1);
+            YYPUSH_STATE(yyaction - 1);
             shifted = 1;
         }
         else if(yyaction < 0){
@@ -482,6 +498,12 @@ int yyParser_printError(yyParser *yyparser,FILE *out){
                 fprintf(out,"    '%s' (%s) ...\n",yytokenNames[i],yytokenAlias[i]);
             }
         }
+    }
+    return 0;
+}
+int yyParser_clearStack(yyParser *yyparser){
+    while(yyparser->sp != yyparser->pstack){
+        YYDESTRUCTOR(--yyparser->sp);
     }
     return 0;
 }

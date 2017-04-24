@@ -1,5 +1,5 @@
 /*  
-    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generator
 
     Copyright (C) 2017  Chen FeiYu
 
@@ -22,8 +22,6 @@
 #include <string.h>
 #include "ydef.h"
 #include "gen.h"
-
-#define BITS 8
 
 static YItemSet *YItemSet_new(YGrammar *g){
     int size = 8;
@@ -49,7 +47,6 @@ static YItem *YItemSet_getItem(YItemSet *set,int index){
 static YItem *YItemSet_addItemRaw(YItemSet *set1){
     if(set1->len >= set1->size){
         set1->size *= 2;
-        //set1 = *set = (YItemSet *)ya_realloc(set1,sizeof(YItemSet) + set1->size * set1->itemSize);
         set1->items = (YItem *)ya_realloc(set1->items,set1->size * set1->itemSize);
     }
     YItem *item = YItemSet_getItem(set1,set1->len++);

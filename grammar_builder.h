@@ -1,5 +1,5 @@
 /*  
-    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generator
 
     Copyright (C) 2017  Chen FeiYu
 
@@ -76,9 +76,12 @@ typedef struct _YGBuilder{
 }YGBuilder;
 
 int YGBuilder_init(YGBuilder *gb);
+int YGBuilder_reInit(YGBuilder *gb);
 int YGBuilder_free(YGBuilder *gb,char **spool);
+size_t YGBuilder_addString(YGBuilder *gb,const char *s);
 int YGBuilder_setPrologue(YGBuilder *gb,const char *prologue);
 int YGBuilder_setTokenType(YGBuilder *gb,const char *type);
+int YGBuilder_setTokenPrefix(YGBuilder *gb,const char *tp);
 int YGBuilder_setNameSpace(YGBuilder *gb,const char *ns);
 int YGBuilder_setDataType(YGBuilder *gb,const char *type);
 int YGBuilder_addToken(YGBuilder *gb,const char *tk,const char *alias);

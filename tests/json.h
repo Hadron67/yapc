@@ -17,15 +17,9 @@
 #define T_STRING 11
 
 
-typedef void *(*yyalloc)(size_t size);
-typedef void *(*yyrealloc)(void *p,size_t size);
-typedef void (*yyfree)(void *p);
 
 
 typedef struct _yyParser{
-    yyalloc altor;
-    yyfree dtor;
-    yyrealloc rtor;
     //state stack
     int *state;
     int sLen,sSize;
@@ -44,10 +38,12 @@ typedef struct _yyParser{
 }yyParser;
 
 
-int yyParser_init(yyParser *yyparser,yyalloc altor,yyrealloc rtor,yyfree dtor);
+int yyParser_init(yyParser *yyparser);
+int yyParser_reInit(yyParser *yyparser);
 int yyParser_free(yyParser *yyparser);
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid);
 int yyParser_printError(yyParser *yyparser,FILE *out);
+int yyParser_clearStack(yyParser *yyparser);
 
 
 #endif

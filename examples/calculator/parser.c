@@ -1,24 +1,36 @@
-#include "parser.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <complex.h>
-static int yytokenCount = 20;
-static int yyntCount = 9;
-#define YYPUSH_STATE(parser,s) \
-    if(parser->sLen >= parser->sSize){ \
-        parser->sSize *= 2; \
-        parser->state = (int *)parser->rtor(parser->state,sizeof(int) * parser->sSize); \
+#include "parser.h"
+static const int yytokenCount = 24;
+static const int yyntCount = 9;
+#ifndef YYMALLOC
+    #define YYMALLOC malloc
+#endif
+#ifndef YYREALLOC
+    #define YYREALLOC realloc
+#endif
+#ifndef YYFREE
+    #define YYFREE free
+#endif
+#ifndef YYDESTRUCTOR
+    #define YYDESTRUCTOR(a)
+#endif
+#define YYPUSH_STATE(s) \
+    if(yyparser->sLen >= yyparser->sSize){ \
+        yyparser->sSize *= 2; \
+        yyparser->state = (int *)YYREALLOC(yyparser->state,sizeof(int) * yyparser->sSize); \
     } \
-    parser->state[parser->sLen++] = (s);
+    yyparser->state[yyparser->sLen++] = (s);
 
 #define YYSTATE() (yyparser->state[yyparser->sLen - 1])
 #define YYCHECK_PUSH_TOKEN() \
     if(yyparser->sp - yyparser->pstack >= yyparser->pSize){\
         size_t offset = yyparser->sp - yyparser->pstack;\
         yyparser->pSize *= 2;\
-        yyparser->pstack = (double _Complex *)yyparser->rtor(yyparser->pstack,sizeof(double _Complex) * yyparser->pSize);\
+        yyparser->pstack = (double _Complex *)YYREALLOC(yyparser->pstack,sizeof(double _Complex) * yyparser->pSize);\
         yyparser->sp = yyparser->pstack + offset;\
     }
 /** shift action table
@@ -28,197 +40,325 @@ static int yyntCount = 9;
  * for error.*/
 static const int yyshift[] = {
     /* state 0 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 1 */
         -1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 2 */
-        -2,     0,    57,    58,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+        -2,     0,    73,    74,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 3 */
        -10,     0,   -10,   -10,   -10,   -10,   -10,     0,   -10,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 4 */
        -11,     0,   -11,   -11,   -11,   -11,   -11,     0,   -11,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 5 */
        -12,     0,   -12,   -12,   -12,   -12,   -12,     0,   -12,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 6 */
        -13,     0,   -13,   -13,   -13,   -13,   -13,     0,   -13,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 7 */
        -14,     0,   -14,   -14,   -14,   -14,   -14,     0,   -14,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 8 */
        -15,     0,   -15,   -15,   -15,   -15,   -15,     0,   -15,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 9 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 10 */
-         0,     0,    57,    58,     0,     0,     0,     0,    12,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,    73,    74,     0,     0,     0,     0,    12,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 11 */
        -16,     0,   -16,   -16,   -16,   -16,   -16,     0,   -16,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 12 */
        -17,     0,   -17,   -17,   -17,   -17,   -17,     0,   -17,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 13 */
        -18,     0,   -18,   -18,   -18,   -18,   -18,     0,   -18,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 14 */
          0,     0,     0,     0,     0,     0,     0,    16,     0,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 15 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 16 */
-         0,     0,    57,    58,     0,     0,     0,     0,    18,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,    73,    74,     0,     0,     0,     0,    18,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 17 */
        -19,     0,   -19,   -19,   -19,   -19,   -19,     0,   -19,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 18 */
         -6,     0,    -6,    -6,    -6,    -6,    30,     0,    -6,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 19 */
         -9,     0,    -9,    -9,    -9,    -9,    -9,     0,    -9,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 20 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 21 */
         -8,     0,    -8,    -8,    -8,    -8,    30,     0,    -8,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 22 */
          0,     0,     0,     0,     0,     0,     0,    24,     0,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 23 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 24 */
-         0,     0,    57,    58,     0,     0,     0,     0,    26,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,    73,    74,     0,     0,     0,     0,    26,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 25 */
        -20,     0,   -20,   -20,   -20,   -20,   -20,     0,   -20,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 26 */
         -3,     0,    -3,    -3,    21,    32,     0,     0,    -3,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 27 */
         -4,     0,    -4,    -4,    21,    32,     0,     0,    -4,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 28 */
         -7,     0,    -7,    -7,    -7,    -7,    30,     0,    -7,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 29 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 30 */
         -5,     0,    -5,    -5,    21,    32,     0,     0,    -5,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 31 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 32 */
          0,     0,     0,     0,     0,     0,     0,    34,     0,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 33 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 34 */
-         0,     0,    57,    58,     0,     0,     0,     0,    36,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,    73,    74,     0,     0,     0,     0,    36,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 35 */
        -21,     0,   -21,   -21,   -21,   -21,   -21,     0,   -21,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 36 */
          0,     0,     0,     0,     0,     0,     0,    38,     0,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 37 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 38 */
-         0,     0,    57,    58,     0,     0,     0,     0,    40,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,    73,    74,     0,     0,     0,     0,    40,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 39 */
        -22,     0,   -22,   -22,   -22,   -22,   -22,     0,   -22,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 40 */
          0,     0,     0,     0,     0,     0,     0,    42,     0,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 41 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 42 */
-         0,     0,    57,    58,     0,     0,     0,     0,    44,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,    73,    74,     0,     0,     0,     0,    44,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 43 */
        -23,     0,   -23,   -23,   -23,   -23,   -23,     0,   -23,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 44 */
          0,     0,     0,     0,     0,     0,     0,    46,     0,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 45 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 46 */
-         0,     0,    57,    58,     0,     0,     0,     0,    48,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,    73,    74,     0,     0,     0,     0,    48,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 47 */
        -24,     0,   -24,   -24,   -24,   -24,   -24,     0,   -24,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 48 */
          0,     0,     0,     0,     0,     0,     0,    50,     0,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 49 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 50 */
-         0,     0,    57,    58,     0,     0,     0,     0,    52,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,    73,    74,     0,     0,     0,     0,    52,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 51 */
        -25,     0,   -25,   -25,   -25,   -25,   -25,     0,   -25,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 52 */
          0,     0,     0,     0,     0,     0,     0,    54,     0,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 53 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 54 */
-         0,     0,    57,    58,     0,     0,     0,     0,    56,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,    73,    74,     0,     0,     0,     0,    56,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 55 */
        -26,     0,   -26,   -26,   -26,   -26,   -26,     0,   -26,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 56 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     0,     0,     0,     0,     0,     0,    58,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 57 */
-         0,     9,    59,    60,    61,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 58 */
-         0,     9,     0,     0,     0,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
+         0,     0,    73,    74,     0,     0,     0,     0,    60,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 59 */
-         0,     9,     0,     0,     0,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
-    /* state 60 */
-         0,     9,     0,     0,     0,     0,     0,    10,     0,    15,    23,
-        33,    37,    41,    45,    49,    53,    62,    63,    64,
-    /* state 61 */
        -27,     0,   -27,   -27,   -27,   -27,   -27,     0,   -27,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 60 */
+         0,     0,     0,     0,     0,     0,     0,    62,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 61 */
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
     /* state 62 */
-       -28,     0,   -28,   -28,   -28,   -28,   -28,     0,   -28,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,    73,    74,     0,     0,     0,     0,    64,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
     /* state 63 */
+       -28,     0,   -28,   -28,   -28,   -28,   -28,     0,   -28,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 64 */
+         0,     0,     0,     0,     0,     0,     0,    66,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 65 */
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
+    /* state 66 */
+         0,     0,    73,    74,     0,     0,     0,     0,    68,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 67 */
        -29,     0,   -29,   -29,   -29,   -29,   -29,     0,   -29,     0,     0,
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 68 */
+         0,     0,     0,     0,     0,     0,     0,    70,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 69 */
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
+    /* state 70 */
+         0,     0,    73,    74,     0,     0,     0,     0,    72,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 71 */
+       -30,     0,   -30,   -30,   -30,   -30,   -30,     0,   -30,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 72 */
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
+    /* state 73 */
+         0,     9,    75,    76,    77,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
+    /* state 74 */
+         0,     9,     0,     0,     0,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
+    /* state 75 */
+         0,     9,     0,     0,     0,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
+    /* state 76 */
+         0,     9,     0,     0,     0,     0,     0,    10,     0,    15,    23,
+        33,    49,    53,    57,    37,    41,    45,    61,    65,    69,    78,
+        79,    80,
+    /* state 77 */
+       -31,     0,   -31,   -31,   -31,   -31,   -31,     0,   -31,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 78 */
+       -32,     0,   -32,   -32,   -32,   -32,   -32,     0,   -32,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
+    /* state 79 */
+       -33,     0,   -33,   -33,   -33,   -33,   -33,     0,   -33,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,
 };
 /** goto table,
  * zero iff there is an error*/
@@ -336,39 +476,74 @@ static const int yygoto[] = {
     /* state 55 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,
     /* state 56 */
-         0,     0,     0,    27,    22,     4,     5,    13,    14,
-    /* state 57 */
-         0,     0,     0,    28,    22,     4,     5,    13,    14,
-    /* state 58 */
-         0,     0,     0,     0,     0,     0,     6,    13,    14,
-    /* state 59 */
-         0,     0,     0,     0,     0,     0,     7,    13,    14,
-    /* state 60 */
-         0,     0,     0,     0,     0,     0,     8,    13,    14,
-    /* state 61 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 57 */
+         0,     0,    59,    31,    22,     4,     5,    13,    14,
+    /* state 58 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 59 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 60 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 61 */
+         0,     0,    63,    31,    22,     4,     5,    13,    14,
     /* state 62 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,
     /* state 63 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 64 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 65 */
+         0,     0,    67,    31,    22,     4,     5,    13,    14,
+    /* state 66 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 67 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 68 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 69 */
+         0,     0,    71,    31,    22,     4,     5,    13,    14,
+    /* state 70 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 71 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 72 */
+         0,     0,     0,    27,    22,     4,     5,    13,    14,
+    /* state 73 */
+         0,     0,     0,    28,    22,     4,     5,    13,    14,
+    /* state 74 */
+         0,     0,     0,     0,     0,     0,     6,    13,    14,
+    /* state 75 */
+         0,     0,     0,     0,     0,     0,     7,    13,    14,
+    /* state 76 */
+         0,     0,     0,     0,     0,     0,     8,    13,    14,
+    /* state 77 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 78 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
+    /* state 79 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,
 };
 /* the lhs of each rule. */
 static const int yylhs[] = {
          0,     1,     2,     2,     2,     3,     3,     3,     4,     4,     5,
          5,     5,     5,     6,     6,     6,     6,     7,     7,     7,     7,
-         7,     7,     7,     7,     8,     8,     8,
+         7,     7,     7,     7,     7,     7,     7,     7,     8,     8,     8,
+    
 };
 static const char *yytokenNames[] = {
     "EOF","num","+","-","*","/",
     "**","(",")","sin","cos","tan",
-    "asin","acos","atan","exp","ln","I",
-    "pi","e",
+    "sinh","cosh","tanh","asin","acos","atan",
+    "exp","ln","sqrt","I","pi","e",
+    
 };
 static const char *yytokenAlias[] = {
     "EOF","NUM","PLUS","MINUS","MULTIPLY","DIVIDE",
     "EXP","BRA","KET","SIN","COS","TAN",
-    "ASIN","ACOS","ATAN","CEXP","LN","I",
-    "PI","E",
+    "SINH","COSH","TANH","ASIN","ACOS","ATAN",
+    "CEXP","LN","SQRT","I","PI","E",
+    
 };
 static const char *yynonTerminals[] = {
     "(accept)","start","expr","multiplyExpr","powerExpr","atomicExpr",
@@ -389,276 +564,316 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 1:
             /* start -> expr  */
-            #line 37 "parser.y"
+            #line 41 "parser.y"
             { yyval = (yyparser->sp[-1]); }
-            #line 395 "parser.c"
+            #line 570 "parser.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 2:
             /* expr -> expr <+> multiplyExpr  */
-            #line 40 "parser.y"
+            #line 44 "parser.y"
             { yyval = (yyparser->sp[-3]) + (yyparser->sp[-1]); }
-            #line 404 "parser.c"
+            #line 579 "parser.c"
             yyparser->sp -= 3;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 3:
             /* expr -> expr <-> multiplyExpr  */
-            #line 41 "parser.y"
+            #line 45 "parser.y"
             { yyval = (yyparser->sp[-3]) - (yyparser->sp[-1]); }
-            #line 413 "parser.c"
+            #line 588 "parser.c"
             yyparser->sp -= 3;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 4:
             /* expr -> multiplyExpr  */
-            #line 42 "parser.y"
+            #line 46 "parser.y"
             { yyval = (yyparser->sp[-1]); }
-            #line 422 "parser.c"
+            #line 597 "parser.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 5:
             /* multiplyExpr -> multiplyExpr <*> powerExpr  */
-            #line 45 "parser.y"
+            #line 49 "parser.y"
             { yyval = (yyparser->sp[-3]) * (yyparser->sp[-1]); }
-            #line 431 "parser.c"
+            #line 606 "parser.c"
             yyparser->sp -= 3;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 6:
             /* multiplyExpr -> multiplyExpr </> powerExpr  */
-            #line 46 "parser.y"
+            #line 50 "parser.y"
             { yyval = (yyparser->sp[-3]) / (yyparser->sp[-1]); }
-            #line 440 "parser.c"
+            #line 615 "parser.c"
             yyparser->sp -= 3;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 7:
             /* multiplyExpr -> powerExpr  */
-            #line 47 "parser.y"
+            #line 51 "parser.y"
             { yyval = (yyparser->sp[-1]); }
-            #line 449 "parser.c"
+            #line 624 "parser.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 8:
             /* powerExpr -> powerExpr <**> atomicExpr  */
-            #line 50 "parser.y"
+            #line 54 "parser.y"
             { yyval = cpow((yyparser->sp[-3]),(yyparser->sp[-1])); }
-            #line 458 "parser.c"
+            #line 633 "parser.c"
             yyparser->sp -= 3;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 9:
             /* powerExpr -> atomicExpr  */
-            #line 51 "parser.y"
+            #line 55 "parser.y"
             { yyval = (yyparser->sp[-1]); }
-            #line 467 "parser.c"
+            #line 642 "parser.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 10:
             /* atomicExpr -> atom  */
-            #line 54 "parser.y"
-            { yyval = (yyparser->sp[-1]); }
-            #line 476 "parser.c"
+            #line 58 "parser.y"
+            { yyval = (yyparser->sp[-1]);       }
+            #line 651 "parser.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 11:
             /* atomicExpr -> <+> atom  */
-            #line 55 "parser.y"
-            { yyval = (yyparser->sp[-1]); }
-            #line 485 "parser.c"
+            #line 59 "parser.y"
+            { yyval = (yyparser->sp[-1]);       }
+            #line 660 "parser.c"
             yyparser->sp -= 2;
             yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 12:
             /* atomicExpr -> <-> atom  */
-            #line 56 "parser.y"
-            { yyval = -(yyparser->sp[-1]); }
-            #line 494 "parser.c"
+            #line 60 "parser.y"
+            { yyval = -(yyparser->sp[-1]);      }
+            #line 669 "parser.c"
             yyparser->sp -= 2;
             yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 13:
             /* atomicExpr -> <*> atom  */
-            #line 58 "parser.y"
+            #line 62 "parser.y"
             { yyval = conj((yyparser->sp[-1])); }
-            #line 503 "parser.c"
+            #line 678 "parser.c"
             yyparser->sp -= 2;
             yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 14:
             /* atom -> <num>  */
-            #line 61 "parser.y"
+            #line 65 "parser.y"
             { yyval = (yyparser->sp[-1]); }
-            #line 512 "parser.c"
+            #line 687 "parser.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 15:
             /* atom -> <(> expr <)>  */
-            #line 62 "parser.y"
+            #line 66 "parser.y"
             { yyval = (yyparser->sp[-2]); }
-            #line 521 "parser.c"
+            #line 696 "parser.c"
             yyparser->sp -= 3;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 16:
             /* atom -> functions  */
-            #line 63 "parser.y"
+            #line 67 "parser.y"
             { yyval = (yyparser->sp[-1]); }
-            #line 530 "parser.c"
+            #line 705 "parser.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 17:
             /* atom -> consts  */
-            #line 64 "parser.y"
+            #line 68 "parser.y"
             { yyval = (yyparser->sp[-1]); }
-            #line 539 "parser.c"
+            #line 714 "parser.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 18:
             /* functions -> <sin> <(> expr <)>  */
-            #line 67 "parser.y"
-            { yyval = csin((yyparser->sp[-2])); }
-            #line 548 "parser.c"
+            #line 71 "parser.y"
+            { yyval = csin((yyparser->sp[-2]));   }
+            #line 723 "parser.c"
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 19:
             /* functions -> <cos> <(> expr <)>  */
-            #line 68 "parser.y"
-            { yyval = ccos((yyparser->sp[-2])); }
-            #line 557 "parser.c"
+            #line 72 "parser.y"
+            { yyval = ccos((yyparser->sp[-2]));   }
+            #line 732 "parser.c"
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 20:
             /* functions -> <tan> <(> expr <)>  */
-            #line 69 "parser.y"
-            { yyval = ctan((yyparser->sp[-2])); }
-            #line 566 "parser.c"
+            #line 73 "parser.y"
+            { yyval = ctan((yyparser->sp[-2]));   }
+            #line 741 "parser.c"
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 21:
             /* functions -> <asin> <(> expr <)>  */
-            #line 70 "parser.y"
-            { yyval = casin((yyparser->sp[-2])); }
-            #line 575 "parser.c"
+            #line 74 "parser.y"
+            { yyval = casin((yyparser->sp[-2]));  }
+            #line 750 "parser.c"
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 22:
             /* functions -> <acos> <(> expr <)>  */
-            #line 71 "parser.y"
-            { yyval = cacos((yyparser->sp[-2])); }
-            #line 584 "parser.c"
+            #line 75 "parser.y"
+            { yyval = cacos((yyparser->sp[-2]));  }
+            #line 759 "parser.c"
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 23:
             /* functions -> <atan> <(> expr <)>  */
-            #line 72 "parser.y"
-            { yyval = catan((yyparser->sp[-2])); }
-            #line 593 "parser.c"
+            #line 76 "parser.y"
+            { yyval = catan((yyparser->sp[-2]));  }
+            #line 768 "parser.c"
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 24:
-            /* functions -> <exp> <(> expr <)>  */
-            #line 73 "parser.y"
-            { yyval = cexp((yyparser->sp[-2])); }
-            #line 602 "parser.c"
+            /* functions -> <sinh> <(> expr <)>  */
+            #line 77 "parser.y"
+            { yyval = csinh((yyparser->sp[-2]));  }
+            #line 777 "parser.c"
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 25:
-            /* functions -> <ln> <(> expr <)>  */
-            #line 74 "parser.y"
-            { yyval = clog((yyparser->sp[-2])); }
-            #line 611 "parser.c"
+            /* functions -> <cosh> <(> expr <)>  */
+            #line 78 "parser.y"
+            { yyval = ccosh((yyparser->sp[-2]));  }
+            #line 786 "parser.c"
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 26:
-            /* consts -> <I>  */
-            #line 77 "parser.y"
-            { yyval = I; }
-            #line 620 "parser.c"
-            yyparser->sp -= 1;
-            yyparser->sLen -= 1;
+            /* functions -> <tanh> <(> expr <)>  */
+            #line 79 "parser.y"
+            { yyval = ctanh((yyparser->sp[-2]));  }
+            #line 795 "parser.c"
+            yyparser->sp -= 4;
+            yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 27:
-            /* consts -> <pi>  */
-            #line 78 "parser.y"
-            { yyval = 3.14159265358979; }
-            #line 629 "parser.c"
+            /* functions -> <exp> <(> expr <)>  */
+            #line 80 "parser.y"
+            { yyval = cexp((yyparser->sp[-2]));   }
+            #line 804 "parser.c"
+            yyparser->sp -= 4;
+            yyparser->sLen -= 4;
+            *yyparser->sp++ = yyval;
+            break;
+        case 28:
+            /* functions -> <ln> <(> expr <)>  */
+            #line 81 "parser.y"
+            { yyval = clog((yyparser->sp[-2]));   }
+            #line 813 "parser.c"
+            yyparser->sp -= 4;
+            yyparser->sLen -= 4;
+            *yyparser->sp++ = yyval;
+            break;
+        case 29:
+            /* functions -> <sqrt> <(> expr <)>  */
+            #line 82 "parser.y"
+            { yyval = csqrt((yyparser->sp[-2]));  }
+            #line 822 "parser.c"
+            yyparser->sp -= 4;
+            yyparser->sLen -= 4;
+            *yyparser->sp++ = yyval;
+            break;
+        case 30:
+            /* consts -> <I>  */
+            #line 85 "parser.y"
+            { yyval = I; }
+            #line 831 "parser.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
-        case 28:
+        case 31:
+            /* consts -> <pi>  */
+            #line 86 "parser.y"
+            { yyval = 3.14159265358979; }
+            #line 840 "parser.c"
+            yyparser->sp -= 1;
+            yyparser->sLen -= 1;
+            *yyparser->sp++ = yyval;
+            break;
+        case 32:
             /* consts -> <e>  */
-            #line 79 "parser.y"
+            #line 87 "parser.y"
             { yyval = 2.718281828; }
-            #line 638 "parser.c"
+            #line 849 "parser.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
     }
     int yyindex = YYSTATE() * yyntCount + yylhs[yyrule];
-    YYPUSH_STATE(yyparser,yygoto[yyindex] - 1);
+    YYPUSH_STATE(yygoto[yyindex] - 1);
     return 0;
 }
-int yyParser_init(yyParser *yyparser,yyalloc altor,yyrealloc rtor,yyfree dtor){
-    yyparser->altor = altor;
-    yyparser->dtor = dtor;
-    yyparser->rtor = rtor;
+int yyParser_init(yyParser *yyparser){
     yyparser->sLen = 1;
     yyparser->done = 0;
     yyparser->sSize = yyparser->pSize = 16;
-    yyparser->state = (int *)altor(sizeof(int) * yyparser->sSize);
+    yyparser->state = (int *)YYMALLOC(sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
-    yyparser->sp = yyparser->pstack = (double _Complex *)altor(sizeof(double _Complex) * yyparser->pSize);
+    yyparser->sp = yyparser->pstack = (double _Complex *)YYMALLOC(sizeof(double _Complex) * yyparser->pSize);
+    return 0;
+}
+int yyParser_reInit(yyParser *yyparser){
+    yyparser->sLen = 0;
+    yyparser->done = 0;
+    yyparser->state[0] = 0;
+    yyparser->sp = yyparser->pstack;
     return 0;
 }
 int yyParser_free(yyParser *yyparser){
-    yyparser->dtor(yyparser->state);
-    yyparser->dtor(yyparser->pstack);
+    YYFREE(yyparser->state);
+    YYFREE(yyparser->pstack);
     return 0;
 }
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
@@ -668,7 +883,7 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
         if(yyaction > 0){
             YYCHECK_PUSH_TOKEN();
             *yyparser->sp++ = yyparser->token;
-            YYPUSH_STATE(yyparser,yyaction - 1);
+            YYPUSH_STATE(yyaction - 1);
             shifted = 1;
         }
         else if(yyaction < 0){
@@ -696,6 +911,12 @@ int yyParser_printError(yyParser *yyparser,FILE *out){
                 fprintf(out,"    '%s' (%s) ...\n",yytokenNames[i],yytokenAlias[i]);
             }
         }
+    }
+    return 0;
+}
+int yyParser_clearStack(yyParser *yyparser){
+    while(yyparser->sp != yyparser->pstack){
+        YYDESTRUCTOR(--yyparser->sp);
     }
     return 0;
 }

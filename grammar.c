@@ -1,5 +1,5 @@
 /*  
-    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generator
 
     Copyright (C) 2017  Chen FeiYu
 

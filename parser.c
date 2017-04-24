@@ -1,5 +1,5 @@
 /*  
-    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generator
 
     Copyright (C) 2017  Chen FeiYu
 
@@ -21,9 +21,11 @@
 #include <string.h>
 #include "parser.h"
 
-#define C() (parser->c)
+
+#define C (parser->c)
 #define NC() (parser->c = fgetc(parser->in))
 #define PUSHC(c) YGParser_pushChar(parser,(c))
+
 #define T (parser->token)
 #define NT() YGParser_scan(parser)
 #define EXPECT(id) YGParser_expect(parser,(id))
@@ -74,8 +76,8 @@ static void YGParser_expect(YGParser *parser,ytoken_t id){
     }
 }
 static int YGParser_isBlock(YGParser *parser){
-    while(C() == ' ' || C() == '\n' || C() == '\t'){
-        if(C() == '\n'){
+    while(C == ' ' || C == '\n' || C == '\t'){
+        if(C == '\n'){
             parser->line++;
         }
         NC();
@@ -85,13 +87,23 @@ static int YGParser_isBlock(YGParser *parser){
 static int YGParser_eof(YGParser *parser){
     return feof(parser->in);
 }
-
+static int YGParser_isS(YGParser *parser,const char *s){
+    while(*s){
+        if(*s != C){
+            return 0;
+        }
+        NC();
+        s++;
+    }
+    return 1;
+}
 static int YGParser_scan(YGParser *parser){
+    
     YToken *tk = &parser->token;
     size_t sptr = parser->len;
     restart:
-    while(C() == ' ' || C() == '\n' || C() == '\t'){
-        if(C() == '\n'){
+    while(C == ' ' || C == '\n' || C == '\t'){
+        if(C == '\n'){
             parser->line++;
         }
         NC();
@@ -102,41 +114,40 @@ static int YGParser_scan(YGParser *parser){
     }
     tk->line = parser->line;
 
-    switch(C()){
+    switch(C){
         case '%':
             NC();
-            if(C() == 't'){
+            if(C == 't'){
                 NC();
-                if(C() == 'o'){
-                    NC();
-                    if(C() == 'k'){
+                if(YGParser_isS(parser,"oken")){
+                    if(C == '_'){
                         NC();
-                        if(C() == 'e'){
-                            NC();
-                            if(C() == 'n'){
-                                NC();
-                                tk->id = T_TOKEN_DIR;
-                                return 0;
-                            }
+                        if(YGParser_isS(parser,"prefix")){
+                            tk->id = T_TOKEN_PREFIX_DIR;
+                            return 0;
                         }
                     }
+                    else {
+                        tk->id = T_TOKEN_DIR;
+                        return 0;
+                    }
                 }
-                else if(C() == 'e'){
+                else if(C == 'e'){
                     NC();
-                    if(C() == 's'){
+                    if(C == 's'){
                         NC();
-                        if(C() == 't'){
+                        if(C == 't'){
                             NC();
                             tk->id = T_TEST_DIR;
                             return 0;
                         }
                     }
                 }
-                else if(C() == 'y'){
+                else if(C == 'y'){
                     NC();
-                    if(C() == 'p'){
+                    if(C == 'p'){
                         NC();
-                        if(C() == 'e'){
+                        if(C == 'e'){
                             NC();
                             tk->id = T_TYPE_DIR;
                             return 0;
@@ -144,76 +155,55 @@ static int YGParser_scan(YGParser *parser){
                     }
                 }
             }
-            else if(C() == 'd'){
+            else if(C == 'd'){
                 NC();
-                if(C() == 'a'){
-                    NC();
-                    if(C() == 't'){
-                        NC();
-                        if(C() == 'a'){
-                            NC();
-                            if(C() == 't'){
-                                NC();
-                                if(C() == 'y'){
-                                    NC();
-                                    if(C() == 'p'){
-                                        NC();
-                                        if(C() == 'e'){
-                                            NC();
-                                            tk->id = T_DATATYPE_DIR;
-                                            return 0;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                if(YGParser_isS(parser,"atatype")){
+                    tk->id = T_DATATYPE_DIR;
+                    return 0;
                 }
             }
-            else if(C() == 'e'){
+            else if(C == 'e'){
                 NC();
-                if(C() == 'm'){
-                    NC();
-                    if(C() == 'p'){
-                        NC();
-                        if(C() == 't'){
-                            NC();
-                            if(C() == 'y'){
-                                NC();
-                                tk->id = T_EMPTY_DIR;
-                                return 0;
-                            }
-                        }
-                    }
+                if(YGParser_isS(parser,"mpty")){
+                    tk->id = T_EMPTY_DIR;
+                    return 0;
                 }
             }
-            else if(C() == '%'){
+            else if(C == 'n'){
+                NC();
+                if(C == 's'){
+                    NC();
+                    tk->id = T_NS_DIR;
+                    return 0;
+                }
+            }
+            else if(C == '%'){
                 NC();
                 tk->id = T_SEPERATOR;
                 return 0;
             }
-            else if(C() == '{'){
+            else if(C == '{'){
                 NC();
                 while(1){
-                    if(C() == '\n'){
+                    if(C == '\n'){
                         parser->line++;
                     }
                     if(YGParser_eof(parser)){
                         YGParser_err(parser,"unexpected end of file:unclosed prologue block");
                     }
-                    else if(C() == '%'){
+                    else if(C == '%'){
                         NC();
-                        if(C() == '}'){
+                        if(C == '}'){
                             NC();
                             break;
                         }
                         else {
                             PUSHC('%');
-                            PUSHC(C());
+                            PUSHC(C);
                         }
                     }
                     else{
-                        PUSHC(C());
+                        PUSHC(C);
                     }
                     NC();
                 }
@@ -222,7 +212,7 @@ static int YGParser_scan(YGParser *parser){
                 tk->image = sptr;
                 return 0;
             }
-            YGParser_err(parser,"unexpected character:%c",C());
+            YGParser_err(parser,"unexpected character:%c",C);
             break;
         case ':':
             NC();
@@ -230,23 +220,23 @@ static int YGParser_scan(YGParser *parser){
             return 0;
         case '-':
             NC();
-            if(C() == '>'){
+            if(C == '>'){
                 NC();
                 tk->id = T_ARROW;
                 return 0;
             }
-            YGParser_err(parser,"unexpected character:%c",C());
+            YGParser_err(parser,"unexpected character:%c",C);
             break;
         case '<':
             NC();
-            if(C() == '>'){
+            if(C == '>'){
                 YGParser_err(parser,"empty tokens are not allowed");
             }
-            while(C() != '>'){
+            while(C != '>'){
                 if(YGParser_eof(parser)){
                     YGParser_err(parser,"unexpected end of file: unclosed token literal");
                 }
-                PUSHC(C());
+                PUSHC(C);
                 NC();
             }
             PUSHC('\0');
@@ -261,16 +251,16 @@ static int YGParser_scan(YGParser *parser){
                 if(YGParser_eof(parser)){
                     YGParser_err(parser,"unexpected end of file: unclosed block");
                 }
-                else if(C() == '{'){
+                else if(C == '{'){
                     level++;
                 }
-                else if(C() == '}'){
+                else if(C == '}'){
                     level--;
                 }
-                if(C() == '\n'){
+                if(C == '\n'){
                     parser->line++;
                 }
-                PUSHC(C());
+                PUSHC(C);
                 NC();
             }
             parser->len--;
@@ -288,14 +278,14 @@ static int YGParser_scan(YGParser *parser){
             return 0;
         case '"':
             NC();
-            while(C() != '"'){
+            while(C != '"'){
                 if(feof(parser->in)){
                     YGParser_err(parser,"unexpected end of file: unclosed string");
                 }
-                if(C() == '\n'){
+                if(C == '\n'){
                     parser->line++;
                 }
-                PUSHC(C());
+                PUSHC(C);
                 NC();
             }
             PUSHC('\0');
@@ -305,44 +295,44 @@ static int YGParser_scan(YGParser *parser){
             return 0;
         case '/':
             NC();
-            if(C() == '/'){
+            if(C == '/'){
                 NC();
-                while(C() != '\n'){
+                while(C != '\n'){
                     NC();
                 }
                 NC();
                 parser->line++;
                 goto restart;
             }
-            else if(C() == '*'){
+            else if(C == '*'){
                 NC();
                 while(1){
-                    if(C() == '*'){
+                    if(C == '*'){
                         NC();
-                        if(C() == '/'){
+                        if(C == '/'){
                             NC();
                             goto restart;
                         }
                     }
                     else {
-                        if(C() == '\n'){
+                        if(C == '\n'){
                             parser->line++;
                         }
                         NC();
                     }
                 }
             }
-            YGParser_err(parser,"unexpected character '%c' at start of comment",C());
+            YGParser_err(parser,"unexpected character '%c' at start of comment",C);
         default:
-            if(C() >= 'a' && C() <= 'z' || C() >= 'A' && C() <= 'Z' || C() == '_' || C() == '$'){
-                PUSHC(C());
+            if(C >= 'a' && C <= 'z' || C >= 'A' && C <= 'Z' || C == '_' || C == '$'){
+                PUSHC(C);
                 NC();
-                while(C() >= 'a' && C() <= 'z' || 
-                    C() >= 'A' && C() <= 'Z' || 
-                    C() == '_' || 
-                    C() == '$' ||
-                    C() >= '0' && C() <= '9'){
-                        PUSHC(C());
+                while(C >= 'a' && C <= 'z' || 
+                    C >= 'A' && C <= 'Z' || 
+                    C == '_' || 
+                    C == '$' ||
+                    C >= '0' && C <= '9'){
+                        PUSHC(C);
                         NC();
                 }
                 PUSHC('\0');
@@ -350,7 +340,7 @@ static int YGParser_scan(YGParser *parser){
                 tk->image = sptr;
             }
             else {
-                YGParser_err(parser,"unexpected character '%c'",C());
+                YGParser_err(parser,"unexpected character '%c'",C);
             }
     }
 }
@@ -361,6 +351,7 @@ static void YGParser_rules(YGParser *parser);
 static void YGParser_rule(YGParser *parser,size_t lhs);
 static void YGParser_testList(YGParser *parser);
 
+
 /**
     file() ->
 
@@ -370,6 +361,9 @@ static void YGParser_file(YGParser *parser){
     YGParser_options(parser);
     EXPECT(T_SEPERATOR);
     NT();
+    if(T.id == T_SEPERATOR){
+        YGParser_err(parser,"empty grammars are not allowed.\n");
+    }
     YGParser_rules(parser);
     EXPECT(T_SEPERATOR);
     NT();
@@ -382,7 +376,9 @@ static void YGParser_file(YGParser *parser){
     [ <PROLOGUE> ]
     ( %token <TOKEN> <STRING> |
     %type <STRING> |
-    %datatype <STRING> )*
+    %datatype <STRING> |
+    %ns <STRING>
+    %token_prefix <STRING> )*
 */
 static void YGParser_options(YGParser *parser){
     if(T.id == T_PROLOGUE){
@@ -417,6 +413,20 @@ static void YGParser_options(YGParser *parser){
                 NT();
                 EXPECT(T_STRING);
                 YGBuilder_setDataType(&parser->builder,STR(T.image));
+                YGParser_popString(parser);
+                NT();
+                break;
+            case T_NS_DIR:
+                NT();
+                EXPECT(T_STRING);
+                YGBuilder_setNameSpace(&parser->builder,STR(T.image));
+                YGParser_popString(parser);
+                NT();
+                break;
+            case T_TOKEN_PREFIX_DIR:
+                NT();
+                EXPECT(T_STRING);
+                YGBuilder_setTokenPrefix(&parser->builder,STR(T.image));
                 YGParser_popString(parser);
                 NT();
                 break;

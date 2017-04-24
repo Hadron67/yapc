@@ -1,0 +1,8 @@
+{
+    "sdasdad" : "sdfsdf",
+    "version" : "1.0.0",
+    "arrayTest": [1,2,5,true,false],
+    "complicated": [4,8,6,{},{ "soored":true },false],
+    "rfnj": null,
+    "hkm": undefined
+}

@@ -15,25 +15,23 @@
 #define T_SIN 9
 #define T_COS 10
 #define T_TAN 11
-#define T_ASIN 12
-#define T_ACOS 13
-#define T_ATAN 14
-#define T_CEXP 15
-#define T_LN 16
-#define T_I 17
-#define T_PI 18
-#define T_E 19
+#define T_SINH 12
+#define T_COSH 13
+#define T_TANH 14
+#define T_ASIN 15
+#define T_ACOS 16
+#define T_ATAN 17
+#define T_CEXP 18
+#define T_LN 19
+#define T_SQRT 20
+#define T_I 21
+#define T_PI 22
+#define T_E 23
 
 
-typedef void *(*yyalloc)(size_t size);
-typedef void *(*yyrealloc)(void *p,size_t size);
-typedef void (*yyfree)(void *p);
 
 
 typedef struct _yyParser{
-    yyalloc altor;
-    yyfree dtor;
-    yyrealloc rtor;
     //state stack
     int *state;
     int sLen,sSize;
@@ -52,10 +50,12 @@ typedef struct _yyParser{
 }yyParser;
 
 
-int yyParser_init(yyParser *yyparser,yyalloc altor,yyrealloc rtor,yyfree dtor);
+int yyParser_init(yyParser *yyparser);
+int yyParser_reInit(yyParser *yyparser);
 int yyParser_free(yyParser *yyparser);
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid);
 int yyParser_printError(yyParser *yyparser,FILE *out);
+int yyParser_clearStack(yyParser *yyparser);
 
 
 #endif

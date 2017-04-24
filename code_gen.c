@@ -1,5 +1,5 @@
 /*  
-    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generator
 
     Copyright (C) 2017  Chen FeiYu
 
@@ -220,21 +220,10 @@ static int yGenHeader(YGen *g,FILE *out){
 
     fprintf(out,"\n\n");
 
-    fprintf(out,
-        "typedef void *(*%salloc)(size_t size);\n"
-        "typedef void *(*%srealloc)(void *p,size_t size);\n"
-        "typedef void (*%sfree)(void *p);\n"
-        ,ns,ns,ns
-    );
-
     fprintf(out,"\n\n");
 
     fprintf(out,
         "typedef struct _%sParser{\n"
-        YYTAB "%salloc altor;\n"
-        YYTAB "%sfree dtor;\n"
-        YYTAB "%srealloc rtor;\n"
-
         YYTAB "//state stack\n"
         YYTAB "int *state;\n"
         YYTAB "int sLen,sSize;\n"
@@ -256,7 +245,7 @@ static int yGenHeader(YGen *g,FILE *out){
         YYTAB "//the generic pointer that user can set\n"
         YYTAB "void *userData;\n"
         "}%sParser;\n"
-        ,ns,ns,ns,ns
+        ,ns
         ,stype
         ,ns
         ,stype
@@ -266,13 +255,17 @@ static int yGenHeader(YGen *g,FILE *out){
     fprintf(out,"\n\n");
 
     fprintf(out,
-       "int %sParser_init(%sParser *%sparser,%salloc altor,%srealloc rtor,%sfree dtor);\n"
+       "int %sParser_init(%sParser *%sparser);\n"
+       "int %sParser_reInit(%sParser *%sparser);\n"
        "int %sParser_free(%sParser *%sparser);\n"
        "int %sParser_acceptToken(%sParser *%sparser,int %stokenid);\n"
        "int %sParser_printError(%sParser *%sparser,FILE *out);\n"
-       ,ns,ns,ns,ns,ns,ns
+       "int %sParser_clearStack(%sParser *%sparser);\n"
+       ,ns,ns,ns
+       ,ns,ns,ns
        ,ns,ns,ns
        ,ns,ns,ns,ns
+       ,ns,ns,ns
        ,ns,ns,ns
     );
 
@@ -426,9 +419,9 @@ static int yGenReduce(YGen *g,FILE *out){
 
     fprintf(out,
         YYTAB "int %sindex = YYSTATE() * %sntCount + %slhs[%srule];\n"
-        YYTAB "YYPUSH_STATE(%sparser,%sgoto[%sindex] - 1);\n"
+        YYTAB "YYPUSH_STATE(%sgoto[%sindex] - 1);\n"
         ,g->g->nameSpace,g->g->nameSpace,g->g->nameSpace,g->g->nameSpace
-        ,g->g->nameSpace,g->g->nameSpace,g->g->nameSpace
+        ,g->g->nameSpace,g->g->nameSpace
     );
     g->line2++;
 
@@ -441,12 +434,6 @@ static int yGenParseCode(YGen *g,FILE *out){
     const char *ns = g->g->nameSpace;
     const char *stype = g->g->stype;
 
-    fprintf(out,
-        "#include \"%s\"\n"
-        ,g->header
-    );
-    g->line2++;
-
     //prologue
     const char *s = g->g->prologue;
     while(*s){
@@ -458,22 +445,52 @@ static int yGenParseCode(YGen *g,FILE *out){
     }
 
     fprintf(out,
-        "static int %stokenCount = %d;\n"
-        "static int %sntCount = %d;\n"
+        "#include \"%s\"\n"
+        ,g->header
+    );
+    g->line2++;
+
+    fprintf(out,
+        "static const int %stokenCount = %d;\n"
+        "static const int %sntCount = %d;\n"
         ,ns,g->g->tokenCount
         ,ns,g->g->ntCount
     );
     g->line2 += 2;
 
     fprintf(out,
-        "#define YYPUSH_STATE(parser,s) \\\n"
-        YYTAB "if(parser->sLen >= parser->sSize){ \\\n"
-        YYTAB YYTAB "parser->sSize *= 2; \\\n"
-        YYTAB YYTAB "parser->state = (int *)parser->rtor(parser->state,sizeof(int) * parser->sSize); \\\n"
+        "#ifndef YYMALLOC\n"
+        YYTAB "#define YYMALLOC malloc\n"
+        "#endif\n"
+        "#ifndef YYREALLOC\n"
+        YYTAB "#define YYREALLOC realloc\n"
+        "#endif\n"
+        "#ifndef YYFREE\n"
+        YYTAB "#define YYFREE free\n"
+        "#endif\n"
+    );
+    g->line2 += 9;
+
+    fprintf(out,
+        "#ifndef YYDESTRUCTOR\n"
+        YYTAB "#define YYDESTRUCTOR(a)\n"
+        "#endif\n"
+    );
+    g->line2 += 3;
+
+    fprintf(out,
+        "#define YYPUSH_STATE(s) \\\n"
+        YYTAB "if(%sparser->sLen >= %sparser->sSize){ \\\n"
+        YYTAB YYTAB "%sparser->sSize *= 2; \\\n"
+        YYTAB YYTAB "%sparser->state = (int *)YYREALLOC(%sparser->state,sizeof(int) * %sparser->sSize); \\\n"
         YYTAB "} \\\n"
-        YYTAB "parser->state[parser->sLen++] = (s);\n"
+        YYTAB "%sparser->state[%sparser->sLen++] = (s);\n"
         "\n"
         "#define YYSTATE() (%sparser->state[%sparser->sLen - 1])\n"
+        ,ns,ns
+        ,ns
+        ,ns,ns,ns
+        ,ns,ns
         ,ns,ns
     );
     g->line2 += 8;
@@ -483,13 +500,13 @@ static int yGenParseCode(YGen *g,FILE *out){
         YYTAB "if(%sparser->sp - %sparser->pstack >= %sparser->pSize){\\\n"
         YYTAB YYTAB "size_t offset = %sparser->sp - %sparser->pstack;\\\n"
         YYTAB YYTAB "%sparser->pSize *= 2;\\\n"
-        YYTAB YYTAB "%sparser->pstack = (%s *)%sparser->rtor(%sparser->pstack,sizeof(%s) * %sparser->pSize);\\\n"
+        YYTAB YYTAB "%sparser->pstack = (%s *)YYREALLOC(%sparser->pstack,sizeof(%s) * %sparser->pSize);\\\n"
         YYTAB YYTAB "%sparser->sp = %sparser->pstack + offset;\\\n"
         YYTAB "}\n"
         ,ns,ns,ns
         ,ns,ns
         ,ns
-        ,ns,stype,ns,ns,stype,ns
+        ,ns,stype,ns,stype,ns
         ,ns,ns
     );
     g->line2 += 7;
@@ -505,22 +522,16 @@ static int yGenParseCode(YGen *g,FILE *out){
 
 
     fprintf(out,
-        "int %sParser_init(%sParser *%sparser,%salloc altor,%srealloc rtor,%sfree dtor){\n"
-        YYTAB "%sparser->altor = altor;\n"
-        YYTAB "%sparser->dtor = dtor;\n"
-        YYTAB "%sparser->rtor = rtor;\n"
+        "int %sParser_init(%sParser *%sparser){\n"
         YYTAB "%sparser->sLen = 1;\n"
         YYTAB "%sparser->done = 0;\n"
         YYTAB "%sparser->sSize = %sparser->pSize = 16;\n"
-        YYTAB "%sparser->state = (int *)altor(sizeof(int) * %sparser->sSize);\n"
+        YYTAB "%sparser->state = (int *)YYMALLOC(sizeof(int) * %sparser->sSize);\n"
         YYTAB "%sparser->state[0] = 0;\n"
-        YYTAB "%sparser->sp = %sparser->pstack = (%s *)altor(sizeof(%s) * %sparser->pSize);\n"
+        YYTAB "%sparser->sp = %sparser->pstack = (%s *)YYMALLOC(sizeof(%s) * %sparser->pSize);\n"
         YYTAB "return 0;\n"
         "}\n"
-        ,ns,ns,ns,ns,ns,ns
-        ,ns
-        ,ns
-        ,ns
+        ,ns,ns,ns
         ,ns
         ,ns
         ,ns,ns
@@ -528,17 +539,33 @@ static int yGenParseCode(YGen *g,FILE *out){
         ,ns
         ,ns,ns,stype,stype,ns
     );
-    g->line2 += 12;
+    g->line2 += 9;
 
     fprintf(out,
-        "int %sParser_free(%sParser *%sparser){\n"
-        YYTAB "%sparser->dtor(%sparser->state);\n"
-        YYTAB "%sparser->dtor(%sparser->pstack);\n"
+        "int %sParser_reInit(%sParser *%sparser){\n"
+        YYTAB "%sparser->sLen = 0;\n"
+        YYTAB "%sparser->done = 0;\n"
+        YYTAB "%sparser->state[0] = 0;\n"
+        YYTAB "%sparser->sp = %sparser->pstack;\n"
         YYTAB "return 0;\n"
         "}\n"
         ,ns,ns,ns
+        ,ns
+        ,ns
+        ,ns
         ,ns,ns
-        ,ns,ns
+    );
+    g->line2 += 7;
+
+    fprintf(out,
+        "int %sParser_free(%sParser *%sparser){\n"
+        YYTAB "YYFREE(%sparser->state);\n"
+        YYTAB "YYFREE(%sparser->pstack);\n"
+        YYTAB "return 0;\n"
+        "}\n"
+        ,ns,ns,ns
+        ,ns
+        ,ns
     );
     g->line2 += 5;
 
@@ -550,7 +577,7 @@ static int yGenParseCode(YGen *g,FILE *out){
         YYTAB YYTAB "if(%saction > 0){\n"
         YYTAB YYTAB YYTAB "YYCHECK_PUSH_TOKEN();\n"
         YYTAB YYTAB YYTAB "*%sparser->sp++ = %sparser->token;\n"
-        YYTAB YYTAB YYTAB "YYPUSH_STATE(%sparser,%saction - 1);\n"
+        YYTAB YYTAB YYTAB "YYPUSH_STATE(%saction - 1);\n"
         YYTAB YYTAB YYTAB "shifted = 1;\n"
         YYTAB YYTAB "}\n"
         YYTAB YYTAB "else if(%saction < 0){\n"
@@ -572,7 +599,7 @@ static int yGenParseCode(YGen *g,FILE *out){
         ,ns,ns,ns,ns
         ,ns
         ,ns,ns
-        ,ns,ns
+        ,ns
         ,ns
         ,ns
         ,ns
@@ -604,6 +631,21 @@ static int yGenParseCode(YGen *g,FILE *out){
         ,ns
         ,'%','%',ns,ns
     );
+    g->line2 += 13;
+
+    fprintf(out,
+        "int %sParser_clearStack(%sParser *%sparser){\n"
+        YYTAB "while(%sparser->sp != %sparser->pstack){\n"
+        YYTAB YYTAB "YYDESTRUCTOR(--%sparser->sp);\n"
+        YYTAB "}\n"
+        YYTAB "return 0;\n"
+        "}\n"
+        ,ns,ns,ns
+        ,ns,ns
+        ,ns
+    );
+    g->line2 += 6;
+
     return 0;
 }
 

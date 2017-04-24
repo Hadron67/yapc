@@ -1,5 +1,5 @@
 /*  
-    YAPC - Yet Another Parser Compiler - An LR(1) parser generater
+    YAPC - Yet Another Parser Compiler - An LR(1) parser generator
 
     Copyright (C) 2017  Chen FeiYu
 
@@ -100,6 +100,10 @@ int YGBuilder_setTokenType(YGBuilder *gb,const char *type){
     gb->stype = YSPool_addString(&gb->pool,type);
     return 0;
 }
+int YGBuilder_setTokenPrefix(YGBuilder *gb,const char *tp){
+    gb->tokenPrefix = YSPool_addString(&gb->pool,tp);
+    return 0;
+}
 int YGBuilder_setNameSpace(YGBuilder *gb,const char *ns){
     gb->nameSpace = YSPool_addString(&gb->pool,ns);
     return 0;
@@ -107,6 +111,9 @@ int YGBuilder_setNameSpace(YGBuilder *gb,const char *ns){
 int YGBuilder_setDataType(YGBuilder *gb,const char *type){
     gb->dataType = YSPool_addString(&gb->pool,type);
     return 0;
+}
+size_t YGBuilder_addString(YGBuilder *gb,const char *s){
+    return YSPool_addString(&gb->pool,type);
 }
 static YRawRule *YGBuilder_newRule(YGBuilder *gb){
     YRawRule *raw = (YRawRule *)ya_malloc(sizeof(YRawRule) + gb->ruleSize * sizeof(YRawRuleItem));
@@ -220,6 +227,7 @@ int YGBuilder_addBlockItem(YGBuilder *gb,const char *action,int line){
     else {
         saved->hasAction = 1;
         saved->actionBlock = YSPool_addString(&gb->pool,action);
+        //FIXME: action still dont have a value if '$$' is in a string
         saved->hasValue = strstr(action,"$$") != NULL;
         saved->line = line;
     }
