@@ -49,9 +49,13 @@ struct _YRule{
     YRuleItem *rule;
 };
 
+typedef struct _YTokenDef{
+    const char *name;
+    const char *alias;
+}YTokenDef;
+
 typedef struct _YGrammar{
-    const char **tokenNames;
-    const char **tokenAlias;
+    YTokenDef *tokens;
     int tokenCount;
 
     const char **ntNames;

@@ -7,10 +7,17 @@ typedef struct _jnode{
     int nv;
 }jnode;
 
+typedef struct _sEntry{
+    struct _sEntry *next;
+    char data[1];
+}sEntry;
+
 #include "matcher.h"
 typedef struct _jMatch{
     jmParser parser;
     jsonval *val;
+    jsonval num;
+    sEntry *sHead;
     FILE *errout;
     int err;
     

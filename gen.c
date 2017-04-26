@@ -234,7 +234,7 @@ int YItem_dump(YItem *item,YGrammar *g,int showLah,FILE *out){
             fprintf(out," .");
         }
         if(ritem->isTerminal){
-            fprintf(out," <%s>",g->tokenNames[ritem->id]);
+            fprintf(out," <%s>",g->tokens[ritem->id].name);
         }
         else{
             fprintf(out," %s",g->ntNames[ritem->id]);
@@ -252,7 +252,7 @@ int YItem_dump(YItem *item,YGrammar *g,int showLah,FILE *out){
         }
         for(i = 0;i < g->tokenCount;i++){
             if(YTokenSet_contains(g,item->lah,i + 1)){
-                fprintf(out,"<%s>,",g->tokenNames[i]);
+                fprintf(out,"<%s>,",g->tokens[i].name);
             }
         }
         fprintf(out," } ]");

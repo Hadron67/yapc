@@ -26,15 +26,15 @@
 typedef struct _YRawRuleItem{
     int isTerminal;
     //int hasAction;
-    size_t name;
+    ysptr name;
     //size_t actionBlock;
 }YRawRuleItem;
 
 typedef struct _YRawRule{
     struct _YRawRule *next;
-    size_t lhs;
+    ysptr lhs;
 
-    size_t actionBlock;
+    ysptr actionBlock;
     int line;
     int hasAction;
 
@@ -46,10 +46,14 @@ typedef struct _YRawRule{
     YRawRuleItem items[1];
 }YRawRule;
 
+typedef struct _YRawToken{
+    ysptr name,alias;
+}YRawToken;
+
 typedef struct _YGBuilder{
     YSPool pool;
 
-    YSTree tokenEntry,ntEntry,aliasEntry;
+    YTree tokenEntry,ntEntry;
 
     size_t ruleSize;
     YRawRule *startRule,*ruleHead;
@@ -65,12 +69,12 @@ typedef struct _YGBuilder{
     int first;
     int built;
 
-    size_t nameSpace;
-    size_t tokenPrefix;
-    size_t stype;
-    size_t dataType;
+    ysptr nameSpace;
+    ysptr tokenPrefix;
+    ysptr stype;
+    ysptr dataType;
 
-    size_t prologue;
+    ysptr prologue;
 
     int addedNtCount;
 }YGBuilder;
@@ -78,12 +82,13 @@ typedef struct _YGBuilder{
 int YGBuilder_init(YGBuilder *gb);
 int YGBuilder_reInit(YGBuilder *gb);
 int YGBuilder_free(YGBuilder *gb,char **spool);
-size_t YGBuilder_addString(YGBuilder *gb,const char *s);
+ysptr YGBuilder_addString(YGBuilder *gb,const char *s);
 int YGBuilder_setPrologue(YGBuilder *gb,const char *prologue);
 int YGBuilder_setTokenType(YGBuilder *gb,const char *type);
 int YGBuilder_setTokenPrefix(YGBuilder *gb,const char *tp);
 int YGBuilder_setNameSpace(YGBuilder *gb,const char *ns);
 int YGBuilder_setDataType(YGBuilder *gb,const char *type);
+
 int YGBuilder_addToken(YGBuilder *gb,const char *tk,const char *alias);
 int YGBuilder_prepareRule(YGBuilder *gb,const char *lhs);
 int YGBuilder_commitRule(YGBuilder *gb);

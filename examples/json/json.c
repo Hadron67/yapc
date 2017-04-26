@@ -438,6 +438,15 @@ jsonval *jsonArray_get(jsonval *array,int index){
         return &jsonundefined;
     }
 }
+int jsonArray_length(jsonval *array){
+    if(array->type == JTYPE_ARRAY){
+        jsonArray *val = &array->u.arrayv;
+        return val->len;
+    }
+    else{
+        return 0;
+    }
+}
 
 jsonval *jsonObj_get(jsonval *val,const char *key,int keylen){
     if(val->type == JTYPE_OBJ){

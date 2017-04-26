@@ -61,6 +61,7 @@ int JSON_free(jsonval *val);
 
 int jsonArray_push(jsonval *array,const jsonval *val);
 jsonval *jsonArray_get(jsonval *array,int index);
+int jsonArray_length(jsonval *array);
 jsonval *jsonObj_get(jsonval *obj,const char *key,int keylen);
 int jsonObj_add(jsonval *obj,char *key,int keylen,const jsonval *val);
 

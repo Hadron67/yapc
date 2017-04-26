@@ -128,7 +128,7 @@ A: <num>;
 当文法存在冲突时yapc会在终端以及.output文件里面打印出冲突的信息以及解决的方式。当出现移进/规约冲突时yapc会选择移进，出现规约/规约冲突时写在前面的规则会被选择。目前暂时还没有实现%left,%right等解决方式。
 
 ### 生成的源码及使用方法
-yapc会生成五个函数
+yapc会生成六个函数
 ```c
 int yyParser_init(yyParser *yyparser);
 int yyParser_reInit(yyParser *yyparser);
@@ -185,8 +185,14 @@ yDestroyContext(ctx);
 欢迎大家在issues上提交bug！
 
 ## 版本记录
+### v0.1.1，2017-4-26（最新）
+* 修复了examples/json中的几个bug。
+* 重构了部分代码。
+* 修改了文档中的几个错误。
+* 现在会在生成的源码最前面加上“由yapc生成”的注释信息。
+
 ### v0.1-rc，2017-4-23（最新）
-* 第一个版本
+* 第一个版本。
 
 ## 许可证
 YAPC使用的许可证是GPL v3

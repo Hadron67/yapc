@@ -1,4 +1,4 @@
-
+#include <string.h>
 #include <stdlib.h>
 #include "json_match.h"
 #include "matcher.h"
@@ -11,8 +11,17 @@
 #define ISNAMEHEAD(a) (((a) >= 'a' && (a) <= 'z') || ((a) >= 'A' && (a) <= 'Z') || (a) == '_' || (a) == '$')
 #define ISNAME(a) (ISNAMEHEAD(a) || ISNUM(a))
 
+static char *sEntry_new(sEntry **prev,char *s,int length){
+    sEntry *ret = (sEntry *)jmalloc(sizeof(sEntry) + sizeof(char) * length);
+    strncpy(ret->data,s,length);
+    ret->next = *prev;
+    *prev = ret;
+    return ret->data;
+}
+
 int jMatch_init(jMatch *m,FILE *err){
     jmParser_init(&m->parser);
+    m->sHead = NULL;
     m->parser.userData = m;
     m->len = 0;
     m->size = 16;
@@ -25,6 +34,11 @@ int jMatch_init(jMatch *m,FILE *err){
 int jMatch_free(jMatch *m){
     jmParser_free(&m->parser);
     jfree(m->buf);
+    while(m->sHead != NULL){
+        sEntry *temp = m->sHead->next;
+        jfree(m->sHead);
+        m->sHead = temp;
+    }
     return 0;
 }
 static int jMatch_pushChar(jMatch *m,char c){
@@ -42,6 +56,10 @@ int jMatch_match(jMatch *m,jsonval *val,const char *s){
 jjlex:
     node = &m->parser.token;
     m->len = 0;
+    node->sv = NULL;
+    while(*s == ' ' || *s == '\t' || *s == '\n'){
+        s++;
+    }
     if(!*s){
         id = MT_EOF;
         goto jjparse;
@@ -66,7 +84,7 @@ jjlex:
                 }
                 id = MT_MEMBER;
                 node->nv = m->len;
-                node->sv = m->buf;
+                node->sv = sEntry_new(&m->sHead,m->buf,m->len);
                 goto jjparse;
             }
             goto jjunexpected;
@@ -81,7 +99,7 @@ jjlex:
             s++;
             id = MT_STRING;
             node->nv = m->len;
-            node->sv = m->buf;
+            node->sv = sEntry_new(&m->sHead,m->buf,m->len);
             goto jjparse;
         }
         default:
@@ -102,6 +120,7 @@ jjparse:
     if(jmParser_acceptToken(&m->parser,id)){
         fprintf(m->errout,"error in pattern string:\n");
         jmParser_printError(&m->parser,m->errout);
+        
         goto jjerr;
     }
     if(m->err){
@@ -145,6 +164,11 @@ int printS(FILE *out,const jnode *n){
 int jMatch_doMember(jMatch *m,const jnode *n){
     if(m->val->type == JTYPE_OBJ){
         m->val = jsonObj_get(m->val,n->sv,n->nv);
+    }
+    else if(m->val->type == JTYPE_ARRAY && !strncmp(n->sv,"length",n->nv)){
+        JSON_init(&m->num,JTYPE_NUM);
+        m->num.u.numv = jsonArray_length(m->val);
+        m->val = &m->num;
     }
     else if(m->val->type == JTYPE_UNDEFINED){
         fprintf(m->errout,"Cannot read property ");

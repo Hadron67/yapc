@@ -30,7 +30,7 @@ int YRule_dump(YGrammar *g,YRule *rule,FILE *out){
     for(j = 0;j < rule->length;j++){
         YRuleItem *item = rule->rule + j;
         if(item->isTerminal){
-            fprintf(out,"<%s> ",g->tokenNames[item->id]);
+            fprintf(out,"<%s> ",g->tokens[item->id].name);
         }
         else {
             fprintf(out,"%s ",g->ntNames[item->id]);
@@ -192,7 +192,7 @@ int YFirstSets_dump(YFirstSets *sets,FILE *out){
         }
         for(j = 0;j < g->tokenCount;j++){
             if(YFirstSets_contains(sets,i,j + 1)){
-                fprintf(out,"<%s>,",g->tokenNames[j]);
+                fprintf(out,"<%s>,",g->tokens[j].name);
             }
         }
         fprintf(out," }\n");

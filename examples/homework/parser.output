@@ -1,0 +1,543 @@
+state 34,shift/reduce conflict:
+  used:[ 18: execStatement -> . <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s48)
+  discarded:[ 32: conditionalStatement -> <if> conditionalExpr <then> execList <else> execList ., { <eol>, } ]* (r)
+
+i0
+[ 0: (accept) -> . program, { <EOF>, } ]* (s1)
+[ 1: program -> . subprogram, { <EOF>, } ] (s2)
+[ 2: subprogram -> . <begin> nameList <eol> execList <end>, { <EOF>, } ] (s3)
+
+i1
+[ 0: (accept) -> program ., { <EOF>, } ]* (r)
+
+i2
+[ 1: program -> subprogram ., { <EOF>, } ]* (r)
+
+i3
+[ 2: subprogram -> <begin> . nameList <eol> execList <end>, { <EOF>, } ]* (s4)
+[ 3: nameList -> . nameStatement, { <integer>,<eol>, } ] (s69)
+[ 4: nameList -> . nameList nameStatement, { <integer>,<eol>, } ] (s4)
+[ 5: nameStatement -> . variableDecl <eol>, { <integer>,<eol>, } ] (s70)
+[ 6: nameStatement -> . functionDecl <eol>, { <integer>,<eol>, } ] (s72)
+[ 7: variableDecl -> . <integer> variable, { <eol>, } ] (s74)
+[ 9: functionDecl -> . <integer> <function> <id> <(> argDefList <)> <eol> functionBody, { <eol>, } ] (s74)
+
+i4
+[ 2: subprogram -> <begin> nameList . <eol> execList <end>, { <EOF>, } ]* (s5)
+[ 4: nameList -> nameList . nameStatement, { <integer>,<eol>, } ]* (s68)
+[ 5: nameStatement -> . variableDecl <eol>, { <integer>,<eol>, } ] (s70)
+[ 6: nameStatement -> . functionDecl <eol>, { <integer>,<eol>, } ] (s72)
+[ 7: variableDecl -> . <integer> variable, { <eol>, } ] (s74)
+[ 9: functionDecl -> . <integer> <function> <id> <(> argDefList <)> <eol> functionBody, { <eol>, } ] (s74)
+
+i5
+[ 2: subprogram -> <begin> nameList <eol> . execList <end>, { <EOF>, } ]* (s6)
+[ 11: execList -> . execStatement, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s36)
+[ 12: execList -> . execList execStatement, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s6)
+[ 13: execStatement -> . readStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s37)
+[ 14: execStatement -> . writeStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s39)
+[ 15: execStatement -> . assignStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s41)
+[ 16: execStatement -> . conditionalStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s43)
+[ 17: execStatement -> . <begin> execList <end>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s45)
+[ 18: execStatement -> . <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s48)
+[ 19: readStatement -> . <read> <(> variable <)>, { <eol>, } ] (s8)
+[ 20: writeStatement -> . <write> <(> variable <)>, { <eol>, } ] (s12)
+[ 21: assignStatement -> . variable <:=> expr, { <eol>, } ] (s16)
+[ 32: conditionalStatement -> . <if> conditionalExpr <then> execList <else> execList, { <eol>, } ] (s29)
+[ 8: variable -> . <id>, { <:=>, } ] (s92)
+
+i6
+[ 2: subprogram -> <begin> nameList <eol> execList . <end>, { <EOF>, } ]* (s7)
+[ 12: execList -> execList . execStatement, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ]* (s35)
+[ 13: execStatement -> . readStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s37)
+[ 14: execStatement -> . writeStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s39)
+[ 15: execStatement -> . assignStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s41)
+[ 16: execStatement -> . conditionalStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s43)
+[ 17: execStatement -> . <begin> execList <end>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s45)
+[ 18: execStatement -> . <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s48)
+[ 19: readStatement -> . <read> <(> variable <)>, { <eol>, } ] (s8)
+[ 20: writeStatement -> . <write> <(> variable <)>, { <eol>, } ] (s12)
+[ 21: assignStatement -> . variable <:=> expr, { <eol>, } ] (s16)
+[ 32: conditionalStatement -> . <if> conditionalExpr <then> execList <else> execList, { <eol>, } ] (s29)
+[ 8: variable -> . <id>, { <:=>, } ] (s92)
+
+i7
+[ 2: subprogram -> <begin> nameList <eol> execList <end> ., { <EOF>, } ]* (r)
+
+i8
+[ 19: readStatement -> <read> . <(> variable <)>, { <eol>, } ]* (s9)
+
+i9
+[ 19: readStatement -> <read> <(> . variable <)>, { <eol>, } ]* (s10)
+[ 8: variable -> . <id>, { <)>, } ] (s92)
+
+i10
+[ 19: readStatement -> <read> <(> variable . <)>, { <eol>, } ]* (s11)
+
+i11
+[ 19: readStatement -> <read> <(> variable <)> ., { <eol>, } ]* (r)
+
+i12
+[ 20: writeStatement -> <write> . <(> variable <)>, { <eol>, } ]* (s13)
+
+i13
+[ 20: writeStatement -> <write> <(> . variable <)>, { <eol>, } ]* (s14)
+[ 8: variable -> . <id>, { <)>, } ] (s92)
+
+i14
+[ 20: writeStatement -> <write> <(> variable . <)>, { <eol>, } ]* (s15)
+
+i15
+[ 20: writeStatement -> <write> <(> variable <)> ., { <eol>, } ]* (r)
+
+i16
+[ 21: assignStatement -> variable . <:=> expr, { <eol>, } ]* (s17)
+
+i17
+[ 21: assignStatement -> variable <:=> . expr, { <eol>, } ]* (s18)
+[ 22: expr -> . expr <-> item, { <->,<eol>, } ] (s18)
+[ 23: expr -> . item, { <->,<eol>, } ] (s60)
+[ 24: item -> . item <*> factor, { <->,<*>,<eol>, } ] (s60)
+[ 25: item -> . factor, { <->,<*>,<eol>, } ] (s61)
+[ 26: factor -> . variable, { <->,<*>,<eol>, } ] (s62)
+[ 27: factor -> . consts, { <->,<*>,<eol>, } ] (s63)
+[ 28: factor -> . functionCall, { <->,<*>,<eol>, } ] (s64)
+[ 8: variable -> . <id>, { <->,<*>,<eol>, } ] (s65)
+[ 29: consts -> . unsignedNum, { <->,<*>,<eol>, } ] (s66)
+[ 40: functionCall -> . <id> <(> argList <)>, { <->,<*>,<eol>, } ] (s65)
+[ 30: unsignedNum -> . <num>, { <num>,<->,<*>,<eol>, } ] (s67)
+[ 31: unsignedNum -> . unsignedNum <num>, { <num>,<->,<*>,<eol>, } ] (s66)
+
+i18
+[ 21: assignStatement -> variable <:=> expr ., { <eol>, } ]* (r)
+[ 22: expr -> expr . <-> item, { <->,<eol>, } ]* (s52)
+
+i19
+[ 41: argList -> nonEmptyArgList ., { <)>, } ]* (r)
+[ 43: nonEmptyArgList -> nonEmptyArgList . <,> expr, { <)>,<,>, } ]* (s20)
+
+i20
+[ 43: nonEmptyArgList -> nonEmptyArgList <,> . expr, { <)>,<,>, } ]* (s21)
+[ 22: expr -> . expr <-> item, { <->,<)>,<,>, } ] (s21)
+[ 23: expr -> . item, { <->,<)>,<,>, } ] (s60)
+[ 24: item -> . item <*> factor, { <->,<*>,<)>,<,>, } ] (s60)
+[ 25: item -> . factor, { <->,<*>,<)>,<,>, } ] (s61)
+[ 26: factor -> . variable, { <->,<*>,<)>,<,>, } ] (s62)
+[ 27: factor -> . consts, { <->,<*>,<)>,<,>, } ] (s63)
+[ 28: factor -> . functionCall, { <->,<*>,<)>,<,>, } ] (s64)
+[ 8: variable -> . <id>, { <->,<*>,<)>,<,>, } ] (s65)
+[ 29: consts -> . unsignedNum, { <->,<*>,<)>,<,>, } ] (s66)
+[ 40: functionCall -> . <id> <(> argList <)>, { <->,<*>,<)>,<,>, } ] (s65)
+[ 30: unsignedNum -> . <num>, { <num>,<->,<*>,<)>,<,>, } ] (s67)
+[ 31: unsignedNum -> . unsignedNum <num>, { <num>,<->,<*>,<)>,<,>, } ] (s66)
+
+i21
+[ 43: nonEmptyArgList -> nonEmptyArgList <,> expr ., { <)>,<,>, } ]* (r)
+[ 22: expr -> expr . <-> item, { <->,<)>,<,>, } ]* (s52)
+
+i22
+[ 44: nonEmptyArgList -> expr ., { <)>,<,>, } ]* (r)
+[ 22: expr -> expr . <-> item, { <->,<)>,<,>, } ]* (s52)
+
+i23
+[ 24: item -> item <*> factor ., { <->,<*>,<)>,<eol>,<,>, } ]* (r)
+
+i24
+[ 24: item -> item <*> . factor, { <->,<*>,<)>,<eol>,<,>, } ]* (s23)
+[ 26: factor -> . variable, { <->,<*>,<)>,<eol>,<,>, } ] (s62)
+[ 27: factor -> . consts, { <->,<*>,<eol>, } ] (s63)
+[ 28: factor -> . functionCall, { <->,<*>,<eol>, } ] (s64)
+[ 8: variable -> . <id>, { <->,<*>,<eol>, } ] (s65)
+[ 29: consts -> . unsignedNum, { <->,<*>,<eol>, } ] (s66)
+[ 40: functionCall -> . <id> <(> argList <)>, { <->,<*>,<eol>, } ] (s65)
+[ 30: unsignedNum -> . <num>, { <num>,<->,<*>,<eol>, } ] (s67)
+[ 31: unsignedNum -> . unsignedNum <num>, { <num>,<->,<*>,<eol>, } ] (s66)
+
+i25
+[ 40: functionCall -> <id> <(> . argList <)>, { <->,<*>,<)>,<eol>,<,>, } ]* (s26)
+[ 41: argList -> . nonEmptyArgList, { <)>, } ] (s19)
+[ 42: argList -> ., { <)>, } ] (r)
+[ 43: nonEmptyArgList -> . nonEmptyArgList <,> expr, { <)>,<,>, } ] (s19)
+[ 44: nonEmptyArgList -> . expr, { <)>,<,>, } ] (s22)
+[ 22: expr -> . expr <-> item, { <->,<)>,<,>, } ] (s22)
+[ 23: expr -> . item, { <->,<)>,<,>, } ] (s60)
+[ 24: item -> . item <*> factor, { <->,<*>,<)>,<,>, } ] (s60)
+[ 25: item -> . factor, { <->,<*>,<)>,<,>, } ] (s61)
+[ 26: factor -> . variable, { <->,<*>,<)>,<,>, } ] (s62)
+[ 27: factor -> . consts, { <->,<*>,<)>,<,>, } ] (s63)
+[ 28: factor -> . functionCall, { <->,<*>,<)>,<,>, } ] (s64)
+[ 8: variable -> . <id>, { <->,<*>,<)>,<,>, } ] (s65)
+[ 29: consts -> . unsignedNum, { <->,<*>,<)>,<,>, } ] (s66)
+[ 40: functionCall -> . <id> <(> argList <)>, { <->,<*>,<)>,<,>, } ] (s65)
+[ 30: unsignedNum -> . <num>, { <num>,<->,<*>,<)>,<,>, } ] (s67)
+[ 31: unsignedNum -> . unsignedNum <num>, { <num>,<->,<*>,<)>,<,>, } ] (s66)
+
+i26
+[ 40: functionCall -> <id> <(> argList . <)>, { <->,<*>,<)>,<eol>,<,>, } ]* (s27)
+
+i27
+[ 40: functionCall -> <id> <(> argList <)> ., { <->,<*>,<)>,<eol>,<,>, } ]* (r)
+
+i28
+[ 31: unsignedNum -> unsignedNum <num> ., { <num>,<->,<*>,<)>,<eol>,<,>, } ]* (r)
+
+i29
+[ 32: conditionalStatement -> <if> . conditionalExpr <then> execList <else> execList, { <eol>, } ]* (s30)
+[ 33: conditionalExpr -> . expr conditionOptr expr, { <then>, } ] (s49)
+[ 22: expr -> . expr <-> item, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->, } ] (s49)
+[ 23: expr -> . item, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->, } ] (s60)
+[ 24: item -> . item <*> factor, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>, } ] (s60)
+[ 25: item -> . factor, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>, } ] (s61)
+[ 26: factor -> . variable, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>, } ] (s62)
+[ 27: factor -> . consts, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>, } ] (s63)
+[ 28: factor -> . functionCall, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>, } ] (s64)
+[ 8: variable -> . <id>, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>, } ] (s65)
+[ 29: consts -> . unsignedNum, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>, } ] (s66)
+[ 40: functionCall -> . <id> <(> argList <)>, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>, } ] (s65)
+[ 30: unsignedNum -> . <num>, { <num>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>, } ] (s67)
+[ 31: unsignedNum -> . unsignedNum <num>, { <num>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>, } ] (s66)
+
+i30
+[ 32: conditionalStatement -> <if> conditionalExpr . <then> execList <else> execList, { <eol>, } ]* (s31)
+
+i31
+[ 32: conditionalStatement -> <if> conditionalExpr <then> . execList <else> execList, { <eol>, } ]* (s32)
+[ 11: execList -> . execStatement, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s36)
+[ 12: execList -> . execList execStatement, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s32)
+[ 13: execStatement -> . readStatement <eol>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s37)
+[ 14: execStatement -> . writeStatement <eol>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s39)
+[ 15: execStatement -> . assignStatement <eol>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s41)
+[ 16: execStatement -> . conditionalStatement <eol>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s43)
+[ 17: execStatement -> . <begin> execList <end>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s45)
+[ 18: execStatement -> . <eol>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s48)
+[ 19: readStatement -> . <read> <(> variable <)>, { <eol>, } ] (s8)
+[ 20: writeStatement -> . <write> <(> variable <)>, { <eol>, } ] (s12)
+[ 21: assignStatement -> . variable <:=> expr, { <eol>, } ] (s16)
+[ 32: conditionalStatement -> . <if> conditionalExpr <then> execList <else> execList, { <eol>, } ] (s29)
+[ 8: variable -> . <id>, { <:=>, } ] (s92)
+
+i32
+[ 32: conditionalStatement -> <if> conditionalExpr <then> execList . <else> execList, { <eol>, } ]* (s33)
+[ 12: execList -> execList . execStatement, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (s35)
+[ 13: execStatement -> . readStatement <eol>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s37)
+[ 14: execStatement -> . writeStatement <eol>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s39)
+[ 15: execStatement -> . assignStatement <eol>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s41)
+[ 16: execStatement -> . conditionalStatement <eol>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s43)
+[ 17: execStatement -> . <begin> execList <end>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s45)
+[ 18: execStatement -> . <eol>, { <begin>,<if>,<else>,<read>,<write>,<id>,<eol>, } ] (s48)
+[ 19: readStatement -> . <read> <(> variable <)>, { <eol>, } ] (s8)
+[ 20: writeStatement -> . <write> <(> variable <)>, { <eol>, } ] (s12)
+[ 21: assignStatement -> . variable <:=> expr, { <eol>, } ] (s16)
+[ 32: conditionalStatement -> . <if> conditionalExpr <then> execList <else> execList, { <eol>, } ] (s29)
+[ 8: variable -> . <id>, { <:=>, } ] (s92)
+
+i33
+[ 32: conditionalStatement -> <if> conditionalExpr <then> execList <else> . execList, { <eol>, } ]* (s34)
+[ 11: execList -> . execStatement, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s36)
+[ 12: execList -> . execList execStatement, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s34)
+[ 13: execStatement -> . readStatement <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s37)
+[ 14: execStatement -> . writeStatement <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s39)
+[ 15: execStatement -> . assignStatement <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s41)
+[ 16: execStatement -> . conditionalStatement <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s43)
+[ 17: execStatement -> . <begin> execList <end>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s45)
+[ 18: execStatement -> . <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s48)
+[ 19: readStatement -> . <read> <(> variable <)>, { <eol>, } ] (s8)
+[ 20: writeStatement -> . <write> <(> variable <)>, { <eol>, } ] (s12)
+[ 21: assignStatement -> . variable <:=> expr, { <eol>, } ] (s16)
+[ 32: conditionalStatement -> . <if> conditionalExpr <then> execList <else> execList, { <eol>, } ] (s29)
+[ 8: variable -> . <id>, { <:=>, } ] (s92)
+
+i34
+[ 32: conditionalStatement -> <if> conditionalExpr <then> execList <else> execList ., { <eol>, } ]* (r)
+[ 12: execList -> execList . execStatement, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ]* (s35)
+[ 13: execStatement -> . readStatement <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s37)
+[ 14: execStatement -> . writeStatement <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s39)
+[ 15: execStatement -> . assignStatement <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s41)
+[ 16: execStatement -> . conditionalStatement <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s43)
+[ 17: execStatement -> . <begin> execList <end>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s45)
+[ 18: execStatement -> . <eol>, { <begin>,<if>,<read>,<write>,<id>,<eol>, } ] (s48)
+[ 19: readStatement -> . <read> <(> variable <)>, { <eol>, } ] (s8)
+[ 20: writeStatement -> . <write> <(> variable <)>, { <eol>, } ] (s12)
+[ 21: assignStatement -> . variable <:=> expr, { <eol>, } ] (s16)
+[ 32: conditionalStatement -> . <if> conditionalExpr <then> execList <else> execList, { <eol>, } ] (s29)
+[ 8: variable -> . <id>, { <:=>, } ] (s92)
+
+i35
+[ 12: execList -> execList execStatement ., { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (r)
+
+i36
+[ 11: execList -> execStatement ., { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (r)
+
+i37
+[ 13: execStatement -> readStatement . <eol>, { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (s38)
+
+i38
+[ 13: execStatement -> readStatement <eol> ., { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (r)
+
+i39
+[ 14: execStatement -> writeStatement . <eol>, { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (s40)
+
+i40
+[ 14: execStatement -> writeStatement <eol> ., { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (r)
+
+i41
+[ 15: execStatement -> assignStatement . <eol>, { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (s42)
+
+i42
+[ 15: execStatement -> assignStatement <eol> ., { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (r)
+
+i43
+[ 16: execStatement -> conditionalStatement . <eol>, { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (s44)
+
+i44
+[ 16: execStatement -> conditionalStatement <eol> ., { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (r)
+
+i45
+[ 17: execStatement -> <begin> . execList <end>, { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (s46)
+[ 11: execList -> . execStatement, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s36)
+[ 12: execList -> . execList execStatement, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s46)
+[ 13: execStatement -> . readStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s37)
+[ 14: execStatement -> . writeStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s39)
+[ 15: execStatement -> . assignStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s41)
+[ 16: execStatement -> . conditionalStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s43)
+[ 17: execStatement -> . <begin> execList <end>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s45)
+[ 18: execStatement -> . <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s48)
+[ 19: readStatement -> . <read> <(> variable <)>, { <eol>, } ] (s8)
+[ 20: writeStatement -> . <write> <(> variable <)>, { <eol>, } ] (s12)
+[ 21: assignStatement -> . variable <:=> expr, { <eol>, } ] (s16)
+[ 32: conditionalStatement -> . <if> conditionalExpr <then> execList <else> execList, { <eol>, } ] (s29)
+[ 8: variable -> . <id>, { <:=>, } ] (s92)
+
+i46
+[ 17: execStatement -> <begin> execList . <end>, { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (s47)
+[ 12: execList -> execList . execStatement, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ]* (s35)
+[ 13: execStatement -> . readStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s37)
+[ 14: execStatement -> . writeStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s39)
+[ 15: execStatement -> . assignStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s41)
+[ 16: execStatement -> . conditionalStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s43)
+[ 17: execStatement -> . <begin> execList <end>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s45)
+[ 18: execStatement -> . <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s48)
+[ 19: readStatement -> . <read> <(> variable <)>, { <eol>, } ] (s8)
+[ 20: writeStatement -> . <write> <(> variable <)>, { <eol>, } ] (s12)
+[ 21: assignStatement -> . variable <:=> expr, { <eol>, } ] (s16)
+[ 32: conditionalStatement -> . <if> conditionalExpr <then> execList <else> execList, { <eol>, } ] (s29)
+[ 8: variable -> . <id>, { <:=>, } ] (s92)
+
+i47
+[ 17: execStatement -> <begin> execList <end> ., { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (r)
+
+i48
+[ 18: execStatement -> <eol> ., { <begin>,<end>,<if>,<else>,<read>,<write>,<id>,<eol>, } ]* (r)
+
+i49
+[ 33: conditionalExpr -> expr . conditionOptr expr, { <then>, } ]* (s50)
+[ 22: expr -> expr . <-> item, { <=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->, } ]* (s52)
+[ 34: conditionOptr -> . <gt>, { <id>,<num>, } ] (s54)
+[ 35: conditionOptr -> . <lt>, { <id>,<num>, } ] (s55)
+[ 36: conditionOptr -> . <gtoe>, { <id>,<num>, } ] (s56)
+[ 37: conditionOptr -> . <ltoe>, { <id>,<num>, } ] (s57)
+[ 38: conditionOptr -> . <=>, { <id>,<num>, } ] (s58)
+[ 39: conditionOptr -> . <ne>, { <id>,<num>, } ] (s59)
+
+i50
+[ 33: conditionalExpr -> expr conditionOptr . expr, { <then>, } ]* (s51)
+[ 22: expr -> . expr <-> item, { <then>,<->, } ] (s51)
+[ 23: expr -> . item, { <then>,<->, } ] (s60)
+[ 24: item -> . item <*> factor, { <then>,<->,<*>, } ] (s60)
+[ 25: item -> . factor, { <then>,<->,<*>, } ] (s61)
+[ 26: factor -> . variable, { <then>,<->,<*>, } ] (s62)
+[ 27: factor -> . consts, { <then>,<->,<*>, } ] (s63)
+[ 28: factor -> . functionCall, { <then>,<->,<*>, } ] (s64)
+[ 8: variable -> . <id>, { <then>,<->,<*>, } ] (s65)
+[ 29: consts -> . unsignedNum, { <then>,<->,<*>, } ] (s66)
+[ 40: functionCall -> . <id> <(> argList <)>, { <then>,<->,<*>, } ] (s65)
+[ 30: unsignedNum -> . <num>, { <then>,<num>,<->,<*>, } ] (s67)
+[ 31: unsignedNum -> . unsignedNum <num>, { <then>,<num>,<->,<*>, } ] (s66)
+
+i51
+[ 33: conditionalExpr -> expr conditionOptr expr ., { <then>, } ]* (r)
+[ 22: expr -> expr . <-> item, { <then>,<->, } ]* (s52)
+
+i52
+[ 22: expr -> expr <-> . item, { <then>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<)>,<eol>,<,>, } ]* (s53)
+[ 24: item -> . item <*> factor, { <->,<*>,<)>,<eol>,<,>, } ] (s53)
+[ 25: item -> . factor, { <->,<*>,<eol>, } ] (s61)
+[ 26: factor -> . variable, { <->,<*>,<eol>, } ] (s62)
+[ 27: factor -> . consts, { <->,<*>,<eol>, } ] (s63)
+[ 28: factor -> . functionCall, { <->,<*>,<eol>, } ] (s64)
+[ 8: variable -> . <id>, { <->,<*>,<eol>, } ] (s65)
+[ 29: consts -> . unsignedNum, { <->,<*>,<eol>, } ] (s66)
+[ 40: functionCall -> . <id> <(> argList <)>, { <->,<*>,<eol>, } ] (s65)
+[ 30: unsignedNum -> . <num>, { <num>,<->,<*>,<eol>, } ] (s67)
+[ 31: unsignedNum -> . unsignedNum <num>, { <num>,<->,<*>,<eol>, } ] (s66)
+
+i53
+[ 22: expr -> expr <-> item ., { <then>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<)>,<eol>,<,>, } ]* (r)
+[ 24: item -> item . <*> factor, { <->,<*>,<)>,<eol>,<,>, } ]* (s24)
+
+i54
+[ 34: conditionOptr -> <gt> ., { <id>,<num>, } ]* (r)
+
+i55
+[ 35: conditionOptr -> <lt> ., { <id>,<num>, } ]* (r)
+
+i56
+[ 36: conditionOptr -> <gtoe> ., { <id>,<num>, } ]* (r)
+
+i57
+[ 37: conditionOptr -> <ltoe> ., { <id>,<num>, } ]* (r)
+
+i58
+[ 38: conditionOptr -> <=> ., { <id>,<num>, } ]* (r)
+
+i59
+[ 39: conditionOptr -> <ne> ., { <id>,<num>, } ]* (r)
+
+i60
+[ 23: expr -> item ., { <then>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<)>,<eol>,<,>, } ]* (r)
+[ 24: item -> item . <*> factor, { <->,<*>,<)>,<eol>,<,>, } ]* (s24)
+
+i61
+[ 25: item -> factor ., { <then>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>,<)>,<eol>,<,>, } ]* (r)
+
+i62
+[ 26: factor -> variable ., { <then>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>,<)>,<eol>,<,>, } ]* (r)
+
+i63
+[ 27: factor -> consts ., { <then>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>,<)>,<eol>,<,>, } ]* (r)
+
+i64
+[ 28: factor -> functionCall ., { <then>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>,<)>,<eol>,<,>, } ]* (r)
+
+i65
+[ 8: variable -> <id> ., { <then>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>,<)>,<eol>,<,>, } ]* (r)
+[ 40: functionCall -> <id> . <(> argList <)>, { <->,<*>,<)>,<eol>,<,>, } ]* (s25)
+
+i66
+[ 29: consts -> unsignedNum ., { <then>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>,<)>,<eol>,<,>, } ]* (r)
+[ 31: unsignedNum -> unsignedNum . <num>, { <num>,<->,<*>,<)>,<eol>,<,>, } ]* (s28)
+
+i67
+[ 30: unsignedNum -> <num> ., { <then>,<num>,<=>,<ne>,<ltoe>,<lt>,<gtoe>,<gt>,<->,<*>,<)>,<eol>,<,>, } ]* (r)
+
+i68
+[ 4: nameList -> nameList nameStatement ., { <integer>,<eol>, } ]* (r)
+
+i69
+[ 3: nameList -> nameStatement ., { <integer>,<eol>, } ]* (r)
+
+i70
+[ 5: nameStatement -> variableDecl . <eol>, { <integer>,<eol>, } ]* (s71)
+
+i71
+[ 5: nameStatement -> variableDecl <eol> ., { <integer>,<eol>, } ]* (r)
+
+i72
+[ 6: nameStatement -> functionDecl . <eol>, { <integer>,<eol>, } ]* (s73)
+
+i73
+[ 6: nameStatement -> functionDecl <eol> ., { <integer>,<eol>, } ]* (r)
+
+i74
+[ 7: variableDecl -> <integer> . variable, { <eol>, } ]* (s75)
+[ 9: functionDecl -> <integer> . <function> <id> <(> argDefList <)> <eol> functionBody, { <eol>, } ]* (s76)
+[ 8: variable -> . <id>, { <eol>, } ] (s92)
+
+i75
+[ 7: variableDecl -> <integer> variable ., { <eol>, } ]* (r)
+
+i76
+[ 9: functionDecl -> <integer> <function> . <id> <(> argDefList <)> <eol> functionBody, { <eol>, } ]* (s77)
+
+i77
+[ 9: functionDecl -> <integer> <function> <id> . <(> argDefList <)> <eol> functionBody, { <eol>, } ]* (s78)
+
+i78
+[ 9: functionDecl -> <integer> <function> <id> <(> . argDefList <)> <eol> functionBody, { <eol>, } ]* (s79)
+[ 45: argDefList -> . nonEmptyArgDefList, { <)>, } ] (s88)
+[ 46: argDefList -> ., { <)>, } ] (r)
+[ 47: nonEmptyArgDefList -> . nonEmptyArgDefList <,> variable, { <)>,<,>, } ] (s88)
+[ 48: nonEmptyArgDefList -> . variable, { <)>,<,>, } ] (s91)
+[ 8: variable -> . <id>, { <)>,<,>, } ] (s92)
+
+i79
+[ 9: functionDecl -> <integer> <function> <id> <(> argDefList . <)> <eol> functionBody, { <eol>, } ]* (s80)
+
+i80
+[ 9: functionDecl -> <integer> <function> <id> <(> argDefList <)> . <eol> functionBody, { <eol>, } ]* (s81)
+
+i81
+[ 9: functionDecl -> <integer> <function> <id> <(> argDefList <)> <eol> . functionBody, { <eol>, } ]* (s82)
+[ 10: functionBody -> . <begin> nameList <eol> execList <end>, { <eol>, } ] (s83)
+
+i82
+[ 9: functionDecl -> <integer> <function> <id> <(> argDefList <)> <eol> functionBody ., { <eol>, } ]* (r)
+
+i83
+[ 10: functionBody -> <begin> . nameList <eol> execList <end>, { <eol>, } ]* (s84)
+[ 3: nameList -> . nameStatement, { <integer>,<eol>, } ] (s69)
+[ 4: nameList -> . nameList nameStatement, { <integer>,<eol>, } ] (s84)
+[ 5: nameStatement -> . variableDecl <eol>, { <integer>,<eol>, } ] (s70)
+[ 6: nameStatement -> . functionDecl <eol>, { <integer>,<eol>, } ] (s72)
+[ 7: variableDecl -> . <integer> variable, { <eol>, } ] (s74)
+[ 9: functionDecl -> . <integer> <function> <id> <(> argDefList <)> <eol> functionBody, { <eol>, } ] (s74)
+
+i84
+[ 10: functionBody -> <begin> nameList . <eol> execList <end>, { <eol>, } ]* (s85)
+[ 4: nameList -> nameList . nameStatement, { <integer>,<eol>, } ]* (s68)
+[ 5: nameStatement -> . variableDecl <eol>, { <integer>,<eol>, } ] (s70)
+[ 6: nameStatement -> . functionDecl <eol>, { <integer>,<eol>, } ] (s72)
+[ 7: variableDecl -> . <integer> variable, { <eol>, } ] (s74)
+[ 9: functionDecl -> . <integer> <function> <id> <(> argDefList <)> <eol> functionBody, { <eol>, } ] (s74)
+
+i85
+[ 10: functionBody -> <begin> nameList <eol> . execList <end>, { <eol>, } ]* (s86)
+[ 11: execList -> . execStatement, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s36)
+[ 12: execList -> . execList execStatement, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s86)
+[ 13: execStatement -> . readStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s37)
+[ 14: execStatement -> . writeStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s39)
+[ 15: execStatement -> . assignStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s41)
+[ 16: execStatement -> . conditionalStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s43)
+[ 17: execStatement -> . <begin> execList <end>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s45)
+[ 18: execStatement -> . <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s48)
+[ 19: readStatement -> . <read> <(> variable <)>, { <eol>, } ] (s8)
+[ 20: writeStatement -> . <write> <(> variable <)>, { <eol>, } ] (s12)
+[ 21: assignStatement -> . variable <:=> expr, { <eol>, } ] (s16)
+[ 32: conditionalStatement -> . <if> conditionalExpr <then> execList <else> execList, { <eol>, } ] (s29)
+[ 8: variable -> . <id>, { <:=>, } ] (s92)
+
+i86
+[ 10: functionBody -> <begin> nameList <eol> execList . <end>, { <eol>, } ]* (s87)
+[ 12: execList -> execList . execStatement, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ]* (s35)
+[ 13: execStatement -> . readStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s37)
+[ 14: execStatement -> . writeStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s39)
+[ 15: execStatement -> . assignStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s41)
+[ 16: execStatement -> . conditionalStatement <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s43)
+[ 17: execStatement -> . <begin> execList <end>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s45)
+[ 18: execStatement -> . <eol>, { <begin>,<end>,<if>,<read>,<write>,<id>,<eol>, } ] (s48)
+[ 19: readStatement -> . <read> <(> variable <)>, { <eol>, } ] (s8)
+[ 20: writeStatement -> . <write> <(> variable <)>, { <eol>, } ] (s12)
+[ 21: assignStatement -> . variable <:=> expr, { <eol>, } ] (s16)
+[ 32: conditionalStatement -> . <if> conditionalExpr <then> execList <else> execList, { <eol>, } ] (s29)
+[ 8: variable -> . <id>, { <:=>, } ] (s92)
+
+i87
+[ 10: functionBody -> <begin> nameList <eol> execList <end> ., { <eol>, } ]* (r)
+
+i88
+[ 45: argDefList -> nonEmptyArgDefList ., { <)>, } ]* (r)
+[ 47: nonEmptyArgDefList -> nonEmptyArgDefList . <,> variable, { <)>,<,>, } ]* (s89)
+
+i89
+[ 47: nonEmptyArgDefList -> nonEmptyArgDefList <,> . variable, { <)>,<,>, } ]* (s90)
+[ 8: variable -> . <id>, { <)>,<,>, } ] (s92)
+
+i90
+[ 47: nonEmptyArgDefList -> nonEmptyArgDefList <,> variable ., { <)>,<,>, } ]* (r)
+
+i91
+[ 48: nonEmptyArgDefList -> variable ., { <)>,<,>, } ]* (r)
+
+i92
+[ 8: variable -> <id> ., { <:=>,<)>,<eol>,<,>, } ]* (r)
+

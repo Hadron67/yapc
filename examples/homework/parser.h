@@ -8,20 +8,30 @@
 #include <stdlib.h>
 #include <stdio.h>
 #define T_EOF 0
-#define T_STRING 1
-#define T_NUM 2
-#define T_TRUE 3
-#define T_FALSE 4
-#define T_NULL 5
-#define T_UNDEFINED 6
-#define T_BRA 7
-#define T_KET 8
-#define T_CBRA 9
-#define T_CKET 10
-#define T_BBRA 11
-#define T_BKET 12
-#define T_COLLON 13
-#define T_COMMA 14
+#define T_BEGIN 1
+#define T_END 2
+#define T_INTEGER 3
+#define T_IF 4
+#define T_THEN 5
+#define T_ELSE 6
+#define T_FUNCTION 7
+#define T_READ 8
+#define T_WRITE 9
+#define T_ID 10
+#define T_NUM 11
+#define T_EQ 12
+#define T_NE 13
+#define T_LTOE 14
+#define T_LT 15
+#define T_GTOE 16
+#define T_GT 17
+#define T_MINUS 18
+#define T_MULTIPLY 19
+#define T_ASSIGN 20
+#define T_BRA 21
+#define T_KET 22
+#define T_SEMI_COLLON 23
+#define T_COMMA 24
 
 
 
@@ -31,11 +41,11 @@ typedef struct _yyParser{
     int *state;
     int sLen,sSize;
     //sematic stack
-    jsonval *pstack,*sp;
+    int *pstack,*sp;
     int pSize;
     //current token,this token would be accepted
     //when yyParser_acceptTokenis called.
-    jsonval token;
+    int token;
     //this would be set to 1 when input is accepted.
     int done;
     //this would be set to 1 when a syntax error is detected.

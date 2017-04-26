@@ -86,19 +86,83 @@ int YSTree_toArray(YSTree *tree,const char **sa){
     }
     return 0;
 }
+//-------------------------------------------------------------------
+
+int YTree_init(YTree *tree,int size,size_t elemsize,ycomparator comp,void *arg){
+    memset(tree,0,sizeof(YTree));
+    
+    //XXX:align needs to be token into account
+    tree->elemSize = elemsize;
+    tree->nodeSize = elemsize + sizeof(YTNode);
+    tree->size = size;
+    tree->len = 0;
+    tree->root = -1;
+    tree->comp = comp;
+    tree->arg = arg;
+
+    tree->buf = (YTNode *)ya_malloc(tree->size * tree->nodeSize);
+
+    return 0;
+    
+}
+int YTree_free(YTree *tree){
+    ya_free(tree->buf);
+}
+int YTree_getLength(YTree *tree){
+    return tree->len;
+}
+YTNode *YTree_getNode(YTree *tree,int p){
+    return (YTNode *)((char *)tree->buf + tree->nodeSize * p);
+}
+int YTree_newNode(YTree *tree,const void *data){
+    YTree_prepareNode(tree);
+    int p = tree->len++;
+    YTNode *node = YTree_getNode(tree,p);
+    node->left = node->right = -1;
+    memcpy(node->data,data,tree->elemSize);
+    return p;
+}
+int YTree_prepareNode(YTree *tree){
+    if(tree->len >= tree->size){
+        tree->size *= 2;
+        tree->buf = (YTNode *)ya_realloc(tree->buf,tree->nodeSize * tree->size);
+    }
+    return 0;
+}
+int *YTree_find(YTree *tree,const void *data){
+    int *tp = &tree->root;
+    while(*tp != -1){
+        int cmp = tree->comp(data,YTree_getNode(tree,*tp)->data,tree->arg);
+        if(cmp > 0){
+            tp = &YTree_getNode(tree,*tp)->right;
+        }
+        else if(cmp < 0){
+            tp = &YTree_getNode(tree,*tp)->left;
+        }
+        else {
+            break;
+        }
+    }
+    return tp;
+}
 
 //-------------------------------------------------------------------
+static int YSPool_comp(const void *d1,const void *d2,void *arg){
+    YSPool *p = (YSPool *)arg;
+    const char *s1 = (const char *)d1;
+    ysptr s2 = *(ysptr *)d2;
+    return strcmp(s1,p->buf + s2);
+}
 
 int YSPool_init(YSPool *pool,size_t bufSize,size_t nBufSize){
     memset(pool,0,sizeof(YSPool));
     pool->bufSize = bufSize;
     pool->buf = (char *)ya_malloc(bufSize * sizeof(char));
-    YSTree_init(&pool->tree,nBufSize,pool);
-
+    YTree_init(&pool->tree,nBufSize,sizeof(ysptr),YSPool_comp,pool);
     return 0;
 }
 int YSPool_free(YSPool *pool,char **s){
-    YSTree_free(&pool->tree);
+    YTree_free(&pool->tree);
     if(s != NULL){
         //*s = (char *)ya_realloc(pool->buf,pool->bufLen * sizeof(char));
         *s = pool->buf;
@@ -110,10 +174,10 @@ int YSPool_free(YSPool *pool,char **s){
     }
 }
 
-static ssize_t YSPool_newNode(YSPool *pool,const char *s){
+static int YSPool_newNode(YSPool *pool,const char *s){
     //inserting string
 
-    ssize_t sp = pool->bufLen;
+    ysptr sp = pool->bufLen;
     while(*s != 0){
         if(pool->bufLen >= pool->bufSize){
             pool->bufSize *= 2;
@@ -129,21 +193,21 @@ static ssize_t YSPool_newNode(YSPool *pool,const char *s){
     pool->buf[pool->bufLen++] = 0;
 
     //inserting node
-    return YSTree_newNode(&pool->tree,sp);
+    return YTree_newNode(&pool->tree,&sp);
 }
 
-size_t YSPool_addString(YSPool *pool,const char *s){
+ysptr YSPool_addString(YSPool *pool,const char *s){
     //find node first.
-    YSTree_prepareNode(&pool->tree);
-    size_t *node = YSTree_find(&pool->tree,s);
-    if(*node == 0){
+    YTree_prepareNode(&pool->tree);
+    int *node = YTree_find(&pool->tree,(void *)s);
+    if(*node == -1){
         *node = YSPool_newNode(pool,s);
     }
 
-    return YSTree_getNode(&pool->tree,*node)->sptr;
+    return *(ysptr *)YTree_getNode(&pool->tree,*node)->data;
 }
 
-const char *YSPool_getString(YSPool *pool,size_t sp){
+const char *YSPool_getString(YSPool *pool,ysptr sp){
     if(sp < pool->bufLen){
         return pool->buf + sp;
     }

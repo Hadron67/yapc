@@ -28,6 +28,8 @@
 typedef struct _YSPool YSPool;
 typedef struct _YSNode YSNode;
 typedef struct _YSTree YSTree;
+typedef struct _YTNode YTNode;
+typedef struct _YTree YTree;
 
 struct _YSNode{
     size_t left,right;
@@ -49,6 +51,34 @@ size_t YSTree_newNode(YSTree *tree,size_t s);
 int YSTree_prepareNode(YSTree *tree);
 size_t *YSTree_find(YSTree *tree,const char *s);
 int YSTree_toArray(YSTree *tree,const char **sa);
+//----------------------------------------------------------------
+
+
+struct _YTNode{
+    int left,right;
+    int index;
+    char data[1];
+};
+
+typedef int (*ycomparator)(const void *d1,const void *d2,void *arg);
+
+struct _YTree{
+    YTNode *buf;
+    int len,size;
+    size_t elemSize,nodeSize;
+    int root;
+    ycomparator comp;
+    void *arg;
+};
+
+int YTree_init(YTree *tree,int size,size_t elemsize,ycomparator comp,void *arg);
+int YTree_free(YTree *tree);
+int YTree_getLength(YTree *tree);
+YTNode *YTree_getNode(YTree *tree,int p);
+int YTree_newNode(YTree *tree,const void *data);
+int YTree_prepareNode(YTree *tree);
+int *YTree_find(YTree *tree,const void *data);
+
 
 //persistent string pool---------------------------------
 
@@ -56,13 +86,13 @@ struct _YSPool{
     char *buf;
     size_t bufLen,bufSize;
 
-    YSTree tree;
+    YTree tree;
 };
 
 int YSPool_init(YSPool *pool,size_t bufLen,size_t nBufLen);
 int YSPool_free(YSPool *pool,char **s);
-size_t YSPool_addString(YSPool *pool,const char *s);
-const char *YSPool_getString(YSPool *pool,size_t sp);
+ysptr YSPool_addString(YSPool *pool,const char *s);
+const char *YSPool_getString(YSPool *pool,ysptr sp);
 int YSPool_dump(YSPool *pool,FILE *out);
 
 #endif

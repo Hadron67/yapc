@@ -22,12 +22,34 @@
 #include <string.h>
 #include "grammar_builder.h"
 
+static int YTokenName_comp(const void *d1,const void *d2,void *arg){
+    YGBuilder *gb = (YGBuilder *)arg;
+    const char *s1 = (const char *)d1;
+    const YRawToken *tk = (const YRawToken *)d2;
+    return strcmp(s1,YSPool_getString(&gb->pool,tk->name));
+}
+
+static int YTokenAlias_comp(const void *d1,const void *d2,void *arg){
+    YGBuilder *gb = (YGBuilder *)arg;
+    const char *s1 = (const char *)d1;
+    const YRawToken *tk = (const YRawToken *)d2;
+    return strcmp(s1,YSPool_getString(&gb->pool,tk->alias));
+}
+
+static int Ynt_comp(const void *d1,const void *d2,void *arg){
+    YGBuilder *gb = (YGBuilder *)arg;
+    const char *s1 = (const char *)d1;
+    ysptr s2 = *(const ysptr *)d2;
+    return strcmp(s1,YSPool_getString(&gb->pool,s2));
+}
+
 int YGBuilder_init(YGBuilder *gb){
     memset(gb,0,sizeof(YGBuilder));
     YSPool_init(&gb->pool,32,32);
-    YSTree_init(&gb->tokenEntry,32,&gb->pool);
-    YSTree_init(&gb->ntEntry,32,&gb->pool);
-    YSTree_init(&gb->aliasEntry,32,&gb->pool);
+
+    YTree_init(&gb->tokenEntry,32,sizeof(YRawToken),YTokenName_comp,gb);
+    YTree_init(&gb->ntEntry,32,sizeof(const char *),Ynt_comp,gb);
+    
     gb->ruleSize = 8;
     gb->first = 1;
 
@@ -49,9 +71,9 @@ int YGBuilder_init(YGBuilder *gb){
     return 0;
 }
 int YGBuilder_free(YGBuilder *gb,char **spool){
-    YSTree_free(&gb->tokenEntry);
-    YSTree_free(&gb->ntEntry);
-    YSTree_free(&gb->aliasEntry);
+    YTree_free(&gb->tokenEntry);
+    YTree_free(&gb->ntEntry);
+
     YSPool_free(&gb->pool,spool);
 
     if(!gb->built){
@@ -71,26 +93,18 @@ int YGBuilder_free(YGBuilder *gb,char **spool){
     return 0;
 }
 int YGBuilder_addToken(YGBuilder *gb,const char *tk,const char *alias){
-    YSTree_prepareNode(&gb->tokenEntry);
-    size_t *node = YSTree_find(&gb->tokenEntry,tk);
-    if(*node == 0){
-        size_t sp = YSPool_addString(&gb->pool,tk);
-        *node = YSTree_newNode(&gb->tokenEntry,sp);
+    YTree_prepareNode(&gb->tokenEntry);
+    int *node = YTree_find(&gb->tokenEntry,tk);
+    if(*node == -1){
+        YRawToken rt;
+        rt.name = YSPool_addString(&gb->pool,tk);
+        rt.alias = YSPool_addString(&gb->pool,alias);
+        *node = YTree_newNode(&gb->tokenEntry,&rt);
+        return 0;
     }
     else {
         return -1;
     }
-
-    YSTree_prepareNode(&gb->aliasEntry);
-    node = YSTree_find(&gb->aliasEntry,alias);
-    if(*node == 0){
-        size_t sp = YSPool_addString(&gb->pool,alias);
-        *node = YSTree_newNode(&gb->aliasEntry,sp);
-    }
-    else {
-        return -1;
-    }
-    return 0;
 }
 int YGBuilder_setPrologue(YGBuilder *gb,const char *prologue){
     gb->prologue = YSPool_addString(&gb->pool,prologue);
@@ -112,8 +126,8 @@ int YGBuilder_setDataType(YGBuilder *gb,const char *type){
     gb->dataType = YSPool_addString(&gb->pool,type);
     return 0;
 }
-size_t YGBuilder_addString(YGBuilder *gb,const char *s){
-    return YSPool_addString(&gb->pool,type);
+ysptr YGBuilder_addString(YGBuilder *gb,const char *s){
+    return YSPool_addString(&gb->pool,s);
 }
 static YRawRule *YGBuilder_newRule(YGBuilder *gb){
     YRawRule *raw = (YRawRule *)ya_malloc(sizeof(YRawRule) + gb->ruleSize * sizeof(YRawRuleItem));
@@ -123,7 +137,7 @@ static YRawRule *YGBuilder_newRule(YGBuilder *gb){
 
     return raw;
 }
-static int YGBuilder_prepareRuleRaw(YGBuilder *gb,const char *lhs,int hasAction,size_t action,int line){
+static int YGBuilder_prepareRuleRaw(YGBuilder *gb,const char *lhs,int hasAction,ysptr action,int line){
     if(gb->first){
         gb->first = 0;
         YGBuilder_prepareRule(gb,"(accept)");
@@ -131,14 +145,14 @@ static int YGBuilder_prepareRuleRaw(YGBuilder *gb,const char *lhs,int hasAction,
         YGBuilder_commitRule(gb);
     }
     YRawRule *rule = YGBuilder_newRule(gb);
-    size_t *node = YSTree_find(&gb->ntEntry,lhs);
-    size_t sp;
-    if(*node == 0){
+    int *node = YTree_find(&gb->ntEntry,lhs);
+    ysptr sp;
+    if(*node == -1){
         sp = YSPool_addString(&gb->pool,lhs);
-        *node = YSTree_newNode(&gb->ntEntry,sp);
+        *node = YTree_newNode(&gb->ntEntry,&sp);
     }
     else {
-        sp = YSTree_getNode(&gb->ntEntry,*node)->sptr;
+        sp = *(ysptr *)YTree_getNode(&gb->ntEntry,*node)->data;
     }
     rule->lhs = sp;
     rule->actionBlock = action;
@@ -208,6 +222,42 @@ int YGBuilder_addRuleItem(YGBuilder *gb,const char *name,int isTerminal){
 
     return 0;
 }
+int hasAction(const char *s){
+    int on = 1;
+    while(*s){
+        if(on){
+            if(*s == '$'){
+                s++;
+                if(*s == '$'){
+                    s++;
+                    return 1;
+                }
+            }
+            else if(*s == '"'){
+                on = 0;
+            }
+            else {
+                s++;
+            }
+        }
+        else{
+            if(*s == '"'){
+                s++;
+                on = 1;
+            }
+            else if(*s == '\\'){
+                s++;
+                if(*s){
+                    s++;
+                }
+            }
+            else{
+                s++;
+            }
+        }
+    }
+    return 0;
+}
 int YGBuilder_addBlockItem(YGBuilder *gb,const char *action,int line){
     YRawRule *saved = gb->currentRule;
     if(saved->hasAction){
@@ -227,22 +277,21 @@ int YGBuilder_addBlockItem(YGBuilder *gb,const char *action,int line){
     else {
         saved->hasAction = 1;
         saved->actionBlock = YSPool_addString(&gb->pool,action);
-        //FIXME: action still dont have a value if '$$' is in a string
-        saved->hasValue = strstr(action,"$$") != NULL;
+        saved->hasValue = hasAction(action);
         saved->line = line;
     }
     return 0;
 }
 int YGBuilder_addTestToken(YGBuilder *gb,const char *tname){
-    int t = *YSTree_find(&gb->tokenEntry,tname);
-    if(t == 0){
+    int t = *YTree_find(&gb->tokenEntry,tname);
+    if(t == -1){
         return -1;
     }
     if(gb->testLen >= gb->testSize){
         gb->testSize *= 2;
         gb->tests = (int *)ya_realloc(gb->tests,sizeof(int) * gb->testSize);
     }
-    gb->tests[gb->testLen++] = t - 1;
+    gb->tests[gb->testLen++] = t;
     gb->tests[gb->currentTest]++;
     return 0;
 }
@@ -258,17 +307,15 @@ int YGBuilder_commitTest(YGBuilder *gb){
 }
 
 YGrammar *YGBuilder_build(YGBuilder *gb,FILE *err){
-    assert(gb->tokenEntry.len == gb->aliasEntry.len);
     YGrammar *g = (YGrammar *)ya_malloc(
         sizeof(YGrammar) + 
-        sizeof(const char *) * gb->tokenEntry.len +
-        sizeof(const char *) * gb->tokenEntry.len +
+        sizeof(YTokenDef) * gb->tokenEntry.len +
         sizeof(const char *) * gb->ntEntry.len +
         sizeof(YRule) * gb->ruleCount + 
         sizeof(YRuleItem) * gb->itemCount
     );
-    g->tokenCount = gb->tokenEntry.len - 1;
-    g->ntCount = gb->ntEntry.len - 1;
+    g->tokenCount = gb->tokenEntry.len;
+    g->ntCount = gb->ntEntry.len;
     g->ruleCount = gb->ruleCount;
     g->tests = gb->tests;
     g->testCount = gb->testCount;
@@ -281,11 +328,8 @@ YGrammar *YGBuilder_build(YGBuilder *gb,FILE *err){
     g->dataType = YSPool_getString(&gb->pool,gb->dataType);
 
     char *p = g->data;
-    g->tokenNames = (const char **)p;
-    p += sizeof(const char *) * g->tokenCount;
-
-    g->tokenAlias = (const char **)p;
-    p += sizeof(const char *) * g->tokenCount;
+    g->tokens = (YTokenDef *)p;
+    p += sizeof(YTokenDef) * g->tokenCount;
     
     g->ntNames = (const char **)p;
     p += sizeof(const char *) * g->ntCount;
@@ -295,18 +339,25 @@ YGrammar *YGBuilder_build(YGBuilder *gb,FILE *err){
     p += sizeof(YRule) * g->ruleCount;
 
     int i,j;
-    YSTree_toArray(&gb->tokenEntry,g->tokenNames);
-    YSTree_toArray(&gb->ntEntry,g->ntNames);
-    YSTree_toArray(&gb->aliasEntry,g->tokenAlias);
+    for(i = 0;i < g->tokenCount;i++){
+        YRawToken *rt = (YRawToken *)YTree_getNode(&gb->tokenEntry,i)->data;
+        g->tokens[i].name = YSPool_getString(&gb->pool,rt->name);
+        g->tokens[i].alias = YSPool_getString(&gb->pool,rt->alias);
+    }
+    for(i = 0;i < g->ntCount;i++){
+        ysptr sp = *(ysptr *)YTree_getNode(&gb->ntEntry,i)->data;
+        g->ntNames[i] = YSPool_getString(&gb->pool,sp);
+    }
 
     YRawRule *raw;
     YRuleItem *rp = (YRuleItem *)p;
     for(raw = gb->startRule,i = 0;raw != NULL;raw = raw->next,i++){
         YRule *rule = g->rules + i;
-        size_t lhs = *YSTree_find(&gb->ntEntry,YSPool_getString(&gb->pool,raw->lhs));
-        assert(lhs != 0);
+        const char *lhsName = YSPool_getString(&gb->pool,raw->lhs);
+        int lhs = *YTree_find(&gb->ntEntry,lhsName);
+        assert(lhs != -1);
 
-        rule->lhs = lhs - 1;
+        rule->lhs = lhs;
         rule->index = i;
         rule->length = raw->iLen;
         rule->line = raw->line;
@@ -319,23 +370,23 @@ YGrammar *YGBuilder_build(YGBuilder *gb,FILE *err){
         for(j = 0;j < raw->iLen;j++,rp++){
             YRawRuleItem *ritem = raw->items + j;
             rp->isTerminal = ritem->isTerminal;
-            size_t id;
+            int id;
             const char *name = YSPool_getString(&gb->pool,ritem->name);
             if(rp->isTerminal){
-                id = *YSTree_find(&gb->tokenEntry,name);
-                if(id == 0){
+                id = *YTree_find(&gb->tokenEntry,name);
+                if(id == -1){
                     fprintf(err,"use of undefined token '%s'",name);
                     goto err;
                 }
             }
             else {
-                id = *YSTree_find(&gb->ntEntry,name);
-                if(id == 0){
+                id = *YTree_find(&gb->ntEntry,name);
+                if(id == -1){
                     fprintf(err,"use of undefined non terminal '%s'",name);
                     goto err;
                 }
             }
-            rp->id = id - 1;
+            rp->id = id;
         }
     }
     gb->built = 1;

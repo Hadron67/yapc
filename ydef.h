@@ -3,4 +3,7 @@
 #define ya_malloc malloc
 #define ya_realloc realloc
 #define ya_free free
+
+#define ysptr size_t
+
 #endif

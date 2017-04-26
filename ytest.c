@@ -104,7 +104,7 @@ static int YTest_dump(YTest *t){
     for(i = 0;i < t->stack.len;i++){
         YTStackItem *item = t->stack.items + i;
         if(item->isTerminal){
-            fprintf(t->out,"<%s> ",t->g->tokenNames[item->id]);
+            fprintf(t->out,"<%s> ",t->g->tokens[item->id].name);
         }
         else {
             fprintf(t->out,"%s ",t->g->ntNames[item->id]);
@@ -112,7 +112,7 @@ static int YTest_dump(YTest *t){
     }
     fprintf(t->out,"| ");
     for(i = t->p;i < t->len;i++){
-        fprintf(t->out,"<%s> ",t->g->tokenNames[t->test[i]]);
+        fprintf(t->out,"<%s> ",t->g->tokens[t->test[i]].name);
     }
     fprintf(t->out,"[");
     for(i = 0;i < t->sLen;i++){
@@ -133,7 +133,7 @@ static int yRunTest(YTest *t){
         int index = state * t->g->tokenCount + token;
         YItem *item = t->table->shift[index];
         if(item == NULL){
-            fprintf(t->out,"syntax error!unexpected token '%s' (%s)\n\n",t->g->tokenNames[token],t->g->tokenAlias[token]);
+            fprintf(t->out,"syntax error!unexpected token '%s' (%s)\n\n",t->g->tokens[token].name,t->g->tokens[token].alias);
             return -1;
         }
         else if(item->actionType == YACTION_SHIFT){
