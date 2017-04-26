@@ -1,4 +1,4 @@
-#include "./action.h"
+#include "action.h"
 static const int yytokenCount = 4;
 static const int yyntCount = 8;
 #ifndef YYMALLOC
@@ -116,70 +116,70 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 1:
             /* start -> expr  */
-            #line 25 "./action.y"
+            #line 25 "action.y"
             { printf("accept");yyval = (yyparser->sp[-1]); }
-            #line 122 "./action.c"
+            #line 122 "action.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 2:
             /* @1 ->  */
-            #line 27 "./action.y"
+            #line 27 "action.y"
             { printf("i saw a plus");yyval = 0; }
-            #line 131 "./action.c"
+            #line 131 "action.c"
             *yyparser->sp++ = yyval;
             break;
         case 3:
             /* expr -> expr <+> @1 atom  */
-            #line 27 "./action.y"
+            #line 27 "action.y"
             { yyval = (yyparser->sp[-4]) + (yyparser->sp[-2]); }
-            #line 138 "./action.c"
+            #line 138 "action.c"
             yyparser->sp -= 4;
             yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 4:
             /* expr -> atom  */
-            #line 27 "./action.y"
+            #line 27 "action.y"
             { yyval = (yyparser->sp[-1]); }
-            #line 147 "./action.c"
+            #line 147 "action.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 5:
             /* @2 ->  */
-            #line 29 "./action.y"
+            #line 29 "action.y"
             { printf("a new node"); }
-            #line 156 "./action.c"
+            #line 156 "action.c"
             break;
         case 6:
             /* @3 ->  */
-            #line 29 "./action.y"
+            #line 29 "action.y"
             { printf("i'm expecting an id"); }
-            #line 162 "./action.c"
+            #line 162 "action.c"
             break;
         case 7:
             /* atom -> @3 @2 <id>  */
-            #line 29 "./action.y"
+            #line 29 "action.y"
             { yyval = (yyparser->sp[-1]); }
-            #line 168 "./action.c"
+            #line 168 "action.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 8:
             /* @4 ->  */
-            #line 29 "./action.y"
+            #line 29 "action.y"
             { printf("i'm expecting a num"); }
-            #line 177 "./action.c"
+            #line 177 "action.c"
             break;
         case 9:
             /* atom -> @4 <num>  */
-            #line 29 "./action.y"
+            #line 29 "action.y"
             { yyval = (yyparser->sp[-1]); }
-            #line 183 "./action.c"
+            #line 183 "action.c"
             yyparser->sp -= 1;
             yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
@@ -249,8 +249,9 @@ int yyParser_printError(yyParser *yyparser,FILE *out){
     return 0;
 }
 int yyParser_clearStack(yyParser *yyparser){
-    while(yyparser->sp != yyparser->pstack){
-        YYDESTRUCTOR(--yyparser->sp);
+    while(yyparser->sp > yyparser->pstack){
+        yyparser->sp--;
+        YYDESTRUCTOR(yyparser->sp);
     }
     return 0;
 }

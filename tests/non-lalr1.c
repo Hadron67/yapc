@@ -236,8 +236,9 @@ int yyParser_printError(yyParser *yyparser,FILE *out){
     return 0;
 }
 int yyParser_clearStack(yyParser *yyparser){
-    while(yyparser->sp != yyparser->pstack){
-        YYDESTRUCTOR(--yyparser->sp);
+    while(yyparser->sp > yyparser->pstack){
+        yyparser->sp--;
+        YYDESTRUCTOR(yyparser->sp);
     }
     return 0;
 }
