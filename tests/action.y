@@ -19,6 +19,7 @@
 %token <id> "ID"
 %token <+> "PLUS"
 %token <num> "NUM"
+%token <num> "s"
 
 %%
 

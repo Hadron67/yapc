@@ -38,11 +38,13 @@ static const int yyntCount = 8;
         yyparser->pstack = (jsonval *)YYREALLOC(yyparser->pstack,sizeof(jsonval) * yyparser->pSize);\
         yyparser->sp = yyparser->pstack + offset;\
     }
-/** shift action table
- * positive numbers indicate the states shift to,
- * negative numbers indicate the rules reduce with.
- * the state should be the number in the table minus one,since zero marks
- * for error.*/
+/*
+    shift action table
+    positive numbers indicate the states shift to,
+    negative numbers indicate the rules reduce with.
+    the state should be the number in the table minus one,since zero marks
+    for error.
+*/
 static const int yyshift[] = {
     /* state 0 */
          0,    24,    25,    26,    27,    28,    29,     0,     0,    20,     0,
@@ -132,8 +134,9 @@ static const int yyshift[] = {
        -18,     0,     0,     0,     0,     0,     0,     0,     0,     0,   -18,
          0,   -18,     0,   -18,
 };
-/** goto table,
- * zero iff there is an error*/
+/*
+    goto table
+*/
 static const int yygoto[] = {
     /* state 0 */
          0,     2,     0,     0,     0,     0,    23,     0,
@@ -194,22 +197,33 @@ static const int yygoto[] = {
     /* state 28 */
          0,     0,     0,     0,     0,     0,     0,     0,
 };
-/* the lhs of each rule. */
+/*
+    the left hand side of each rule,used to determine goto action.
+*/
 static const int yylhs[] = {
          0,     1,     1,     1,     2,     2,     3,     3,     4,     4,     5,
          5,     6,     6,     6,     6,     6,     6,     7,     7,
 };
-static const char *yytokenNames[] = {
+/*
+    the length of the symbols on the rhs of each rule
+    used to pop states from the state stack when doing
+    an reduction.
+*/
+static const int yyruleLen[] = {
+         1,     3,     3,     1,     2,     0,     5,     3,     2,     0,     3,
+         1,     1,     1,     1,     1,     1,     1,     1,     0,
+};
+const char *yytokenNames[] = {
     "EOF","string","num","true","false","null",
     "undefined","(",")","[","]","{",
     "}",":",",",
 };
-static const char *yytokenAlias[] = {
+const char *yytokenAlias[] = {
     "EOF","STRING","NUM","TRUE","FALSE","NULL",
     "UNDEFINED","BRA","KET","CBRA","CKET","BBRA",
     "BKET","COLLON","COMMA",
 };
-static const char *yynonTerminals[] = {
+const char *yynonTerminals[] = {
     "(accept)","json","obj","nonEmptyObj","array","nonEmptyArray",
     "primitives","possibleComma",
 };
@@ -223,25 +237,22 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 1:
             /* json -> <{> obj <}>  */
             #line 30 "parser.y"
             { yyval = (yyparser->sp[-2]); }
-            #line 234 "parser.c"
+            #line 247 "parser.c"
             yyparser->sp -= 3;
-            yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 2:
             /* json -> <[> array <]>  */
             #line 31 "parser.y"
             { yyval = (yyparser->sp[-2]); }
-            #line 243 "parser.c"
+            #line 255 "parser.c"
             yyparser->sp -= 3;
-            yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 3:
@@ -249,7 +260,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 4:
@@ -257,32 +267,29 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
-            yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 5:
             /* obj ->  */
             #line 34 "parser.y"
             { JSON_init(&yyval,JTYPE_OBJ); }
-            #line 268 "parser.c"
+            #line 277 "parser.c"
             *yyparser->sp++ = yyval;
             break;
         case 6:
             /* nonEmptyObj -> nonEmptyObj <,> <string> <:> json  */
             #line 36 "parser.y"
             { jsonObj_add(&(yyparser->sp[-5]),(yyparser->sp[-3]).u.stringv.s,(yyparser->sp[-3]).u.stringv.length,&(yyparser->sp[-1]));yyval = (yyparser->sp[-5]); }
-            #line 275 "parser.c"
+            #line 284 "parser.c"
             yyparser->sp -= 5;
-            yyparser->sLen -= 5;
             *yyparser->sp++ = yyval;
             break;
         case 7:
             /* nonEmptyObj -> <string> <:> json  */
             #line 37 "parser.y"
             { JSON_init(&yyval,JTYPE_OBJ);jsonObj_add(&yyval,(yyparser->sp[-3]).u.stringv.s,(yyparser->sp[-3]).u.stringv.length,&(yyparser->sp[-1])); }
-            #line 284 "parser.c"
+            #line 292 "parser.c"
             yyparser->sp -= 3;
-            yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 8:
@@ -290,32 +297,29 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
-            yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 9:
             /* array ->  */
             #line 40 "parser.y"
             { JSON_init(&yyval,JTYPE_ARRAY); }
-            #line 301 "parser.c"
+            #line 307 "parser.c"
             *yyparser->sp++ = yyval;
             break;
         case 10:
             /* nonEmptyArray -> nonEmptyArray <,> json  */
             #line 43 "parser.y"
             { jsonArray_push(&(yyparser->sp[-3]),&(yyparser->sp[-1]));yyval = (yyparser->sp[-3]); }
-            #line 308 "parser.c"
+            #line 314 "parser.c"
             yyparser->sp -= 3;
-            yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 11:
             /* nonEmptyArray -> json  */
             #line 44 "parser.y"
             { JSON_init(&yyval,JTYPE_ARRAY);jsonArray_push(&yyval,&(yyparser->sp[-1])); }
-            #line 317 "parser.c"
+            #line 322 "parser.c"
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 12:
@@ -323,7 +327,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 13:
@@ -331,7 +334,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 14:
@@ -339,7 +341,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 15:
@@ -347,7 +348,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 16:
@@ -355,7 +355,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 17:
@@ -363,7 +362,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 18:
@@ -371,7 +369,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 19:
@@ -381,6 +378,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             *yyparser->sp++ = yyval;
             break;
     }
+    yyparser->sLen -= yyruleLen[yyrule];
     int yyindex = YYSTATE() * yyntCount + yylhs[yyrule];
     YYPUSH_STATE(yygoto[yyindex] - 1);
     return 0;

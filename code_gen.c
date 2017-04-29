@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "code_gen.h"
+#include "ydef.h"
 
 typedef struct _YGen{
     const char *ysource,*source,*header;
@@ -32,7 +33,6 @@ typedef struct _YGen{
 }YGen;
 
 #define YYSPACE 6
-#define YYTAB "    "
 
 static int yPrintNum(FILE *out,int num){
     char buf[YYSPACE + 1];
@@ -61,13 +61,16 @@ static int yPrintNum(FILE *out,int num){
 
 static int yGenShiftTable(YGen *g,FILE *out){
     fprintf(out,
-        "/** shift action table\n"
-        " * positive numbers indicate the states shift to,\n"
-        " * negative numbers indicate the rules reduce with.\n"
-        " * the state should be the number in the table minus one,since zero marks\n"
-        " * for error.*/\n"
+        "/*\n"
+        YYTAB "shift action table\n"
+        YYTAB "positive numbers indicate the states shift to,\n"
+        YYTAB "negative numbers indicate the rules reduce with.\n"
+        YYTAB "the state should be the number in the table minus one,since zero marks\n"
+        YYTAB "for error.\n"
+        "*/\n"
     );
-    g->line2 += 5;
+    g->line2 += 7;
+
     fprintf(out,"static const int %sshift[] = {\n",g->g->nameSpace);
     g->line2 += 1;
     int i,j,line = 0;
@@ -78,16 +81,13 @@ static int yGenShiftTable(YGen *g,FILE *out){
         for(j = 0;j < g->g->tokenCount;j++){
             YItem *item = g->table->shift[i * g->g->tokenCount + j];
             if(item == NULL){
-                yPrintNum(out,0);
-                fprintf(out,",");
+                fprintf(out,"%6d,",0);
             }
             else if(item->actionType == YACTION_SHIFT){
-                yPrintNum(out,item->shift->index + 1);
-                fprintf(out,",");
+                fprintf(out,"%6d,",item->shift->index + 1);
             }
             else if(item->actionType == YACTION_REDUCE){
-                yPrintNum(out,-(item->rule->index + 1));
-                fprintf(out,",");
+                fprintf(out,"%6d,",-(item->rule->index + 1));
             }
             else {
                 abort();
@@ -107,11 +107,14 @@ static int yGenShiftTable(YGen *g,FILE *out){
 
 static int yGenGotoTable(YGen *g,FILE *out){
     fprintf(out,
-        "/** goto table,\n"
-        " * zero iff there is an error*/\n"
+        "/*\n"
+        YYTAB "goto table\n"
+        "*/\n"
     );
-    fprintf(out,"static const int %sgoto[] = {\n",g->g->nameSpace);
     g->line2 += 3;
+
+    fprintf(out,"static const int %sgoto[] = {\n",g->g->nameSpace);
+    g->line2 += 1;
     int i,j,line = 0;
     for(i = 0;i < g->table->stateCount;i++){
         fprintf(out,YYTAB "/* state %d */\n" YYTAB,i);
@@ -120,13 +123,11 @@ static int yGenGotoTable(YGen *g,FILE *out){
         for(j = 0;j < g->g->ntCount;j++){
             YItem *item = g->table->gotot[i * g->g->ntCount + j];
             if(item == NULL){
-                yPrintNum(out,0);
-                fprintf(out,",");
+                fprintf(out,"%6d,",0);
             }
             else {
                 assert(item->actionType == YACTION_SHIFT);
-                yPrintNum(out,item->shift->index + 1);
-                fprintf(out,",");
+                fprintf(out,"%6d,",item->shift->index + 1);
             }
             if(line++ >= 10){
                 fprintf(out,"\n" YYTAB);
@@ -145,17 +146,47 @@ static int yGenGotoTable(YGen *g,FILE *out){
 static int yGenLhsTable(YGen *g,FILE *out){
     const char *ns = g->g->nameSpace;
     fprintf(out,
-        "/* the lhs of each rule. */\n"
+        "/*\n"
+        YYTAB "the left hand side of each rule,used to determine goto action.\n"
+        "*/\n"
         "static const int %slhs[] = {\n"
         YYTAB 
         ,ns
     );
-    g->line2 += 2;
+    g->line2 += 4;
     int i,line = 0;
     for(i = 0;i < g->g->ruleCount;i++){
         YRule *rule = g->g->rules + i;
-        yPrintNum(out,rule->lhs);
-        fprintf(out,",");
+        fprintf(out,"%6d,",rule->lhs);
+        if(line++ >= 10){
+            fprintf(out,"\n" YYTAB);
+            line = 0;
+            g->line2++;
+        }
+    }
+    fprintf(out,"\n};\n");
+    g->line2 += 2;
+    return 0;
+}
+
+static int yyGenRuleLenTable(YGen *g,FILE *out){
+    const char *const ns = g->g->nameSpace;
+    fprintf(out,
+        "/*\n"
+        YYTAB "the length of the symbols on the rhs of each rule\n"
+        YYTAB "used to pop states from the state stack when doing\n"
+        YYTAB "an reduction.\n"
+        "*/\n"
+    );
+    g->line2 += 5;
+
+    fprintf(out,"static const int %sruleLen[] = {\n" YYTAB,ns);
+    g->line2++;
+
+    int i,line = 0;
+    for(i = 0;i < g->g->ruleCount;i++){
+        YRule *rule = g->g->rules + i;
+        fprintf(out,"%6d,",rule->length);
         if(line++ >= 10){
             fprintf(out,"\n" YYTAB);
             line = 0;
@@ -179,7 +210,7 @@ static int yPrintEscapedString(const char *s,FILE *out){
 }
 
 static int yGenStringTable(YGen *g,FILE *out,const char *name,const char **s,int len,int align){
-    fprintf(out,"static const char *%s%s[] = {\n",g->g->nameSpace,name);
+    fprintf(out,"const char *%s%s[] = {\n",g->g->nameSpace,name);
     g->line2++;
     int i,line = 0;
     fprintf(out,YYTAB);
@@ -198,8 +229,8 @@ static int yGenStringTable(YGen *g,FILE *out,const char *name,const char **s,int
     return 0;
 }
 static int yGenSymbolTable(YGen *g,FILE *out){
-    yGenStringTable(g,out,"tokenNames",&g->g->tokens->name,g->g->tokenCount,2);
-    yGenStringTable(g,out,"tokenAlias",&g->g->tokens->alias,g->g->tokenCount,2);
+    yGenStringTable(g,out,"tokenNames",&g->g->tokens->name,g->g->tokenCount,3);
+    yGenStringTable(g,out,"tokenAlias",&g->g->tokens->alias,g->g->tokenCount,3);
     yGenStringTable(g,out,"nonTerminals",g->g->ntNames,g->g->ntCount,1);
     return 0;
 }
@@ -218,6 +249,13 @@ static int yGenHeader(YGen *g,FILE *out){
         "#include <stdlib.h>\n"
         "#include <stdio.h>\n"
     );
+
+    fprintf(out,
+        "#define YY_OK 0\n"
+        "#define YY_ERR -1\n"
+    );
+
+
     int i;
     for(i = 0;i < g->g->tokenCount;i++){
         fprintf(out,"#define %s%s %d\n",g->g->tokenPrefix,g->g->tokens[i].alias,i);
@@ -225,7 +263,31 @@ static int yGenHeader(YGen *g,FILE *out){
 
     fprintf(out,"\n\n");
 
+    fprintf(out,
+        "extern const char *%stokenNames[];\n"
+        "extern const char *%stokenAlias[];\n"
+        "extern const char *%snonTerminals[];\n"
+        ,ns,ns,ns
+    );
+
     fprintf(out,"\n\n");
+
+    if(g->g->genCst){
+        fprintf(out,
+            "typedef struct _%sCst{\n"
+            YYTAB "int isTermi;\n"
+            YYTAB "int id;\n"
+            YYTAB "int index;\n"
+            YYTAB "int length;\n"
+            YYTAB "int child,cousin;\n"
+            YYTAB "//for printing\n"
+            YYTAB "int printP;\n"
+            YYTAB "int level;\n"
+            "}%sCst;\n\n"
+            ,ns
+            ,ns
+        );
+    }
 
     fprintf(out,
         "typedef struct _%sParser{\n"
@@ -249,13 +311,24 @@ static int yGenHeader(YGen *g,FILE *out){
 
         YYTAB "//the generic pointer that user can set\n"
         YYTAB "void *userData;\n"
-        "}%sParser;\n"
         ,ns
         ,stype
         ,ns
         ,stype
-        ,ns
     );
+
+    if(g->g->genCst){
+        fprintf(out,
+            YYTAB "//for construct concrete syntax tree.\n"
+            YYTAB "%sCst *cst;\n"
+            YYTAB "int cstLen,cstSize;\n"
+            YYTAB "int *cStack;\n"
+            YYTAB "int cLen,cSize;\n"
+            ,ns
+        );
+    }
+
+    fprintf(out,"}%sParser;\n",ns);
 
     fprintf(out,"\n\n");
 
@@ -273,6 +346,13 @@ static int yGenHeader(YGen *g,FILE *out){
        ,ns,ns,ns
        ,ns,ns,ns
     );
+
+    if(g->g->genCst){
+        fprintf(out,
+            "int %sParser_printCst(%sParser *%sparser,FILE *out);\n"
+            ,ns,ns,ns
+        );
+    }
 
     fprintf(out,"\n\n");
 
@@ -341,18 +421,24 @@ static int yConvertActionBlock(YGen *g,FILE *out,const char *action,int stackOff
 }
 
 static int yGenReduce(YGen *g,FILE *out){
+    const char *ns = g->g->nameSpace;
+    const char *st = g->g->stype;
     fprintf(out,
         "static int %sParser_reduce(%sParser *%sparser,int %srule){\n"
         YYTAB "YYCHECK_PUSH_TOKEN();\n"
         YYTAB "%s %sval;\n"
         YYTAB "%s *%sdata = (%s *)%sparser->userData;\n"
-        YYTAB "switch(%srule){\n"
-        ,g->g->nameSpace,g->g->nameSpace,g->g->nameSpace,g->g->nameSpace
-        ,g->g->stype,g->g->nameSpace
-        ,g->g->dataType,g->g->nameSpace,g->g->dataType,g->g->nameSpace
-        ,g->g->nameSpace
+        ,ns,ns,ns,ns
+        ,st,ns
+        ,g->g->dataType,ns,g->g->dataType,ns
     );
-    g->line2 += 5;
+    g->line2 += 4;
+
+    fprintf(out,
+        YYTAB "switch(%srule){\n"
+        ,ns
+    );
+    g->line2++;
 
     int i;
     for(i = 0;i < g->g->ruleCount;i++){
@@ -390,13 +476,6 @@ static int yGenReduce(YGen *g,FILE *out){
                 );
                 g->line2++;
             }
-            if(rule->length > 0){
-                fprintf(out,
-                    YYTAB YYTAB YYTAB "%sparser->sLen -= %d;\n"
-                    ,g->g->nameSpace,rule->length
-                );
-                g->line2++;
-            }
             fprintf(out,
                 YYTAB YYTAB YYTAB "*%sparser->sp++ = %sval;\n"
                 ,g->g->nameSpace,g->g->nameSpace
@@ -423,12 +502,25 @@ static int yGenReduce(YGen *g,FILE *out){
     g->line2++;
 
     fprintf(out,
+        YYTAB "%sparser->sLen -= %sruleLen[%srule];\n"
+        ,ns,ns,ns
+    );
+    g->line2 += 1;
+
+    fprintf(out,
         YYTAB "int %sindex = YYSTATE() * %sntCount + %slhs[%srule];\n"
         YYTAB "YYPUSH_STATE(%sgoto[%sindex] - 1);\n"
-        ,g->g->nameSpace,g->g->nameSpace,g->g->nameSpace,g->g->nameSpace
-        ,g->g->nameSpace,g->g->nameSpace
+        ,ns,ns,ns,ns
+        ,ns,ns
     );
-    g->line2++;
+    g->line2 += 2;
+
+    if(g->g->genCst){
+        fprintf(out,
+            YYTAB "%sParser_pushCst(%sparser,0,%slhs[%srule],%sruleLen[%srule]);\n"
+            ,ns,ns,ns,ns,ns,ns
+        );
+    }
 
     fprintf(out,YYTAB "return 0;\n");
     fprintf(out,"}\n");
@@ -524,10 +616,46 @@ static int yGenParseCode(YGen *g,FILE *out){
     yGenShiftTable(g,out);
     yGenGotoTable(g,out);
     yGenLhsTable(g,out);
+    yyGenRuleLenTable(g,out);
     //yGenRuleLengthTable(g,out);
     //yGenRuleValueLengthTable(g,out);
     yGenSymbolTable(g,out);
-    
+    if(g->g->genCst){
+        fprintf(out,
+            "static int %sParser_pushCst(%sParser *parser,int isT,int id,int length){\n"
+            YYTAB "if(parser->cstLen >= parser->cstSize){\n"
+            YYTAB YYTAB "parser->cstSize *= 2;\n"
+            YYTAB YYTAB "parser->cst = (%sCst *)YYREALLOC(parser->cst,sizeof(%sCst) * parser->cstSize);\n"
+            YYTAB "}\n"
+            YYTAB "if(parser->cLen >= parser->cSize){\n"
+            YYTAB YYTAB "parser->cSize *= 2;\n"
+            YYTAB YYTAB "parser->cStack = (int *)YYREALLOC(parser->cStack,sizeof(int) * parser->cSize);\n"
+            YYTAB "}\n"
+            YYTAB "%sCst *cst = parser->cst + parser->cstLen++;\n"
+            YYTAB "cst->index = parser->cstLen - 1;\n"
+            YYTAB "cst->id = id;\n"
+            YYTAB "cst->isTermi = isT;\n"
+            YYTAB "cst->level = 0;\n"
+            YYTAB "cst->length = length;\n"
+            YYTAB "cst->child = cst->cousin = -1;\n"
+            YYTAB "if(!isT){\n"
+            YYTAB YYTAB "int i;\n"
+            YYTAB YYTAB "for(i = parser->cLen - length;i < parser->cLen - 1;i++){\n"
+            YYTAB YYTAB YYTAB "parser->cst[parser->cStack[i]].cousin = parser->cst[parser->cStack[i + 1]].index;\n"
+            YYTAB YYTAB "}\n"
+            YYTAB YYTAB "cst->child = parser->cst[parser->cStack[parser->cLen - length]].index;\n"
+            YYTAB YYTAB "parser->cLen -= length;\n"
+            YYTAB "}\n"
+            YYTAB "parser->cStack[parser->cLen++] = cst->index;\n"
+            YYTAB "return 0;\n"
+            "}\n"
+            ,ns,ns
+
+            ,ns,ns
+            ,ns
+        );
+        g->line2 += 27;
+    }
     yGenReduce(g,out);
 
 
@@ -539,8 +667,6 @@ static int yGenParseCode(YGen *g,FILE *out){
         YYTAB "%sparser->state = (int *)YYMALLOC(sizeof(int) * %sparser->sSize);\n"
         YYTAB "%sparser->state[0] = 0;\n"
         YYTAB "%sparser->sp = %sparser->pstack = (%s *)YYMALLOC(sizeof(%s) * %sparser->pSize);\n"
-        YYTAB "return 0;\n"
-        "}\n"
         ,ns,ns,ns
         ,ns
         ,ns
@@ -549,7 +675,32 @@ static int yGenParseCode(YGen *g,FILE *out){
         ,ns
         ,ns,ns,stype,stype,ns
     );
-    g->line2 += 9;
+    g->line2 += 7;
+
+    if(g->g->genCst){
+        fprintf(out,
+            YYTAB "%sparser->cstSize = 64;\n"
+            YYTAB "%sparser->cstLen = 0;\n"
+            YYTAB "%sparser->cst = (%sCst *)YYMALLOC(sizeof(%sCst) * %sparser->cstSize);\n"
+            YYTAB "%sparser->cLen = 0;\n"
+            YYTAB "%sparser->cSize = 16;\n"
+            YYTAB "%sparser->cStack = (int *)YYMALLOC(sizeof(int) * %sparser->cSize);\n"
+            ,ns
+            ,ns
+            ,ns,ns,ns,ns
+
+            ,ns
+            ,ns
+            ,ns,ns
+        );
+        g->line2 += 6;
+    }
+
+    fprintf(out,
+        YYTAB "return 0;\n"
+        "}\n"
+    );
+    g->line2 += 2;
 
     fprintf(out,
         "int %sParser_reInit(%sParser *%sparser){\n"
@@ -557,27 +708,55 @@ static int yGenParseCode(YGen *g,FILE *out){
         YYTAB "%sparser->done = 0;\n"
         YYTAB "%sparser->state[0] = 0;\n"
         YYTAB "%sparser->sp = %sparser->pstack;\n"
-        YYTAB "return 0;\n"
-        "}\n"
         ,ns,ns,ns
         ,ns
         ,ns
         ,ns
         ,ns,ns
     );
-    g->line2 += 7;
+    g->line2 += 5;
+
+    if(g->g->genCst){
+        fprintf(out,
+            YYTAB "%sparser->cstLen = 0;\n"
+            YYTAB "%sparser->cLen = 0;\n"
+            ,ns
+            ,ns
+        );
+        g->line2 += 2;
+    }
+
+    fprintf(out,
+        YYTAB "return 0;\n"
+        "}\n"
+    );
+    g->line2 += 2;
 
     fprintf(out,
         "int %sParser_free(%sParser *%sparser){\n"
         YYTAB "YYFREE(%sparser->state);\n"
         YYTAB "YYFREE(%sparser->pstack);\n"
-        YYTAB "return 0;\n"
-        "}\n"
         ,ns,ns,ns
         ,ns
         ,ns
     );
-    g->line2 += 5;
+    g->line2 += 3;
+
+    if(g->g->genCst){
+        fprintf(out,
+            "YYFREE(%sparser->cst);\n"
+            "YYFREE(%sparser->cStack);\n"
+            ,ns
+            ,ns
+        );
+        g->line2 += 2;
+    }
+
+    fprintf(out,
+        YYTAB "return 0;\n"
+        "}\n"
+    );
+    g->line2 += 2;
 
     fprintf(out,
         "int %sParser_acceptToken(%sParser *%sparser,int %stokenid){\n"
@@ -589,27 +768,38 @@ static int yGenParseCode(YGen *g,FILE *out){
         YYTAB YYTAB YYTAB "*%sparser->sp++ = %sparser->token;\n"
         YYTAB YYTAB YYTAB "YYPUSH_STATE(%saction - 1);\n"
         YYTAB YYTAB YYTAB "shifted = 1;\n"
+        ,ns,ns,ns,ns
+        ,ns,ns,ns,ns
+        ,ns
+        ,ns,ns
+        ,ns
+    );
+    g->line2 += 9;
+
+    if(g->g->genCst){
+        fprintf(out,
+            YYTAB YYTAB YYTAB "%sParser_pushCst(%sparser,1,%stokenid,0);\n"
+            ,ns,ns,ns
+        );
+    }
+
+    fprintf(out,
         YYTAB YYTAB "}\n"
         YYTAB YYTAB "else if(%saction < 0){\n"
         YYTAB YYTAB YYTAB "if(%saction == -1){\n"
         YYTAB YYTAB YYTAB YYTAB "%sparser->done = 1;\n"
-        YYTAB YYTAB YYTAB YYTAB "return 0;\n"
+        YYTAB YYTAB YYTAB YYTAB "return YY_OK;\n"
         YYTAB YYTAB YYTAB "}\n"
         YYTAB YYTAB YYTAB "%sParser_reduce(%sparser,-1 - %saction);\n"
         YYTAB YYTAB "}\n"
         YYTAB YYTAB "else {\n"
         YYTAB YYTAB YYTAB "%sparser->error = 1;\n"
         YYTAB YYTAB YYTAB "%sparser->errToken = %stokenid;\n"
-        YYTAB YYTAB YYTAB "return -1;\n"
+        YYTAB YYTAB YYTAB "return YY_ERR;\n"
         YYTAB YYTAB "}\n"
         YYTAB "}\n"
-        YYTAB "return 0;\n"
+        YYTAB "return YY_OK;\n"
         "}\n"
-        ,ns,ns,ns,ns
-        ,ns,ns,ns,ns
-        ,ns
-        ,ns,ns
-        ,ns
         ,ns
         ,ns
         ,ns
@@ -617,7 +807,7 @@ static int yGenParseCode(YGen *g,FILE *out){
         ,ns
         ,ns,ns
     );
-    g->line2 += 25;
+    g->line2 += 16;
 
     fprintf(out,
         "int %sParser_printError(%sParser *%sparser,FILE *out){\n"
@@ -631,7 +821,7 @@ static int yGenParseCode(YGen *g,FILE *out){
         YYTAB YYTAB YYTAB "}\n"
         YYTAB YYTAB "}\n"
         YYTAB "}\n"
-        YYTAB "return 0;\n"
+        YYTAB "return YY_OK;\n"
         "}\n"
         ,ns,ns,ns
         ,ns
@@ -657,6 +847,112 @@ static int yGenParseCode(YGen *g,FILE *out){
         ,ns
     );
     g->line2 += 7;
+
+    if(g->g->genCst){
+        fprintf(out,
+            "/*\n"
+            YYTAB "following functions is for printing syntax trees in an elegant way.\n"
+            "*/\n"
+        );
+        g->line2 += 3;
+
+        fprintf(out,
+            "#define YYCCHR_DOWN \"│   \"\n"
+            "#define YYCCHR_CONNOR \"└───\"\n"
+            "#define YYCCHR_DIVERSE \"├───\"\n"
+            "#define YYCCHR_BLANK \"    \"\n"
+        );
+        g->line2 += 4;
+        
+        fprintf(out,
+            "static void repeatPrint(FILE *out,const char *s,int count){\n"
+            YYTAB "while(count --> 0) fprintf(out,\"%%s\",s);\n"
+            "}\n"
+        );
+        g->line2 += 3;
+
+        fprintf(out,
+            "static %sCst *%sCst_getChild(%sCst *array,%sCst *cst,int index){\n"
+            YYTAB "cst = array + cst->child;\n"
+            YYTAB "while(index --> 0){\n"
+            YYTAB YYTAB "cst = array + cst->cousin;\n"
+            YYTAB "}\n"
+            YYTAB "return cst;\n"
+            "}\n"
+            ,ns,ns,ns,ns
+
+        );
+        g->line2 += 7;
+
+        fprintf(out,
+            "static int %sCst_printNode(%sCst *cst,%sCst **stack,int sp,FILE *out){\n"
+            YYTAB "int i,level = 0;\n"
+            YYTAB "for(i = 0;i < sp - 1;i++){\n"
+            YYTAB YYTAB "repeatPrint(out,YYCCHR_BLANK,stack[i]->level - level - 1);\n"
+            YYTAB YYTAB "fprintf(out,YYCCHR_DOWN);\n"
+            YYTAB YYTAB "level = stack[i]->level;\n"
+            YYTAB "}\n"
+            YYTAB "if(sp > 0){\n"
+            YYTAB YYTAB "repeatPrint(out,YYCCHR_BLANK,stack[i]->level - level - 1);\n"
+            YYTAB YYTAB "if(stack[i]->printP < stack[i]->length - 1){\n"
+            YYTAB YYTAB YYTAB "fprintf(out,YYCCHR_DIVERSE);\n"
+            YYTAB YYTAB "}\n"
+            YYTAB YYTAB "else {\n"
+            YYTAB YYTAB YYTAB "fprintf(out,YYCCHR_CONNOR);\n"
+            YYTAB YYTAB "}\n"
+            YYTAB "}\n"
+            YYTAB "if(cst->isTermi){\n"
+            YYTAB YYTAB "fprintf(out,\"<%%s>\\n\",%stokenNames[cst->id]);\n"
+            YYTAB "}\n"
+            YYTAB "else{\n"
+            YYTAB YYTAB "fprintf(out,\"%%s\\n\",%snonTerminals[cst->id]);\n"
+            YYTAB "}\n"
+            YYTAB "return YY_OK;\n"
+            "}\n"
+            ,ns,ns,ns
+
+            ,ns
+            ,ns
+        );
+        g->line2 += 23;
+
+        fprintf(out,
+            "int %sParser_printCst(%sParser *parser,FILE *out){\n"
+            YYTAB "%sCst **cstack = (%sCst **)YYMALLOC(sizeof(%sCst *) * parser->cstLen);\n"
+            YYTAB "int sp = 0;\n"
+            YYTAB "%sCst *root = &parser->cst[parser->cStack[0]];\n"
+            YYTAB "root->printP;\n"
+            YYTAB "root->level = 1;\n"
+            YYTAB "%sCst_printNode(root,cstack,sp,out);\n"
+            YYTAB "cstack[sp++] = root;\n"
+            YYTAB "while(sp > 0){\n"
+            YYTAB YYTAB "%sCst *node = cstack[sp - 1];\n"
+            YYTAB YYTAB "%sCst *childn = %sCst_getChild(parser->cst,node,node->printP);\n"
+            YYTAB YYTAB "childn->level = node->level + 1;\n"
+            YYTAB YYTAB "%sCst_printNode(childn,cstack,sp,out);\n"
+            YYTAB YYTAB "if(++node->printP >= node->length){\n"
+            YYTAB YYTAB YYTAB "sp--;\n"
+            YYTAB YYTAB "}\n"
+            YYTAB YYTAB "if(childn->length > 0){\n"
+            YYTAB YYTAB YYTAB "cstack[sp++] = childn;\n"
+            YYTAB YYTAB YYTAB "childn->printP = 0;\n"
+            YYTAB YYTAB "}\n"
+            YYTAB "}\n"
+            YYTAB "YYFREE(cstack);\n"
+            YYTAB "return YY_OK;\n"
+            "}\n"
+            ,ns,ns
+            ,ns,ns,ns
+            
+            ,ns
+            ,ns
+
+            ,ns
+            ,ns,ns
+            ,ns
+        );
+        g->line2 += 24;
+    }
 
     return 0;
 }

@@ -7,6 +7,6 @@ begin
       else F:=n*F(n-1)
     end;
   read(m);
-  k:=F(m);
-  write(k);
+  k:=F(m) * 8;
+  write(k)
 end

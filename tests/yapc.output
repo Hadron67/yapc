@@ -1,140 +1,145 @@
-state 14,shift/reduce conflict:
-  used:[ 20: ruleItem -> . <name>, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (s17)
-  discarded:[ 16: ruleBody -> ruleBody <|> ruleItems ., { <%test>,<%%>,<|>,<name>, } ]* (r)
-
-state 19,shift/reduce conflict:
-  used:[ 20: ruleItem -> . <name>, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (s17)
-  discarded:[ 15: ruleBody -> ruleItems ., { <%test>,<%%>,<|>,<name>, } ]* (r)
+unused token: <%empty> (EMPTY_DIR)
 
 i0
-[ 0: (accept) -> . file, { <EOF>, } ]* (s1)
-[ 1: file -> . options <%%> body <%%>, { <EOF>, } ] (s2)
-[ 2: options -> . options option, { <%token>,<%type>,<%datatype>,<%%>, } ] (s2)
-[ 3: options -> ., { <%token>,<%type>,<%datatype>,<%%>, } ] (r)
+[ 0: (accept) -> . file, { <EOF> } ]* (s1)
+[ 1: file -> . prologue options <%%> body <%%>, { <EOF> } ] (s2)
+[ 7: prologue -> . <prologue>, { <%token>,<%type>,<%datatype>,<%%> } ] (s34)
+[ 8: prologue -> ., { <%token>,<%type>,<%datatype>,<%%> } ] (r)
 
 i1
-[ 0: (accept) -> file ., { <EOF>, } ]* (r)
+[ 0: (accept) -> file ., { <EOF> } ]* (r)
 
 i2
-[ 1: file -> options . <%%> body <%%>, { <EOF>, } ]* (s3)
-[ 2: options -> options . option, { <%token>,<%type>,<%datatype>,<%%>, } ]* (s24)
-[ 4: option -> . <%token> <token> <string>, { <%token>,<%type>,<%datatype>,<%%>, } ] (s25)
-[ 5: option -> . <%type> <string>, { <%token>,<%type>,<%datatype>,<%%>, } ] (s28)
-[ 6: option -> . <%datatype> <string>, { <%token>,<%type>,<%datatype>,<%%>, } ] (s30)
+[ 1: file -> prologue . options <%%> body <%%>, { <EOF> } ]* (s3)
+[ 2: options -> . options option, { <%token>,<%type>,<%datatype>,<%%> } ] (s3)
+[ 3: options -> ., { <%token>,<%type>,<%datatype>,<%%> } ] (r)
 
 i3
-[ 1: file -> options <%%> . body <%%>, { <EOF>, } ]* (s4)
-[ 7: body -> . body bodyItem, { <%test>,<%%>,<name>, } ] (s4)
-[ 8: body -> . bodyItem, { <%test>,<%%>,<name>, } ] (s7)
-[ 9: bodyItem -> . rule, { <%test>,<%%>,<name>, } ] (s8)
-[ 10: bodyItem -> . test, { <%test>,<%%>,<name>, } ] (s9)
-[ 14: rule -> . <name> <:> ruleBody, { <%test>,<%%>,<name>, } ] (s10)
-[ 11: test -> . <%test> tokenList <;>, { <%test>,<%%>,<name>, } ] (s20)
+[ 1: file -> prologue options . <%%> body <%%>, { <EOF> } ]* (s4)
+[ 2: options -> options . option, { <%token>,<%type>,<%datatype>,<%%> } ]* (s26)
+[ 4: option -> . <%token> <token> <string>, { <%token>,<%type>,<%datatype>,<%%> } ] (s27)
+[ 5: option -> . <%type> <string>, { <%token>,<%type>,<%datatype>,<%%> } ] (s30)
+[ 6: option -> . <%datatype> <string>, { <%token>,<%type>,<%datatype>,<%%> } ] (s32)
 
 i4
-[ 1: file -> options <%%> body . <%%>, { <EOF>, } ]* (s5)
-[ 7: body -> body . bodyItem, { <%test>,<%%>,<name>, } ]* (s6)
-[ 9: bodyItem -> . rule, { <%test>,<%%>,<name>, } ] (s8)
-[ 10: bodyItem -> . test, { <%test>,<%%>,<name>, } ] (s9)
-[ 14: rule -> . <name> <:> ruleBody, { <%test>,<%%>,<name>, } ] (s10)
-[ 11: test -> . <%test> tokenList <;>, { <%test>,<%%>,<name>, } ] (s20)
+[ 1: file -> prologue options <%%> . body <%%>, { <EOF> } ]* (s5)
+[ 9: body -> . body bodyItem, { <%test>,<%%>,<name> } ] (s5)
+[ 10: body -> . bodyItem, { <%test>,<%%>,<name> } ] (s8)
+[ 11: bodyItem -> . rule <;>, { <%test>,<%%>,<name> } ] (s9)
+[ 12: bodyItem -> . test <;>, { <%test>,<%%>,<name> } ] (s11)
+[ 16: rule -> . <name> <:> ruleBody, { <;> } ] (s13)
+[ 13: test -> . <%test> tokenList, { <;> } ] (s23)
 
 i5
-[ 1: file -> options <%%> body <%%> ., { <EOF>, } ]* (r)
+[ 1: file -> prologue options <%%> body . <%%>, { <EOF> } ]* (s6)
+[ 9: body -> body . bodyItem, { <%test>,<%%>,<name> } ]* (s7)
+[ 11: bodyItem -> . rule <;>, { <%test>,<%%>,<name> } ] (s9)
+[ 12: bodyItem -> . test <;>, { <%test>,<%%>,<name> } ] (s11)
+[ 16: rule -> . <name> <:> ruleBody, { <;> } ] (s13)
+[ 13: test -> . <%test> tokenList, { <;> } ] (s23)
 
 i6
-[ 7: body -> body bodyItem ., { <%test>,<%%>,<name>, } ]* (r)
+[ 1: file -> prologue options <%%> body <%%> ., { <EOF> } ]* (r)
 
 i7
-[ 8: body -> bodyItem ., { <%test>,<%%>,<name>, } ]* (r)
+[ 9: body -> body bodyItem ., { <%test>,<%%>,<name> } ]* (r)
 
 i8
-[ 9: bodyItem -> rule ., { <%test>,<%%>,<name>, } ]* (r)
+[ 10: body -> bodyItem ., { <%test>,<%%>,<name> } ]* (r)
 
 i9
-[ 10: bodyItem -> test ., { <%test>,<%%>,<name>, } ]* (r)
+[ 11: bodyItem -> rule . <;>, { <%test>,<%%>,<name> } ]* (s10)
 
 i10
-[ 14: rule -> <name> . <:> ruleBody, { <%test>,<%%>,<name>, } ]* (s11)
+[ 11: bodyItem -> rule <;> ., { <%test>,<%%>,<name> } ]* (r)
 
 i11
-[ 14: rule -> <name> <:> . ruleBody, { <%test>,<%%>,<name>, } ]* (s12)
-[ 15: ruleBody -> . ruleItems, { <%test>,<%%>,<|>,<name>, } ] (s19)
-[ 16: ruleBody -> . ruleBody <|> ruleItems, { <%test>,<%%>,<|>,<name>, } ] (s12)
-[ 17: ruleItems -> . ruleItems ruleItem, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (s19)
-[ 18: ruleItems -> ., { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (r)
+[ 12: bodyItem -> test . <;>, { <%test>,<%%>,<name> } ]* (s12)
 
 i12
-[ 14: rule -> <name> <:> ruleBody ., { <%test>,<%%>,<name>, } ]* (r)
-[ 16: ruleBody -> ruleBody . <|> ruleItems, { <%test>,<%%>,<|>,<name>, } ]* (s13)
+[ 12: bodyItem -> test <;> ., { <%test>,<%%>,<name> } ]* (r)
 
 i13
-[ 16: ruleBody -> ruleBody <|> . ruleItems, { <%test>,<%%>,<|>,<name>, } ]* (s14)
-[ 17: ruleItems -> . ruleItems ruleItem, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (s14)
-[ 18: ruleItems -> ., { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (r)
+[ 16: rule -> <name> . <:> ruleBody, { <;> } ]* (s14)
 
 i14
-[ 16: ruleBody -> ruleBody <|> ruleItems ., { <%test>,<%%>,<|>,<name>, } ]* (r)
-[ 17: ruleItems -> ruleItems . ruleItem, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ]* (s15)
-[ 19: ruleItem -> . <token>, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (s16)
-[ 20: ruleItem -> . <name>, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (s17)
-[ 21: ruleItem -> . <block>, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (s18)
+[ 16: rule -> <name> <:> . ruleBody, { <;> } ]* (s15)
+[ 17: ruleBody -> . ruleItems, { <|>,<;> } ] (s22)
+[ 18: ruleBody -> . ruleBody <|> ruleItems, { <|>,<;> } ] (s15)
+[ 19: ruleItems -> . ruleItems ruleItem, { <|>,<;>,<name>,<token>,<block> } ] (s22)
+[ 20: ruleItems -> ., { <|>,<;>,<name>,<token>,<block> } ] (r)
 
 i15
-[ 17: ruleItems -> ruleItems ruleItem ., { <%test>,<%%>,<|>,<name>,<token>,<block>, } ]* (r)
+[ 16: rule -> <name> <:> ruleBody ., { <;> } ]* (r)
+[ 18: ruleBody -> ruleBody . <|> ruleItems, { <|>,<;> } ]* (s16)
 
 i16
-[ 19: ruleItem -> <token> ., { <%test>,<%%>,<|>,<name>,<token>,<block>, } ]* (r)
+[ 18: ruleBody -> ruleBody <|> . ruleItems, { <|>,<;> } ]* (s17)
+[ 19: ruleItems -> . ruleItems ruleItem, { <|>,<;>,<name>,<token>,<block> } ] (s17)
+[ 20: ruleItems -> ., { <|>,<;>,<name>,<token>,<block> } ] (r)
 
 i17
-[ 20: ruleItem -> <name> ., { <%test>,<%%>,<|>,<name>,<token>,<block>, } ]* (r)
+[ 18: ruleBody -> ruleBody <|> ruleItems ., { <|>,<;> } ]* (r)
+[ 19: ruleItems -> ruleItems . ruleItem, { <|>,<;>,<name>,<token>,<block> } ]* (s18)
+[ 21: ruleItem -> . <token>, { <|>,<;>,<name>,<token>,<block> } ] (s19)
+[ 22: ruleItem -> . <name>, { <|>,<;>,<name>,<token>,<block> } ] (s20)
+[ 23: ruleItem -> . <block>, { <|>,<;>,<name>,<token>,<block> } ] (s21)
 
 i18
-[ 21: ruleItem -> <block> ., { <%test>,<%%>,<|>,<name>,<token>,<block>, } ]* (r)
+[ 19: ruleItems -> ruleItems ruleItem ., { <|>,<;>,<name>,<token>,<block> } ]* (r)
 
 i19
-[ 15: ruleBody -> ruleItems ., { <%test>,<%%>,<|>,<name>, } ]* (r)
-[ 17: ruleItems -> ruleItems . ruleItem, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ]* (s15)
-[ 19: ruleItem -> . <token>, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (s16)
-[ 20: ruleItem -> . <name>, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (s17)
-[ 21: ruleItem -> . <block>, { <%test>,<%%>,<|>,<name>,<token>,<block>, } ] (s18)
+[ 21: ruleItem -> <token> ., { <|>,<;>,<name>,<token>,<block> } ]* (r)
 
 i20
-[ 11: test -> <%test> . tokenList <;>, { <%test>,<%%>,<name>, } ]* (s21)
-[ 12: tokenList -> . tokenList <token>, { <;>,<token>, } ] (s21)
-[ 13: tokenList -> ., { <;>,<token>, } ] (r)
+[ 22: ruleItem -> <name> ., { <|>,<;>,<name>,<token>,<block> } ]* (r)
 
 i21
-[ 11: test -> <%test> tokenList . <;>, { <%test>,<%%>,<name>, } ]* (s22)
-[ 12: tokenList -> tokenList . <token>, { <;>,<token>, } ]* (s23)
+[ 23: ruleItem -> <block> ., { <|>,<;>,<name>,<token>,<block> } ]* (r)
 
 i22
-[ 11: test -> <%test> tokenList <;> ., { <%test>,<%%>,<name>, } ]* (r)
+[ 17: ruleBody -> ruleItems ., { <|>,<;> } ]* (r)
+[ 19: ruleItems -> ruleItems . ruleItem, { <|>,<;>,<name>,<token>,<block> } ]* (s18)
+[ 21: ruleItem -> . <token>, { <|>,<;>,<name>,<token>,<block> } ] (s19)
+[ 22: ruleItem -> . <name>, { <|>,<;>,<name>,<token>,<block> } ] (s20)
+[ 23: ruleItem -> . <block>, { <|>,<;>,<name>,<token>,<block> } ] (s21)
 
 i23
-[ 12: tokenList -> tokenList <token> ., { <;>,<token>, } ]* (r)
+[ 13: test -> <%test> . tokenList, { <;> } ]* (s24)
+[ 14: tokenList -> . tokenList <token>, { <;>,<token> } ] (s24)
+[ 15: tokenList -> ., { <;>,<token> } ] (r)
 
 i24
-[ 2: options -> options option ., { <%token>,<%type>,<%datatype>,<%%>, } ]* (r)
+[ 13: test -> <%test> tokenList ., { <;> } ]* (r)
+[ 14: tokenList -> tokenList . <token>, { <;>,<token> } ]* (s25)
 
 i25
-[ 4: option -> <%token> . <token> <string>, { <%token>,<%type>,<%datatype>,<%%>, } ]* (s26)
+[ 14: tokenList -> tokenList <token> ., { <;>,<token> } ]* (r)
 
 i26
-[ 4: option -> <%token> <token> . <string>, { <%token>,<%type>,<%datatype>,<%%>, } ]* (s27)
+[ 2: options -> options option ., { <%token>,<%type>,<%datatype>,<%%> } ]* (r)
 
 i27
-[ 4: option -> <%token> <token> <string> ., { <%token>,<%type>,<%datatype>,<%%>, } ]* (r)
+[ 4: option -> <%token> . <token> <string>, { <%token>,<%type>,<%datatype>,<%%> } ]* (s28)
 
 i28
-[ 5: option -> <%type> . <string>, { <%token>,<%type>,<%datatype>,<%%>, } ]* (s29)
+[ 4: option -> <%token> <token> . <string>, { <%token>,<%type>,<%datatype>,<%%> } ]* (s29)
 
 i29
-[ 5: option -> <%type> <string> ., { <%token>,<%type>,<%datatype>,<%%>, } ]* (r)
+[ 4: option -> <%token> <token> <string> ., { <%token>,<%type>,<%datatype>,<%%> } ]* (r)
 
 i30
-[ 6: option -> <%datatype> . <string>, { <%token>,<%type>,<%datatype>,<%%>, } ]* (s31)
+[ 5: option -> <%type> . <string>, { <%token>,<%type>,<%datatype>,<%%> } ]* (s31)
 
 i31
-[ 6: option -> <%datatype> <string> ., { <%token>,<%type>,<%datatype>,<%%>, } ]* (r)
+[ 5: option -> <%type> <string> ., { <%token>,<%type>,<%datatype>,<%%> } ]* (r)
+
+i32
+[ 6: option -> <%datatype> . <string>, { <%token>,<%type>,<%datatype>,<%%> } ]* (s33)
+
+i33
+[ 6: option -> <%datatype> <string> ., { <%token>,<%type>,<%datatype>,<%%> } ]* (r)
+
+i34
+[ 7: prologue -> <prologue> ., { <%token>,<%type>,<%datatype>,<%%> } ]* (r)
 

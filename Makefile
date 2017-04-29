@@ -339,6 +339,33 @@ yapc.c.s:
 	$(MAKE) -f CMakeFiles/yapc.dir/build.make CMakeFiles/yapc.dir/yapc.c.s
 .PHONY : yapc.c.s
 
+yparser.o: yparser.c.o
+
+.PHONY : yparser.o
+
+# target to build an object file
+yparser.c.o:
+	$(MAKE) -f CMakeFiles/yapc.dir/build.make CMakeFiles/yapc.dir/yparser.c.o
+.PHONY : yparser.c.o
+
+yparser.i: yparser.c.i
+
+.PHONY : yparser.i
+
+# target to preprocess a source file
+yparser.c.i:
+	$(MAKE) -f CMakeFiles/yapc.dir/build.make CMakeFiles/yapc.dir/yparser.c.i
+.PHONY : yparser.c.i
+
+yparser.s: yparser.c.s
+
+.PHONY : yparser.s
+
+# target to generate assembly for a file
+yparser.c.s:
+	$(MAKE) -f CMakeFiles/yapc.dir/build.make CMakeFiles/yapc.dir/yparser.c.s
+.PHONY : yparser.c.s
+
 ytest.o: ytest.c.o
 
 .PHONY : ytest.o
@@ -399,6 +426,9 @@ help:
 	@echo "... yapc.o"
 	@echo "... yapc.i"
 	@echo "... yapc.s"
+	@echo "... yparser.o"
+	@echo "... yparser.i"
+	@echo "... yparser.s"
 	@echo "... ytest.o"
 	@echo "... ytest.i"
 	@echo "... ytest.s"

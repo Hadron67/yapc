@@ -37,11 +37,13 @@ static const int jmntCount = 2;
         jmparser->pstack = (jnode *)YYREALLOC(jmparser->pstack,sizeof(jnode) * jmparser->pSize);\
         jmparser->sp = jmparser->pstack + offset;\
     }
-/** shift action table
- * positive numbers indicate the states shift to,
- * negative numbers indicate the rules reduce with.
- * the state should be the number in the table minus one,since zero marks
- * for error.*/
+/*
+    shift action table
+    positive numbers indicate the states shift to,
+    negative numbers indicate the rules reduce with.
+    the state should be the number in the table minus one,since zero marks
+    for error.
+*/
 static const int jmshift[] = {
     /* state 0 */
         -5,    -5,     0,    -5,     0,     0,
@@ -60,8 +62,9 @@ static const int jmshift[] = {
     /* state 7 */
         -4,    -4,     0,    -4,     0,     0,
 };
-/** goto table,
- * zero iff there is an error*/
+/*
+    goto table
+*/
 static const int jmgoto[] = {
     /* state 0 */
          0,     2,
@@ -80,19 +83,29 @@ static const int jmgoto[] = {
     /* state 7 */
          0,     0,
 };
-/* the lhs of each rule. */
+/*
+    the left hand side of each rule,used to determine goto action.
+*/
 static const int jmlhs[] = {
          0,     1,     1,     1,     1,
 };
-static const char *jmtokenNames[] = {
+/*
+    the length of the symbols on the rhs of each rule
+    used to pop states from the state stack when doing
+    an reduction.
+*/
+static const int jmruleLen[] = {
+         1,     4,     4,     2,     0,
+};
+const char *jmtokenNames[] = {
     "EOF","[","]","member","num","string",
     
 };
-static const char *jmtokenAlias[] = {
+const char *jmtokenAlias[] = {
     "EOF","CBRA","CKET","MEMBER","NUM","STRING",
     
 };
-static const char *jmnonTerminals[] = {
+const char *jmnonTerminals[] = {
     "(accept)","start",
 };
 static int jmParser_reduce(jmParser *jmparser,int jmrule){
@@ -105,34 +118,30 @@ static int jmParser_reduce(jmParser *jmparser,int jmrule){
             /* no action. */
             jmval = jmparser->sp[-1];
             jmparser->sp -= 1;
-            jmparser->sLen -= 1;
             *jmparser->sp++ = jmval;
             break;
         case 1:
             /* start -> start <[> <num> <]>  */
             #line 21 "matcher.y"
             { jMatch_doNum(jmdata,&(jmparser->sp[-2])); }
-            #line 116 "matcher.c"
+            #line 128 "matcher.c"
             jmparser->sp -= 4;
-            jmparser->sLen -= 4;
             *jmparser->sp++ = jmval;
             break;
         case 2:
             /* start -> start <[> <string> <]>  */
             #line 22 "matcher.y"
             { jMatch_doMember(jmdata,&(jmparser->sp[-2])); }
-            #line 125 "matcher.c"
+            #line 136 "matcher.c"
             jmparser->sp -= 4;
-            jmparser->sLen -= 4;
             *jmparser->sp++ = jmval;
             break;
         case 3:
             /* start -> start <member>  */
             #line 23 "matcher.y"
             { jMatch_doMember(jmdata,&(jmparser->sp[-1])); }
-            #line 134 "matcher.c"
+            #line 144 "matcher.c"
             jmparser->sp -= 2;
-            jmparser->sLen -= 2;
             *jmparser->sp++ = jmval;
             break;
         case 4:
@@ -142,6 +151,7 @@ static int jmParser_reduce(jmParser *jmparser,int jmrule){
             *jmparser->sp++ = jmval;
             break;
     }
+    jmparser->sLen -= jmruleLen[jmrule];
     int jmindex = YYSTATE() * jmntCount + jmlhs[jmrule];
     YYPUSH_STATE(jmgoto[jmindex] - 1);
     return 0;

@@ -1,0 +1,55 @@
+unused token: <-> (MINUS)
+unused token: <+> (PLUS)
+
+i0
+[ 0: (accept) -> . simpleExpr, { <EOF> } ]* (s1)
+[ 1: simpleExpr -> . sign factor, { <EOF> } ] (s2)
+[ 2: sign -> ., { <ID>,<NUM> } ] (r)
+
+i1
+[ 0: (accept) -> simpleExpr ., { <EOF> } ]* (r)
+
+i2
+[ 1: simpleExpr -> sign . factor, { <EOF>,<]> } ]* (s3)
+[ 3: factor -> . <NUM>, { <EOF>,<]> } ] (s4)
+[ 4: factor -> . variable, { <EOF>,<]> } ] (s5)
+[ 5: variable -> . <ID> <[> simpleExpr <]>, { <EOF>,<]> } ] (s6)
+
+i3
+[ 1: simpleExpr -> sign factor ., { <EOF>,<]> } ]* (r)
+
+i4
+[ 3: factor -> <NUM> ., { <EOF>,<]> } ]* (r)
+
+i5
+[ 4: factor -> variable ., { <EOF>,<]> } ]* (r)
+
+i6
+[ 5: variable -> <ID> . <[> simpleExpr <]>, { <EOF>,<]> } ]* (s7)
+
+i7
+[ 5: variable -> <ID> <[> . simpleExpr <]>, { <EOF>,<]> } ]* (s8)
+[ 1: simpleExpr -> . sign factor, { <]> } ] (s2)
+[ 2: sign -> ., { <ID>,<NUM> } ] (r)
+
+i8
+[ 5: variable -> <ID> <[> simpleExpr . <]>, { <EOF>,<]> } ]* (s9)
+
+i9
+[ 5: variable -> <ID> <[> simpleExpr <]> ., { <EOF>,<]> } ]* (r)
+
+test 1:
+| <ID> <[> <NUM> <]> [0 ]
+sign | <ID> <[> <NUM> <]> [0 2 ]
+sign <ID> | <[> <NUM> <]> [0 2 6 ]
+sign <ID> <[> | <NUM> <]> [0 2 6 7 ]
+sign <ID> <[> sign | <NUM> <]> [0 2 6 7 2 ]
+sign <ID> <[> sign <NUM> | <]> [0 2 6 7 2 4 ]
+sign <ID> <[> sign factor | <]> [0 2 6 7 2 3 ]
+sign <ID> <[> simpleExpr | <]> [0 2 6 7 8 ]
+sign <ID> <[> simpleExpr <]> | [0 2 6 7 8 9 ]
+sign variable | [0 2 5 ]
+sign factor | [0 2 3 ]
+simpleExpr | [0 1 ]
+accepted!
+

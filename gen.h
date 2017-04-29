@@ -49,6 +49,7 @@ struct _YItemSet{
     YItemSet *prev,*next;
     YGrammar *g;
     int index;
+    int pact;//used in generating parsing table,for compressing.
     int len,size;
     size_t itemSize;
     YItem *items;
@@ -73,6 +74,7 @@ typedef struct _YParseTable{
 
 typedef struct _YConflict{
     yconflict_t type;
+    int token;
     YItemSet *set;
     YItem *used,*discarded;
 }YConflict;

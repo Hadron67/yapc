@@ -23,6 +23,7 @@
 #include "ydef.h"
 #include "gen.h"
 
+
 static YItemSet *YItemSet_new(YGrammar *g){
     int size = 8;
     size_t itemSize = YGrammar_getTokenSetSize(g) * sizeof(char) + sizeof(YItem);
@@ -92,7 +93,7 @@ static int YItem_getFollowSet(YItem *item,char *set,YGrammar *g,YFirstSets *fset
     return 0;
 }
 
-static int YItemSet_addItem(YItemSet *set,YRule *rule,int marker,int isKernel,char *lah,int reset){
+static int YItemSet_addItem(YItemSet *set,YRule *rule,int marker,int isKernel,const char *lah,int reset){
     YGrammar *g = set->g;
     // check for duplications
     int i;
@@ -158,7 +159,8 @@ static int YItemSet_mergeTo(YItemSet *dest,YItemSet *src){
     int ret = 0;
     for(i = 0;i < src->len;i++){
         YItem *item = YItemSet_getItem(src,i);
-        ret = ret || YItemSet_addItem(dest,item->rule,item->marker,0,item->lah,1);
+        char ret2 = YItemSet_addItem(dest,item->rule,item->marker,0,item->lah,1);
+        ret = ret || ret2;
     }
     return ret;
 }
@@ -192,7 +194,8 @@ static int YItemSet_closure(YItemSet *set,YFirstSets *fsets){
                     for(j = 0;j < g->ruleCount;j++){
                         YRule *rule = g->rules + j;
                         if(rule->lhs == rItem->id){
-                            changed = changed || YItemSet_addItem(set,rule,0,0,tSet,0);
+                            int changed2 = YItemSet_addItem(set,rule,0,0,tSet,0);
+                            changed = changed || changed2;
                         }
                     }
                 }
@@ -246,13 +249,21 @@ int YItem_dump(YItem *item,YGrammar *g,int showLah,FILE *out){
     }
 
     if(showLah){
+        int first = 1;
         fprintf(out,", { ");
         if(YTokenSet_contains(g,item->lah,0)){
-            fprintf(out,"<>,");
+            fprintf(out,"<>");
+            first = 0;
         }
         for(i = 0;i < g->tokenCount;i++){
             if(YTokenSet_contains(g,item->lah,i + 1)){
-                fprintf(out,"<%s>,",g->tokens[i].name);
+                if(!first){
+                    fprintf(out,",");
+                }
+                else{
+                    first = 0;
+                }
+                fprintf(out,"<%s>",g->tokens[i].name);
             }
         }
         fprintf(out," } ]");
@@ -457,13 +468,21 @@ int YConflictList_init(YConflictList *list,int size){
     list->conflicts = (YConflict *)ya_malloc(sizeof(YConflict) * size);
     return 0;
 }
-static int YConflictList_addConflict(YConflictList *list,yconflict_t type,YItemSet *set,YItem *used,YItem *discarded){
+static int YConflictList_addConflict(YConflictList *list,yconflict_t type,YItemSet *set,int token,YItem *used,YItem *discarded){
     if(list->len >= list->size){
         list->size *= 2;
         list->conflicts = (YConflict *)ya_realloc(list->conflicts,sizeof(YConflict) * list->size);
     }
+    /*int i;
+    for(i = 0;i < list->len;i++){
+        YConflict *c = list->conflicts + i;
+        if(c->type == type && c->set == set && c->used == used && c->discarded == discarded){
+            return 0;
+        }
+    }*/
     YConflict *c = list->conflicts + list->len++;
     c->set = set;
+    c->token = token;
     c->used = used;
     c->type = type;
     c->discarded = discarded;
@@ -484,10 +503,11 @@ static int YConflict_print(YConflict *c,FILE *out){
     else {
         abort();
     }
-    fprintf(out,"  used:");
+    fprintf(out,YYTAB "token: <%s>\n",g->tokens[c->token].name);
+    fprintf(out,YYTAB "used:");
     YItem_dump(c->used,g,1,out);
     fprintf(out,"\n");
-    fprintf(out,"  discarded:");
+    fprintf(out,YYTAB "discarded:");
     YItem_dump(c->discarded,g,1,out);
     fprintf(out,"\n");
     return 0;
@@ -550,7 +570,7 @@ YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YConflictList *clist)
                             //now we've got a shift-reduce conflict.
                             //report it,and do shift
                             assert((*cItem)->actionType == YACTION_REDUCE);
-                            YConflictList_addConflict(clist,YCONFLICT_SR,set,item,*cItem);
+                            YConflictList_addConflict(clist,YCONFLICT_SR,set,rItem->id,item,*cItem);
                             *cItem = item;
                         }
                     }
@@ -573,11 +593,11 @@ YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YConflictList *clist)
                                 //we've got a reduce-reduce conflict.
                                 YItem *taken = item->rule->index > (*cItem)->rule->index ? *cItem : item;
                                 YItem *discarded = item->rule->index < (*cItem)->rule->index ? *cItem : item;
-                                YConflictList_addConflict(clist,YCONFLICT_RR,set,taken,discarded);
+                                YConflictList_addConflict(clist,YCONFLICT_RR,set,j,taken,discarded);
                                 *cItem = taken;
                             }
                             else if((*cItem)->actionType == YACTION_SHIFT){
-                                YConflictList_addConflict(clist,YCONFLICT_SR,set,*cItem,item);
+                                YConflictList_addConflict(clist,YCONFLICT_SR,set,j,*cItem,item);
                             }
                         }
                         else {

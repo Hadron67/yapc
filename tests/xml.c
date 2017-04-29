@@ -32,14 +32,16 @@ static const int yyntCount = 9;
         yyparser->pstack = (int *)YYREALLOC(yyparser->pstack,sizeof(int) * yyparser->pSize);\
         yyparser->sp = yyparser->pstack + offset;\
     }
-/** shift action table
- * positive numbers indicate the states shift to,
- * negative numbers indicate the rules reduce with.
- * the state should be the number in the table minus one,since zero marks
- * for error.*/
+/*
+    shift action table
+    positive numbers indicate the states shift to,
+    negative numbers indicate the rules reduce with.
+    the state should be the number in the table minus one,since zero marks
+    for error.
+*/
 static const int yyshift[] = {
     /* state 0 */
-         0,     0,    -4,     0,     0,    21,     0,     0,     0,     0,     0,
+         0,     0,    -4,     0,     0,    19,     0,     0,     0,     0,     0,
     
     /* state 1 */
         -1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
@@ -90,34 +92,34 @@ static const int yyshift[] = {
          0,    18,     0,     0,     0,     0,     0,     0,     0,     0,     0,
     
     /* state 17 */
-        -7,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+        -7,     0,    -7,     0,     0,     0,     0,     0,     0,     0,     0,
     
     /* state 18 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,    20,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,    20,     0,     0,
     
     /* state 19 */
-         0,   -14,     0,     0,     0,     0,     0,   -14,   -14,     0,     0,
-    
-    /* state 20 */
-         0,     0,     0,     0,     0,     0,     0,     0,    22,     0,     0,
-    
-    /* state 21 */
          0,     0,     0,     0,     0,     0,   -12,     0,   -12,     0,     0,
     
-    /* state 22 */
-         0,     0,     0,     0,     0,     0,    24,     0,    27,     0,     0,
+    /* state 20 */
+         0,     0,     0,     0,     0,     0,    22,     0,    27,     0,     0,
     
-    /* state 23 */
+    /* state 21 */
          0,     0,    -3,     0,     0,     0,     0,     0,     0,     0,     0,
     
-    /* state 24 */
+    /* state 22 */
          0,   -11,     0,     0,     0,     0,   -11,   -11,   -11,     0,     0,
     
+    /* state 23 */
+         0,   -13,     0,    25,     0,     0,   -13,   -13,   -13,     0,     0,
+    
+    /* state 24 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,    26,     0,
+    
     /* state 25 */
-         0,   -13,     0,    19,     0,     0,   -13,   -13,   -13,     0,     0,
+         0,   -14,     0,     0,     0,     0,   -14,   -14,   -14,     0,     0,
     
     /* state 26 */
-         0,   -16,     0,   -16,    28,     0,     0,   -16,   -16,     0,     0,
+         0,   -16,     0,   -16,    28,     0,   -16,   -16,   -16,     0,     0,
     
     /* state 27 */
          0,     0,     0,     0,     0,     0,     0,     0,    29,     0,     0,
@@ -126,8 +128,9 @@ static const int yyshift[] = {
          0,   -15,     0,   -15,     0,     0,   -15,   -15,   -15,     0,     0,
     
 };
-/** goto table,
- * zero iff there is an error*/
+/*
+    goto table
+*/
 static const int yygoto[] = {
     /* state 0 */
          0,     2,     3,     0,     0,     0,     0,     0,     0,
@@ -148,7 +151,7 @@ static const int yygoto[] = {
     /* state 8 */
          0,     0,     0,     0,     0,     0,    10,     0,     0,
     /* state 9 */
-         0,     0,     0,     0,     0,     0,     0,    25,    26,
+         0,     0,     0,     0,     0,     0,     0,    23,    24,
     /* state 10 */
          0,     0,     0,     0,     6,    12,     0,     0,     0,
     /* state 11 */
@@ -168,13 +171,13 @@ static const int yygoto[] = {
     /* state 18 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,
     /* state 19 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,    21,     0,     0,
     /* state 20 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,    23,    24,
     /* state 21 */
-         0,     0,     0,     0,     0,     0,    23,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
     /* state 22 */
-         0,     0,     0,     0,     0,     0,     0,    25,    26,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,
     /* state 23 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,
     /* state 24 */
@@ -188,20 +191,31 @@ static const int yygoto[] = {
     /* state 28 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,
 };
-/* the lhs of each rule. */
+/*
+    the left hand side of each rule,used to determine goto action.
+*/
 static const int yylhs[] = {
          0,     1,     2,     2,     3,     4,     4,     5,     5,     5,     6,
          6,     7,     7,     8,     8,
 };
-static const char *yytokenNames[] = {
+/*
+    the length of the symbols on the rhs of each rule
+    used to pop states from the state stack when doing
+    an reduction.
+*/
+static const int yyruleLen[] = {
+         1,     2,     4,     0,     1,     9,     5,     1,     1,     0,     2,
+         0,     1,     3,     3,     1,
+};
+const char *yytokenNames[] = {
     "EOF","gt","lt","=",":","lt?",
     "gt?","/","id","string","content",
 };
-static const char *yytokenAlias[] = {
+const char *yytokenAlias[] = {
     "EOF","GT","LT","EQU","COLLON","LT_ASK",
     "GL_ASK","SLASH","ID","STRING","CONTENT",
 };
-static const char *yynonTerminals[] = {
+const char *yynonTerminals[] = {
     "(accept)","xml","head","body","tag","innerTag",
     "properties","property","propertyName",
 };
@@ -215,7 +229,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 1:
@@ -223,7 +236,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
-            yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 2:
@@ -231,7 +243,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-4];
             yyparser->sp -= 4;
-            yyparser->sLen -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 3:
@@ -245,7 +256,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 5:
@@ -253,7 +263,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-9];
             yyparser->sp -= 9;
-            yyparser->sLen -= 9;
             *yyparser->sp++ = yyval;
             break;
         case 6:
@@ -261,7 +270,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-5];
             yyparser->sp -= 5;
-            yyparser->sLen -= 5;
             *yyparser->sp++ = yyval;
             break;
         case 7:
@@ -269,7 +277,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 8:
@@ -277,7 +284,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 9:
@@ -291,7 +297,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
-            yyparser->sLen -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 11:
@@ -305,7 +310,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 13:
@@ -313,7 +317,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-3];
             yyparser->sp -= 3;
-            yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 14:
@@ -321,7 +324,6 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-3];
             yyparser->sp -= 3;
-            yyparser->sLen -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 15:
@@ -329,10 +331,10 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
-            yyparser->sLen -= 1;
             *yyparser->sp++ = yyval;
             break;
     }
+    yyparser->sLen -= yyruleLen[yyrule];
     int yyindex = YYSTATE() * yyntCount + yylhs[yyrule];
     YYPUSH_STATE(yygoto[yyindex] - 1);
     return 0;
@@ -371,17 +373,17 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
         else if(yyaction < 0){
             if(yyaction == -1){
                 yyparser->done = 1;
-                return 0;
+                return YY_OK;
             }
             yyParser_reduce(yyparser,-1 - yyaction);
         }
         else {
             yyparser->error = 1;
             yyparser->errToken = yytokenid;
-            return -1;
+            return YY_ERR;
         }
     }
-    return 0;
+    return YY_OK;
 }
 int yyParser_printError(yyParser *yyparser,FILE *out){
     if(yyparser->error){
@@ -394,7 +396,7 @@ int yyParser_printError(yyParser *yyparser,FILE *out){
             }
         }
     }
-    return 0;
+    return YY_OK;
 }
 int yyParser_clearStack(yyParser *yyparser){
     while(yyparser->sp > yyparser->pstack){

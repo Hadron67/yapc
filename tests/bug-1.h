@@ -7,9 +7,14 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#define YY_OK 0
+#define YY_ERR -1
 #define T_EOF 0
 
 
+extern const char *yytokenNames[];
+extern const char *yytokenAlias[];
+extern const char *yynonTerminals[];
 
 
 typedef struct _yyParser{

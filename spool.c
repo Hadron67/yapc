@@ -25,69 +25,6 @@
 #define N(s) ((s) == 0 ? NULL : tree->buf + (s))
 #define S(s) (pool->buf + s)
 
-int YSTree_init(YSTree *tree,size_t size,YSPool *pool){
-    memset(tree,0,sizeof(YSNode));
-    tree->size = size + 1;
-    tree->sbuf = pool;
-    tree->len = 1;
-
-    tree->buf = (YSNode *)ya_malloc(tree->size * sizeof(YSNode));
-
-    return 0;
-}
-int YSTree_free(YSTree *tree){
-    ya_free(tree->buf);
-    return 0;
-}
-int YSTree_prepareNode(YSTree *tree){
-    if(tree->len >= tree->size){
-        tree->size *= 2;
-        tree->buf = (YSNode *)ya_realloc(tree->buf,sizeof(YSNode) * tree->size);
-    }
-    return 0;
-}
-size_t YSTree_newNode(YSTree *tree,size_t s){
-    YSTree_prepareNode(tree);
-    size_t p = tree->len;
-    YSNode *ret = tree->buf + tree->len++;
-    ret->left = ret->right = 0;
-    ret->sptr = s;
-    ret->index = tree->len - 2;
-    return p;
-}
-YSNode *YSTree_getNode(YSTree *tree,size_t p){
-    if(p < tree->len){
-        return tree->buf + p;
-    }
-    return NULL;
-}
-size_t *YSTree_find(YSTree *tree,const char *s){
-    size_t *tp = &tree->root;
-    while(*tp != 0){
-        int cmp = strcmp(s,tree->sbuf->buf + tree->buf[*tp].sptr);
-        if(cmp > 0){
-            tp = &tree->buf[*tp].right;
-        }
-        else if(cmp < 0){
-            tp = &tree->buf[*tp].left;
-        }
-        else {
-            break;
-        }
-    }
-    assert(tp != &tree->buf[*tp].right && tp != &tree->buf[*tp].left);
-    return tp;
-}
-int YSTree_toArray(YSTree *tree,const char **sa){
-    int i;
-    const char *sbuf = tree->sbuf->buf;
-    for(i = 1;i < tree->len;i++){
-        sa[i - 1] = sbuf + tree->buf[i].sptr;
-    }
-    return 0;
-}
-//-------------------------------------------------------------------
-
 int YTree_init(YTree *tree,int size,size_t elemsize,ycomparator comp,void *arg){
     memset(tree,0,sizeof(YTree));
     

@@ -10,29 +10,23 @@
 #define YY_OK 0
 #define YY_ERR -1
 #define T_EOF 0
-#define T_BEGIN 1
-#define T_END 2
-#define T_INTEGER 3
-#define T_IF 4
-#define T_THEN 5
-#define T_ELSE 6
-#define T_FUNCTION 7
-#define T_READ 8
-#define T_WRITE 9
-#define T_ID 10
-#define T_NUM 11
-#define T_EQ 12
-#define T_NE 13
-#define T_LTOE 14
-#define T_LT 15
-#define T_GTOE 16
-#define T_GT 17
-#define T_MINUS 18
-#define T_MULTIPLY 19
-#define T_ASSIGN 20
-#define T_BRA 21
-#define T_KET 22
-#define T_SEMI_COLLON 23
+#define T_TOKEN_DIR 1
+#define T_TYPE_DIR 2
+#define T_DATATYPE_DIR 3
+#define T_TEST_DIR 4
+#define T_EMPTY_DIR 5
+#define T_TOKEN_PREFIX_DIR 6
+#define T_ENABLE_CST_DIR 7
+#define T_NS_DIR 8
+#define T_SEPERATOR 9
+#define T_ARROW 10
+#define T_OR 11
+#define T_EOL 12
+#define T_NAME 13
+#define T_TOKEN 14
+#define T_STRING 15
+#define T_BLOCK 16
+#define T_PROLOGUE 17
 
 
 extern const char *yytokenNames[];
@@ -40,38 +34,22 @@ extern const char *yytokenAlias[];
 extern const char *yynonTerminals[];
 
 
-typedef struct _yyCst{
-    int isTermi;
-    int id;
-    int index;
-    int length;
-    int child,cousin;
-    //for printing
-    int printP;
-    int level;
-}yyCst;
-
 typedef struct _yyParser{
     //state stack
     int *state;
     int sLen,sSize;
     //sematic stack
-    int *pstack,*sp;
+    YToken *pstack,*sp;
     int pSize;
     //current token,this token would be accepted
     //when yyParser_acceptTokenis called.
-    int token;
+    YToken token;
     //this would be set to 1 when input is accepted.
     int done;
     //this would be set to 1 when a syntax error is detected.
     int error,errToken;
     //the generic pointer that user can set
     void *userData;
-    //for construct concrete syntax tree.
-    yyCst *cst;
-    int cstLen,cstSize;
-    int *cStack;
-    int cLen,cSize;
 }yyParser;
 
 
@@ -81,7 +59,6 @@ int yyParser_free(yyParser *yyparser);
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid);
 int yyParser_printError(yyParser *yyparser,FILE *out);
 int yyParser_clearStack(yyParser *yyparser);
-int yyParser_printCst(yyParser *yyparser,FILE *out);
 
 
 #endif

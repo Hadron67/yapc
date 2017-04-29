@@ -114,7 +114,13 @@ int yPrintTestResult(void *ctx1,FILE *out){
 }
 int yPrintGenerationWarnings(void *ctx1,FILE *out){
     YContext *ctx = (YContext *)ctx1;
-    YConflictList_print(&ctx->cList,out);
+    int count;
+    YGrammar_printUnusedTokens(ctx->g,&count,out);
+    fprintf(out,"\n");
+    if(ctx->cList.len > 0){
+        YConflictList_print(&ctx->cList,out);
+        fprintf(out,"warning: %d conflict(s) detected.\n\n",ctx->cList.len);
+    }
     return 0;
 }
 int yGenerateCCode(void *ctx1,FILE *header,FILE *source,const char *headern,const char *sourcen){

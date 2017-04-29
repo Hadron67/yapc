@@ -10,46 +10,18 @@
 #define YY_OK 0
 #define YY_ERR -1
 #define T_EOF 0
-#define T_BEGIN 1
-#define T_END 2
-#define T_INTEGER 3
-#define T_IF 4
-#define T_THEN 5
-#define T_ELSE 6
-#define T_FUNCTION 7
-#define T_READ 8
-#define T_WRITE 9
-#define T_ID 10
-#define T_NUM 11
-#define T_EQ 12
-#define T_NE 13
-#define T_LTOE 14
-#define T_LT 15
-#define T_GTOE 16
-#define T_GT 17
-#define T_MINUS 18
-#define T_MULTIPLY 19
-#define T_ASSIGN 20
-#define T_BRA 21
-#define T_KET 22
-#define T_SEMI_COLLON 23
+#define T_ID 1
+#define T_NUM 2
+#define T_MINUS 3
+#define T_PLUS 4
+#define T_CBRA 5
+#define T_CKET 6
 
 
 extern const char *yytokenNames[];
 extern const char *yytokenAlias[];
 extern const char *yynonTerminals[];
 
-
-typedef struct _yyCst{
-    int isTermi;
-    int id;
-    int index;
-    int length;
-    int child,cousin;
-    //for printing
-    int printP;
-    int level;
-}yyCst;
 
 typedef struct _yyParser{
     //state stack
@@ -67,11 +39,6 @@ typedef struct _yyParser{
     int error,errToken;
     //the generic pointer that user can set
     void *userData;
-    //for construct concrete syntax tree.
-    yyCst *cst;
-    int cstLen,cstSize;
-    int *cStack;
-    int cLen,cSize;
 }yyParser;
 
 
@@ -81,7 +48,6 @@ int yyParser_free(yyParser *yyparser);
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid);
 int yyParser_printError(yyParser *yyparser,FILE *out);
 int yyParser_clearStack(yyParser *yyparser);
-int yyParser_printCst(yyParser *yyparser,FILE *out);
 
 
 #endif

@@ -4,6 +4,7 @@
 #define ya_realloc realloc
 #define ya_free free
 
-#define ysptr size_t
+
+#define YYTAB "    "
 
 #endif

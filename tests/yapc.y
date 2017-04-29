@@ -23,13 +23,13 @@
 %token <block> "BLOCK"
 %token <prologue> "PROLOGUE"
 
-%type "size_t"
+%type "ysptr"
 
 %datatype "YGBuilder"
 
 %%
 
-file: options <%%> body <%%>;
+file: prologue options <%%> body <%%>;
 
 options: options option | /* empty */;
 
@@ -38,11 +38,13 @@ option:
     <%type> <string> { YGBuilder_setTokenType(yydata,$2); } |
     <%datatype> <string> { YGBuilder_setDataType(yydata,$2); } ;
 
+prologue: <prologue> | /* empty */;
+
 body: body bodyItem | bodyItem;
 
-bodyItem: rule | test;
+bodyItem: rule <;> | test <;>;
 
-test: <%test> tokenList <;>;
+test: <%test> tokenList;
 
 tokenList: tokenList <token> | /* empty */;
 

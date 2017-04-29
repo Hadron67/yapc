@@ -86,7 +86,7 @@ static int YTest_free(YTest *t){
 
 static int YTest_pushS(YTest *t,int s){
     if(t->sLen >= t->sSize){
-        t->sLen *= 2;
+        t->sSize *= 2;
         t->state = (int *)ya_realloc(t->state,sizeof(int) * t->sSize);
     }
     t->state[t->sLen++] = s;

@@ -7,6 +7,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#define YY_OK 0
+#define YY_ERR -1
 #define T_EOF 0
 #define T_TOKEN_DIR 1
 #define T_TYPE_DIR 2
@@ -24,6 +26,9 @@
 #define T_PROLOGUE 14
 
 
+extern const char *yytokenNames[];
+extern const char *yytokenAlias[];
+extern const char *yynonTerminals[];
 
 
 typedef struct _yyParser{
@@ -31,11 +36,11 @@ typedef struct _yyParser{
     int *state;
     int sLen,sSize;
     //sematic stack
-    size_t *pstack,*sp;
+    ysptr *pstack,*sp;
     int pSize;
     //current token,this token would be accepted
     //when yyParser_acceptTokenis called.
-    size_t token;
+    ysptr token;
     //this would be set to 1 when input is accepted.
     int done;
     //this would be set to 1 when a syntax error is detected.

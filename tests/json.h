@@ -7,6 +7,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#define YY_OK 0
+#define YY_ERR -1
 #define T_EOF 0
 #define T_OPEN_CURLY 1
 #define T_CLOSE_CULRY 2
@@ -21,6 +23,9 @@
 #define T_STRING 11
 
 
+extern const char *yytokenNames[];
+extern const char *yytokenAlias[];
+extern const char *yynonTerminals[];
 
 
 typedef struct _yyParser{

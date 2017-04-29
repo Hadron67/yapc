@@ -2,23 +2,15 @@
 #define __SCANNER_H__
 
 #include <stdio.h>
-#include "parser.h"
+#include "token.h"
 
 extern const char *tokenNames[];
 
 typedef struct _yyStringBlock{
     struct _yyStringBlock *next;
+    int len,size;
     char data[1];
 }yyStringBlock;
-
-typedef struct _yyToken{
-    int id;
-    int line;
-    union{
-        char *image;
-        int i;        
-    }u;
-}yyToken;
 
 typedef struct _yyScanner{
     FILE *in,*err;

@@ -52,7 +52,13 @@ struct _YRule{
 typedef struct _YTokenDef{
     const char *name;
     const char *alias;
+    int used;
 }YTokenDef;
+
+typedef struct _YNtDef{
+    const char *name;
+    int used;
+}YNtDef;
 
 typedef struct _YGrammar{
     YTokenDef *tokens;
@@ -76,6 +82,9 @@ typedef struct _YGrammar{
 
     const char *prologue;
 
+    //whether to generate concrete syntax tree or not.
+    int genCst;
+
     char *spool;
     char data[1];
 }YGrammar;
@@ -97,12 +106,13 @@ int YGrammar_getTokenSetSize(YGrammar *g);
 int YTokenSet_add(YGrammar *g,char *set,int token);
 int YTokenSet_removeToken(YGrammar *g,char *set,int token);
 int YTokenSet_contains(YGrammar *g,char *set,int token);
-int YTokenSet_union(YGrammar *g,char *dest,char *src);
+int YTokenSet_union(YGrammar *g,char *dest,const char *src);
 int YTokenSet_hasIntersection(YGrammar *g,char *s1,char *s2);
 int YTokenSet_isIdentical(char *s1,char *s2,YGrammar *g);
 
 
 YFirstSets *YGrammar_generateFirstSets(YGrammar *g);
+int YGrammar_printUnusedTokens(YGrammar *g,int *count,FILE *out);
 
 int YFirstSets_contains(YFirstSets *sets,int nt,int t);
 char *YFirstSets_getSet(YFirstSets *sets,int nt);

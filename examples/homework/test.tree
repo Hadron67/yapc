@@ -1,0 +1,132 @@
+program
+└───subProgram
+    ├───<begin>
+    ├───declList
+    │   ├───declList
+    │   │   └───decl
+    │   │       └───varDecl
+    │   │           ├───<integer>
+    │   │           └───varID
+    │   │               └───<ID>
+    │   ├───<;>
+    │   └───decl
+    │       └───funcDecl
+    │           ├───<integer>
+    │           ├───<function>
+    │           ├───<ID>
+    │           ├───<(>
+    │           ├───argDefList
+    │           │   └───varID
+    │           │       └───<ID>
+    │           ├───<)>
+    │           ├───<;>
+    │           └───funcBody
+    │               ├───<begin>
+    │               ├───declList
+    │               │   └───decl
+    │               │       └───varDecl
+    │               │           ├───<integer>
+    │               │           └───varID
+    │               │               └───<ID>
+    │               ├───<;>
+    │               ├───stmtList
+    │               │   └───stmt
+    │               │       └───ifStmt
+    │               │           ├───<if>
+    │               │           ├───cond
+    │               │           │   ├───expr
+    │               │           │   │   └───term
+    │               │           │   │       └───factor
+    │               │           │   │           └───varID
+    │               │           │   │               └───<ID>
+    │               │           │   ├───condOptr
+    │               │           │   │   └───<ltoe>
+    │               │           │   └───expr
+    │               │           │       └───term
+    │               │           │           └───factor
+    │               │           │               └───constant
+    │               │           │                   └───<NUM>
+    │               │           ├───<then>
+    │               │           ├───stmt
+    │               │           │   └───assignStmt
+    │               │           │       ├───varID
+    │               │           │       │   └───<ID>
+    │               │           │       ├───<:=>
+    │               │           │       └───expr
+    │               │           │           └───term
+    │               │           │               └───factor
+    │               │           │                   └───constant
+    │               │           │                       └───<NUM>
+    │               │           ├───<else>
+    │               │           └───stmt
+    │               │               └───assignStmt
+    │               │                   ├───varID
+    │               │                   │   └───<ID>
+    │               │                   ├───<:=>
+    │               │                   └───expr
+    │               │                       └───term
+    │               │                           ├───term
+    │               │                           │   └───factor
+    │               │                           │       └───varID
+    │               │                           │           └───<ID>
+    │               │                           ├───<*>
+    │               │                           └───factor
+    │               │                               └───funcCall
+    │               │                                   ├───<ID>
+    │               │                                   ├───<(>
+    │               │                                   ├───expr
+    │               │                                   │   ├───expr
+    │               │                                   │   │   └───term
+    │               │                                   │   │       └───factor
+    │               │                                   │   │           └───varID
+    │               │                                   │   │               └───<ID>
+    │               │                                   │   ├───<->
+    │               │                                   │   └───term
+    │               │                                   │       └───factor
+    │               │                                   │           └───constant
+    │               │                                   │               └───<NUM>
+    │               │                                   └───<)>
+    │               └───<end>
+    ├───<;>
+    ├───stmtList
+    │   ├───stmtList
+    │   │   ├───stmtList
+    │   │   │   └───stmt
+    │   │   │       └───readStmt
+    │   │   │           ├───<read>
+    │   │   │           ├───<(>
+    │   │   │           ├───varID
+    │   │   │           │   └───<ID>
+    │   │   │           └───<)>
+    │   │   ├───<;>
+    │   │   └───stmt
+    │   │       └───assignStmt
+    │   │           ├───varID
+    │   │           │   └───<ID>
+    │   │           ├───<:=>
+    │   │           └───expr
+    │   │               └───term
+    │   │                   ├───term
+    │   │                   │   └───factor
+    │   │                   │       └───funcCall
+    │   │                   │           ├───<ID>
+    │   │                   │           ├───<(>
+    │   │                   │           ├───expr
+    │   │                   │           │   └───term
+    │   │                   │           │       └───factor
+    │   │                   │           │           └───varID
+    │   │                   │           │               └───<ID>
+    │   │                   │           └───<)>
+    │   │                   ├───<*>
+    │   │                   └───factor
+    │   │                       └───constant
+    │   │                           └───<NUM>
+    │   ├───<;>
+    │   └───stmt
+    │       └───writeStmt
+    │           ├───<write>
+    │           ├───<(>
+    │           ├───varID
+    │           │   └───<ID>
+    │           └───<)>
+    └───<end>

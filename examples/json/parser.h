@@ -24,6 +24,9 @@
 #define T_COMMA 14
 
 
+extern const char *yytokenNames[];
+extern const char *yytokenAlias[];
+extern const char *yynonTerminals[];
 
 
 typedef struct _yyParser{

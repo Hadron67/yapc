@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include "scanner.h"
 
 const char *tokenNames[] = {
@@ -26,7 +27,11 @@ const char *tokenNames[] = {
     "(",
     ")",
     ";",
-    ","
+
+    ",",
+    "+",
+    "/",
+    ":"
 };
 
 #define ymalloc malloc
@@ -34,8 +39,8 @@ const char *tokenNames[] = {
 #define yfree free
 
 #define C (scanner->c)
-#define NC() (scanner->c = fgetc(scanner->in))
-#define NC2() (yyScanner_pushChar(scanner,C),scanner->c = fgetc(scanner->in))
+#define NC() (yyScanner_getChar(scanner))
+#define NC2() (yyScanner_pushChar(scanner,C),yyScanner_getChar(scanner))
 #define IEOF (feof(scanner->in))
 #define ISS(s) (yyScanner_isS(scanner,(s)))
 
@@ -44,11 +49,20 @@ const char *tokenNames[] = {
 #define ISNAME(c) (ISNAMEHEAD(c) || ISNUM(c))
 
 static char *newString(yyStringBlock **prev,const char *s,int len){
-    yyStringBlock *b = (yyStringBlock *)ymalloc(sizeof(yyStringBlock) + len * sizeof(char));
-    b->next = *prev;
-    *prev = b;
-    strncpy(b->data,s,len);
-    return b->data;
+    static const int isize = 128;
+    yyStringBlock *yb = *prev;
+    if(yb == NULL || len > yb->size - yb->len){
+        int si = len > isize ? len : isize;
+        yyStringBlock *b = (yyStringBlock *)ymalloc(sizeof(yyStringBlock) + si * sizeof(char));
+        b->size = si;
+        b->len = 0;
+        b->next = *prev;
+        yb = *prev = b;
+    }
+    char *ret = yb->data + yb->len;
+    strncpy(ret,s,len);
+    yb->len += len;
+    return ret;
 }
 
 static int deleteStringBlock(yyStringBlock *head){
@@ -58,6 +72,23 @@ static int deleteStringBlock(yyStringBlock *head){
         yfree(head);
         head = temp;
     }
+    return 0;
+}
+
+static int yyScanner_vaerr(yyScanner *s,const char *fmt,va_list args){
+    if(s->err != NULL){
+        fprintf(s->err," *** lexical error: %d:",s->line);
+        vfprintf(s->err,fmt,args);
+        fprintf(s->err,"\n");
+    }
+    return 0;
+}
+
+static int yyScanner_err(yyScanner *s,const char *fmt,...){
+    va_list args;
+    va_start(args,fmt);
+    yyScanner_vaerr(s,fmt,args);
+    va_end(args);
     return 0;
 }
 
@@ -77,6 +108,13 @@ int yyScanner_free(yyScanner *s){
     yfree(s->buf);
     deleteStringBlock(s->head);
     
+    return 0;
+}
+int yyScanner_getChar(yyScanner *s){
+    s->c = fgetc(s->in);
+    if(s->c >= 'A' && s->c <= 'Z'){
+        s->c += 'a' - 'A';
+    }
     return 0;
 }
 int yyScanner_pushChar(yyScanner *s,char c){
@@ -102,9 +140,12 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
         scanner->first = 0;
         NC();
     }
+    t->lineCount = 0;
+    restart:
     while(C == ' ' || C == '\n' || C == '\t'){
         if(C == '\n'){
             scanner->line++;
+            t->lineCount++;
         }
         NC();
     }
@@ -116,7 +157,7 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
     int found = 0;
     scanner->len = 0;
     switch(C){
-        case 'b':
+        case 'b'://begin
             NC2();
             if(ISS("egin")){
                 t->id = T_BEGIN;
@@ -124,7 +165,7 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
                 goto yycheckname;
             }
             goto yycheckname;
-        case 'i':
+        case 'i'://if,integer,in
             NC2();
             if(C == 'f'){
                 NC2();
@@ -134,22 +175,28 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
             }
             else if(C == 'n'){
                 NC2();
-                if(ISS("teger")){
-                    t->id = T_INTEGER;
+                if(C == 't'){
+                    NC2();
+                    if(ISS("eger")){
+                        t->id = T_INTEGER;
+                        found = 1;
+                        goto yycheckname;
+                    }
+                }
+            }
+            goto yycheckname;
+        case 't'://then,to,type
+            NC2();
+            if(C == 'h'){
+                NC2();
+                if(ISS("en")){
+                    t->id = T_THEN;
                     found = 1;
                     goto yycheckname;
                 }
             }
             goto yycheckname;
-        case 't':
-            NC2();
-            if(ISS("hen")){
-                t->id = T_THEN;
-                found = 1;
-                goto yycheckname;
-            }
-            goto yycheckname;
-        case 'e':
+        case 'e'://end,else
             NC2();
             if(C == 'n'){
                 NC2();
@@ -169,28 +216,41 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
                 }
             }
             goto yycheckname;
-        case 'f':
+        case 'f'://function,for,file
             NC2();
-            if(ISS("unction")){
-                t->id = T_FUNCTION;
-                found = 1;
-                goto yycheckname;
+            if(C == 'u'){
+                NC2();
+                if(ISS("nction")){
+                    t->id = T_FUNCTION;
+                    found = 1;
+                    goto yycheckname;
+                }
             }
             goto yycheckname;
-        case 'r':
+        case 'r'://read
             NC2();
-            if(ISS("ead")){
-                t->id = T_READ;
-                found = 1;
-                goto yycheckname;
+            if(C == 'e'){
+                NC2();
+                if(C == 'a'){
+                    NC2();
+                    if(C == 'd'){
+                        NC2();
+                        t->id = T_READ;
+                        found = 1;
+                        goto yycheckname;
+                    }
+                }
             }
             goto yycheckname;
-        case 'w':
+        case 'w'://write,while,with
             NC2();
-            if(ISS("rite")){
-                t->id = T_WRITE;
-                found = 1;
-                goto yycheckname;
+            if(C == 'r'){
+                NC2();
+                if(ISS("ite")){
+                    t->id = T_WRITE;
+                    found = 1;
+                    goto yycheckname;
+                }
             }
             goto yycheckname;
         case '=':
@@ -205,6 +265,7 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
                 return 0;
             }
             else if(C == '='){
+                NC();
                 t->id = T_LTOE;
                 return 0;
             }
@@ -222,6 +283,7 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
                 t->id = T_GT;
                 return 0;
             }
+
         case '-':
             NC();
             t->id = T_MINUS;
@@ -232,19 +294,70 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
             return 0;
         case '(':
             NC();
-            t->id = T_BRA;
-            return 0;
+            if(C == '*'){
+                NC();
+                while(1){
+                    if(C == '*'){
+                        NC();
+                        if(C == ')'){
+                            NC();
+                            goto restart;
+                        }
+                        else if(IEOF){
+                            t->id = T_EOF;
+                            return 0;
+                        }
+                        else if(C == '\n'){
+                            NC();
+                            scanner->line++;
+                            t->lineCount++;
+                        }
+                    }
+                    else if(C == '\n'){
+                        NC();
+                        scanner->line++;
+                        t->lineCount++;
+                    }
+                    else if(IEOF){
+                        t->id = T_EOF;
+                        return 0;
+                    }
+                    else{
+                        NC();
+                    }
+                }
+            }
+            else{
+                t->id = T_BRA;
+                return 0;
+            }
         case ')':
             NC();
             t->id = T_KET;
             return 0;
+        case '{':
+            NC();
+            while(C != '}'){
+                if(IEOF){
+                    t->id = T_EOF;
+                    return 0;
+                }
+                else if(C == '\n'){
+                    NC();
+                    scanner->line++;
+                    t->lineCount++;
+                }
+                else if(C == '}'){
+                    NC();
+                    goto restart;
+                }
+                else{
+                    NC();
+                }
+            }
         case ';':
             NC();
             t->id = T_SEMI_COLLON;
-            return 0;
-        case ',':
-            NC();
-            t->id = T_COMMA;
             return 0;
         case ':':
             NC();
@@ -254,12 +367,12 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
                 return 0;
             }
             else{
-                //TODO:err
-                fprintf(scanner->err,"*** line %d unexpected character '%c',expecting '='\n",scanner->line,C);
-                return -1;
+                goto yyunexpected;
+                return 0;
             }
         default:
             if(ISNAMEHEAD(C)){
+                NC2();
                 goto yyname;
             }
             else if(ISNUM(C)){
@@ -277,10 +390,7 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
             }
     }
 yycheckname:
-    if(!found){
-        goto yyunexpected;
-    }
-    else if(!ISNAME(C)){
+    if(found && !ISNAME(C)){
         return 0;
     }
 yyname:
@@ -289,10 +399,17 @@ yyname:
     }
     yyScanner_pushChar(scanner,'\0');
     t->id = T_ID;
-    t->u.image = newString(&scanner->head,scanner->buf,scanner->len);
+    t->u.image.s = newString(&scanner->head,scanner->buf,scanner->len);
+    t->u.image.len = scanner->len - 1;
     return 0;
 yyunexpected:
     //TODO: print error message
-    fprintf(scanner->err,"*** line %d unexpected character '%c'\n",scanner->line,C);
+    if(IEOF){
+        yyScanner_err(scanner,"unexpected end of file");
+    }
+    else{
+        yyScanner_err(scanner,"unexpected character '%c'",C);
+    }
+    NC();
     return -1;
 }

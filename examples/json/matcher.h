@@ -15,6 +15,9 @@
 #define MT_STRING 5
 
 
+extern const char *jmtokenNames[];
+extern const char *jmtokenAlias[];
+extern const char *jmnonTerminals[];
 
 
 typedef struct _jmParser{

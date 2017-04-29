@@ -1,96 +1,97 @@
+%token <begin> "BEGIN"//
+%token <end> "END"//
+%token <integer> "INTEGER"//
+%token <if> "IF"//
+%token <then> "THEN"//
+%token <else> "ELSE"//
+%token <function> "FUNCTION"//
+%token <read> "READ"//
+%token <write> "WRITE"//
+%token <ID> "ID"//
+%token <NUM> "NUM"//
+%token <=> "EQ"//
+%token <ne> "NE"//
+%token <ltoe> "LTOE"//
+%token <lt> "LT" //
+%token <gtoe> "GTOE"//
+%token <gt> "GT"//
+%token <-> "MINUS"//
+%token <*> "MULTIPLY"//
+%token <:=> "ASSIGN"//
+%token <(> "BRA"//
+%token <)> "KET"//
+%token <;> "SEMI_COLLON"//
 
-
-%token <begin> "BEGIN"
-%token <end> "END"
-%token <integer> "INTEGER"
-%token <if> "IF"
-%token <then> "THEN"
-%token <else> "ELSE"
-%token <function> "FUNCTION"
-%token <read> "READ"
-%token <write> "WRITE"
-%token <id> "ID"
-%token <num> "NUM"
-%token <=> "EQ"
-%token <ne> "NE"
-%token <ltoe> "LTOE"
-%token <lt> "LT" 
-%token <gtoe> "GTOE"
-%token <gt> "GT"
-%token <-> "MINUS"
-%token <*> "MULTIPLY"
-%token <:=> "ASSIGN"
-%token <(> "BRA"
-%token <)> "KET"
-%token <eol> "SEMI_COLLON"
-%token <,> "COMMA"
-
+%enable_cst
 
 %%
 
-program: subprogram;
-// <分程序>→begin <说明语句表>；<执行语句表> end
-subprogram: <begin> nameList <eol> execList <end>;
+//<程序>→<分程序>
+program: subProgram;
+
+//<分程序>→begin <说明语句表>；<执行语句表> end
+subProgram: <begin> declList <;> stmtList <end>;
+
 //<说明语句表>→<说明语句>│<说明语句表> ；<说明语句>
-nameList: nameStatement | nameList nameStatement;
+declList: declList <;> decl | decl;
+
 //<说明语句>→<变量说明>│<函数说明>
-nameStatement: variableDecl <eol> | functionDecl <eol>;
+decl: varDecl | funcDecl;
+
 //<变量说明>→integer <变量>
-variableDecl: <integer> variable;
+varDecl: <integer> varID;
+
 //<变量>→<标识符>
+varID: <ID>;
 //<标识符>→<字母>│<标识符><字母>│ <标识符><数字>
 //<字母>→a│b│c│d│e│f│g│h│i│j│k│l│m│n│o │p│q │r│s│t│u│v│w│x│y│z
 //<数字>→0│1│2│3│4│5│6│7│8│9
-variable: <id>;
+
 //<函数说明>→integer function <标识符>（<参数>）；<函数体>
-functionDecl: <integer> <function> <id> <(> argDefList <)> <eol> functionBody;
+funcDecl: <integer> <function> <ID> <(> argDefList <)> <;> funcBody;
+
+//<参数>→<变量>
+argDefList: varID;
+
 //<函数体>→begin <说明语句表>；<执行语句表> end
-functionBody: <begin> nameList <eol> execList <end>;
+funcBody: <begin> declList <;> stmtList <end>;
+
 //<执行语句表>→<执行语句>│<执行语句表>；<执行语句>
-execList: execStatement | execList execStatement;
+stmtList: stmt | stmtList <;> stmt;
+
 //<执行语句>→<读语句>│<写语句>│<赋值语句>│<条件语句>
-execStatement: 
-    readStatement <eol> | 
-    writeStatement <eol> | 
-    assignStatement <eol> | 
-    conditionalStatement <eol> | 
-    <begin> execList <end> |
-    <eol>;
+stmt: readStmt | writeStmt | assignStmt | ifStmt;
+
 //<读语句>→read(<变量>)
-readStatement: <read> <(> variable <)>;
+readStmt: <read> <(> varID <)>;
+
 //<写语句>→write(<变量>)
-writeStatement: <write> <(> variable <)>;
+writeStmt: <write> <(> varID <)>;
+
 //<赋值语句>→<变量>:=<算术表达式>
-assignStatement: variable <:=> expr;
+assignStmt: varID <:=> expr;
+
 //<算术表达式>→<算术表达式>-<项>│<项>
-expr: expr <-> item | item;
+expr: expr <-> term | term;
+
 //<项>→<项>*<因子>│<因子>
-item: item <*> factor | factor;
+term: term <*> factor | factor;
+
 //<因子>→<变量>│<常数>│<函数调用>
-factor: variable | consts | functionCall;
+factor: constant | varID | funcCall;
+
 //<常数>→<无符号整数>
-consts: unsignedNum;
+constant: <NUM>;
 //<无符号整数>→<数字>│<无符号整数><数字>
-unsignedNum: <num> | unsignedNum <num>;
 //<条件语句>→if<条件表达式>then<执行语句>else <执行语句>
-conditionalStatement: <if> conditionalExpr <then> execList <else> execList;
+ifStmt: <if> cond <then> stmt <else> stmt;
+
 //<条件表达式>→<算术表达式><关系运算符><算术表达式>
-conditionalExpr: expr conditionOptr expr;
+cond: expr condOptr expr;
+
 //<关系运算符> →<│<=│>│>=│=│<>
-conditionOptr: <gt> | <lt> | <gtoe> | <ltoe> | <=> | <ne>;
+condOptr: <lt> | <gt> | <ltoe> | <gtoe> | <=> | <ne>;
 
-functionCall: <id> <(> argList <)>;
+funcCall: <ID> <(> expr <)>;
 
-argList: 
-    nonEmptyArgList | /* empty */;
-    
-nonEmptyArgList:
-    nonEmptyArgList <,> expr | expr;
-    
-argDefList:
-    nonEmptyArgDefList | /* empty */;
-
-nonEmptyArgDefList:
-    nonEmptyArgDefList <,> variable | variable;
-    
 %%

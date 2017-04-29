@@ -9,9 +9,9 @@
 #include "grammar.h"
 #include "spool.h"
 
-#include "./yapc.h"
-static const int yytokenCount = 15;
-static const int yyntCount = 13;
+#include "yparser.h"
+static const int yytokenCount = 18;
+static const int yyntCount = 15;
 #ifndef YYMALLOC
     #define YYMALLOC malloc
 #endif
@@ -36,7 +36,7 @@ static const int yyntCount = 13;
     if(yyparser->sp - yyparser->pstack >= yyparser->pSize){\
         size_t offset = yyparser->sp - yyparser->pstack;\
         yyparser->pSize *= 2;\
-        yyparser->pstack = (ysptr *)YYREALLOC(yyparser->pstack,sizeof(ysptr) * yyparser->pSize);\
+        yyparser->pstack = (YToken *)YYREALLOC(yyparser->pstack,sizeof(YToken) * yyparser->pSize);\
         yyparser->sp = yyparser->pstack + offset;\
     }
 /*
@@ -48,110 +48,131 @@ static const int yyntCount = 13;
 */
 static const int yyshift[] = {
     /* state 0 */
-         0,    -9,    -9,    -9,     0,     0,    -9,     0,     0,     0,     0,
-         0,     0,     0,    35,
+         0,   -12,   -12,   -12,     0,     0,   -12,   -12,   -12,   -12,     0,
+         0,     0,     0,     0,     0,     0,    42,
     /* state 1 */
         -1,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,
     /* state 2 */
-         0,    -4,    -4,    -4,     0,     0,    -4,     0,     0,     0,     0,
-         0,     0,     0,     0,
+         0,    -4,    -4,    -4,     0,     0,    -4,    -4,    -4,    -4,     0,
+         0,     0,     0,     0,     0,     0,     0,
     /* state 3 */
-         0,    28,    31,    33,     0,     0,     5,     0,     0,     0,     0,
-         0,     0,     0,     0,
+         0,    30,    33,    35,     0,     0,    37,    41,    39,     5,     0,
+         0,     0,     0,     0,     0,     0,     0,
     /* state 4 */
-         0,     0,     0,     0,    24,     0,     0,     0,     0,     0,    14,
-         0,     0,     0,     0,
+         0,     0,     0,     0,    26,     0,     0,     0,     0,     0,     0,
+         0,     0,    14,     0,     0,     0,     0,
     /* state 5 */
-         0,     0,     0,     0,    24,     0,     7,     0,     0,     0,    14,
-         0,     0,     0,     0,
+         0,     0,     0,     0,    26,     0,     0,     0,     0,     7,     0,
+         0,     0,    14,     0,     0,     0,     0,
     /* state 6 */
         -2,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,
     /* state 7 */
-         0,     0,     0,     0,   -10,     0,   -10,     0,     0,     0,   -10,
-         0,     0,     0,     0,
+         0,     0,     0,     0,   -13,     0,     0,     0,     0,   -13,     0,
+         0,     0,   -13,     0,     0,     0,     0,
     /* state 8 */
-         0,     0,     0,     0,   -11,     0,   -11,     0,     0,     0,   -11,
-         0,     0,     0,     0,
+         0,     0,     0,     0,   -14,     0,     0,     0,     0,   -14,     0,
+         0,     0,   -14,     0,     0,     0,     0,
     /* state 9 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,    11,     0,
-         0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,    11,     0,     0,     0,     0,     0,
     /* state 10 */
-         0,     0,     0,     0,   -12,     0,   -12,     0,     0,     0,   -12,
-         0,     0,     0,     0,
+         0,     0,     0,     0,   -15,     0,     0,     0,     0,   -15,     0,
+         0,     0,   -15,     0,     0,     0,     0,
     /* state 11 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,    13,     0,
-         0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,    13,     0,     0,     0,     0,     0,
     /* state 12 */
-         0,     0,     0,     0,   -13,     0,   -13,     0,     0,     0,   -13,
-         0,     0,     0,     0,
+         0,     0,     0,     0,   -16,     0,     0,     0,     0,   -16,     0,
+         0,     0,   -16,     0,     0,     0,     0,
     /* state 13 */
-         0,     0,     0,     0,     0,     0,     0,    15,     0,     0,     0,
-         0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,   -20,
+         0,     0,     0,     0,     0,     0,     0,
     /* state 14 */
-         0,     0,     0,     0,     0,     0,     0,     0,   -21,   -21,   -21,
-       -21,     0,   -21,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    16,
+         0,     0,     0,     0,     0,     0,     0,
     /* state 15 */
-         0,     0,     0,     0,     0,     0,     0,     0,    17,   -17,     0,
-         0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       -26,   -26,   -26,   -26,     0,   -26,     0,
     /* state 16 */
-         0,     0,     0,     0,     0,     0,     0,     0,   -21,   -21,   -21,
-       -21,     0,   -21,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       -23,   -21,     0,     0,     0,     0,     0,
     /* state 17 */
-         0,     0,     0,     0,     0,     0,     0,     0,   -19,   -19,    21,
-        20,     0,    22,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+        19,     0,     0,     0,     0,     0,     0,
     /* state 18 */
-         0,     0,     0,     0,     0,     0,     0,     0,   -20,   -20,   -20,
-       -20,     0,   -20,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       -26,   -26,   -26,   -26,     0,   -26,     0,
     /* state 19 */
-         0,     0,     0,     0,     0,     0,     0,     0,   -22,   -22,   -22,
-       -22,     0,   -22,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       -24,   -24,    23,    22,     0,    24,     0,
     /* state 20 */
-         0,     0,     0,     0,     0,     0,     0,     0,   -23,   -23,   -23,
-       -23,     0,   -23,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       -25,   -25,   -25,   -25,     0,   -25,     0,
     /* state 21 */
-         0,     0,     0,     0,     0,     0,     0,     0,   -24,   -24,   -24,
-       -24,     0,   -24,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       -27,   -27,   -27,   -27,     0,   -27,     0,
     /* state 22 */
-         0,     0,     0,     0,     0,     0,     0,     0,   -18,   -18,    21,
-        20,     0,    22,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       -28,   -28,   -28,   -28,     0,   -28,     0,
     /* state 23 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,   -16,     0,
-       -16,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       -29,   -29,   -29,   -29,     0,   -29,     0,
     /* state 24 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,   -14,     0,
-        26,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       -22,   -22,    23,    22,     0,    24,     0,
     /* state 25 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,   -15,     0,
-       -15,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,   -19,     0,   -19,     0,     0,     0,
     /* state 26 */
-         0,    -3,    -3,    -3,     0,     0,    -3,     0,     0,     0,     0,
-         0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,   -17,     0,    28,     0,     0,     0,
     /* state 27 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-        29,     0,     0,     0,
+         0,   -18,     0,   -18,     0,     0,     0,
     /* state 28 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,    30,     0,     0,
+         0,    -3,    -3,    -3,     0,     0,    -3,    -3,    -3,    -3,     0,
+         0,     0,     0,     0,     0,     0,     0,
     /* state 29 */
-         0,    -5,    -5,    -5,     0,     0,    -5,     0,     0,     0,     0,
-         0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,    31,     0,     0,     0,
     /* state 30 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,    32,     0,     0,
+         0,     0,     0,     0,    32,     0,     0,
     /* state 31 */
-         0,    -6,    -6,    -6,     0,     0,    -6,     0,     0,     0,     0,
-         0,     0,     0,     0,
+         0,    -5,    -5,    -5,     0,     0,    -5,    -5,    -5,    -5,     0,
+         0,     0,     0,     0,     0,     0,     0,
     /* state 32 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,    34,     0,     0,
+         0,     0,     0,     0,    34,     0,     0,
     /* state 33 */
-         0,    -7,    -7,    -7,     0,     0,    -7,     0,     0,     0,     0,
-         0,     0,     0,     0,
+         0,    -6,    -6,    -6,     0,     0,    -6,    -6,    -6,    -6,     0,
+         0,     0,     0,     0,     0,     0,     0,
     /* state 34 */
-         0,    -8,    -8,    -8,     0,     0,    -8,     0,     0,     0,     0,
-         0,     0,     0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,    36,     0,     0,
+    /* state 35 */
+         0,    -7,    -7,    -7,     0,     0,    -7,    -7,    -7,    -7,     0,
+         0,     0,     0,     0,     0,     0,     0,
+    /* state 36 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,    38,     0,     0,
+    /* state 37 */
+         0,    -8,    -8,    -8,     0,     0,    -8,    -8,    -8,    -8,     0,
+         0,     0,     0,     0,     0,     0,     0,
+    /* state 38 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,    40,     0,     0,
+    /* state 39 */
+         0,    -9,    -9,    -9,     0,     0,    -9,    -9,    -9,    -9,     0,
+         0,     0,     0,     0,     0,     0,     0,
+    /* state 40 */
+         0,   -10,   -10,   -10,     0,     0,   -10,   -10,   -10,   -10,     0,
+         0,     0,     0,     0,     0,     0,     0,
+    /* state 41 */
+         0,   -11,   -11,   -11,     0,     0,   -11,   -11,   -11,   -11,     0,
+         0,     0,     0,     0,     0,     0,     0,
 };
 /*
     goto table
@@ -159,117 +180,138 @@ static const int yyshift[] = {
 static const int yygoto[] = {
     /* state 0 */
          0,     2,     0,     0,     3,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 1 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 2 */
          0,     0,     4,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 3 */
-         0,     0,     0,    27,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,    29,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,
     /* state 4 */
          0,     0,     0,     0,     0,     6,     9,    12,     0,    10,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 5 */
          0,     0,     0,     0,     0,     0,     8,    12,     0,    10,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 6 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 7 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 8 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 9 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 10 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 11 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 12 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 13 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    15,
+         0,     0,     0,     0,
     /* state 14 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,    16,
-        23,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,
     /* state 15 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+        17,     0,    25,     0,
     /* state 16 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-        18,     0,
+         0,    18,     0,     0,
     /* state 17 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,    19,
+         0,     0,     0,     0,
     /* state 18 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,    20,     0,
     /* state 19 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,    21,
     /* state 20 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 21 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 22 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,    19,
+         0,     0,     0,     0,
     /* state 23 */
-         0,     0,     0,     0,     0,     0,     0,     0,    25,     0,     0,
-         0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,
     /* state 24 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,    21,
     /* state 25 */
-         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,     0,     0,     0,     0,    27,     0,     0,
+         0,     0,     0,     0,
     /* state 26 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 27 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 28 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 29 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 30 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 31 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 32 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 33 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
     /* state 34 */
          0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-         0,     0,
+         0,     0,     0,     0,
+    /* state 35 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,
+    /* state 36 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,
+    /* state 37 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,
+    /* state 38 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,
+    /* state 39 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,
+    /* state 40 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,
+    /* state 41 */
+         0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+         0,     0,     0,     0,
 };
 /*
     the left hand side of each rule,used to determine goto action.
 */
 static const int yylhs[] = {
-         0,     1,     2,     2,     3,     3,     3,     4,     4,     5,     5,
-         6,     6,     7,     8,     8,     9,    10,    10,    11,    11,    12,
-        12,    12,
+         0,     1,     2,     2,     3,     3,     3,     3,     3,     3,     4,
+         4,     5,     5,     6,     6,     7,     8,     8,    10,     9,    11,
+        12,    11,    13,    13,    14,    14,    14,
 };
 /*
     the length of the symbols on the rhs of each rule
@@ -277,28 +319,30 @@ static const int yylhs[] = {
     an reduction.
 */
 static const int yyruleLen[] = {
-         1,     5,     2,     0,     3,     2,     2,     1,     0,     2,     1,
-         2,     2,     2,     2,     0,     3,     1,     3,     2,     0,     1,
-         1,     1,
+         1,     5,     2,     0,     3,     2,     2,     2,     2,     1,     1,
+         0,     2,     1,     2,     2,     2,     2,     0,     0,     4,     1,
+         0,     4,     2,     0,     1,     1,     1,
 };
 const char *yytokenNames[] = {
     "EOF","%token","%type","%datatype","%test","%empty",
-    "%%",":","|",";","name","token",
-    "string","block","prologue",
+    "%token_prefix","%enable_cst","%ns","%%",":","|",
+    ";","name","token","string","block","prologue",
+    
 };
 const char *yytokenAlias[] = {
     "EOF","TOKEN_DIR","TYPE_DIR","DATATYPE_DIR","TEST_DIR","EMPTY_DIR",
-    "SEPERATOR","ARROW","OR","EOL","NAME","TOKEN",
-    "STRING","BLOCK","PROLOGUE",
+    "TOKEN_PREFIX_DIR","ENABLE_CST_DIR","NS_DIR","SEPERATOR","ARROW","OR",
+    "EOL","NAME","TOKEN","STRING","BLOCK","PROLOGUE",
+    
 };
 const char *yynonTerminals[] = {
     "(accept)","file","options","option","prologue","body",
-    "bodyItem","test","tokenList","rule","ruleBody","ruleItems",
-    "ruleItem",
+    "bodyItem","test","tokenList","rule","@1","ruleBody",
+    "@2","ruleItems","ruleItem",
 };
 static int yyParser_reduce(yyParser *yyparser,int yyrule){
     YYCHECK_PUSH_TOKEN();
-    ysptr yyval;
+    YToken yyval;
     YGBuilder *yydata = (YGBuilder *)yyparser->userData;
     switch(yyrule){
         case 0:
@@ -330,141 +374,184 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 4:
             /* option -> <%token> <token> <string>  */
-            #line 37 "./yapc.y"
-            { YGBuilder_addToken(yydata,(yyparser->sp[-2]),(yyparser->sp[-1])); }
-            #line 336 "./yapc.c"
+            #line 70 "yparser.y"
+            { YGBuilder_addToken(yydata,(yyparser->sp[-2]).image,(yyparser->sp[-1]).image); }
+            #line 380 "yparser.c"
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 5:
             /* option -> <%type> <string>  */
-            #line 38 "./yapc.y"
-            { YGBuilder_setTokenType(yydata,(yyparser->sp[-1])); }
-            #line 344 "./yapc.c"
+            #line 71 "yparser.y"
+            { yydata->stype = (yyparser->sp[-1]).image; }
+            #line 388 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 6:
             /* option -> <%datatype> <string>  */
-            #line 39 "./yapc.y"
-            { YGBuilder_setDataType(yydata,(yyparser->sp[-1])); }
-            #line 352 "./yapc.c"
+            #line 72 "yparser.y"
+            { yydata->dataType = (yyparser->sp[-1]).image; }
+            #line 396 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 7:
-            /* prologue -> <prologue>  */
-            /* no action. */
-            yyval = yyparser->sp[-1];
-            yyparser->sp -= 1;
+            /* option -> <%token_prefix> <string>  */
+            #line 73 "yparser.y"
+            { yydata->tokenPrefix = (yyparser->sp[-1]).image; }
+            #line 404 "yparser.c"
+            yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 8:
+            /* option -> <%ns> <string>  */
+            #line 74 "yparser.y"
+            { yydata->nameSpace = (yyparser->sp[-2]).image; }
+            #line 412 "yparser.c"
+            yyparser->sp -= 2;
+            *yyparser->sp++ = yyval;
+            break;
+        case 9:
+            /* option -> <%enable_cst>  */
+            #line 75 "yparser.y"
+            { yydata->genCst = 1; }
+            #line 420 "yparser.c"
+            yyparser->sp -= 1;
+            *yyparser->sp++ = yyval;
+            break;
+        case 10:
+            /* prologue -> <prologue>  */
+            #line 77 "yparser.y"
+            { yydata->prologue = (yyparser->sp[-1]).image; }
+            #line 428 "yparser.c"
+            yyparser->sp -= 1;
+            *yyparser->sp++ = yyval;
+            break;
+        case 11:
             /* prologue ->  */
             /* no action. */
             yyval = yyparser->sp[0];
             *yyparser->sp++ = yyval;
             break;
-        case 9:
+        case 12:
             /* body -> body bodyItem  */
             /* no action. */
             yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
-        case 10:
+        case 13:
             /* body -> bodyItem  */
             /* no action. */
             yyval = yyparser->sp[-1];
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
-        case 11:
+        case 14:
             /* bodyItem -> rule <;>  */
             /* no action. */
             yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
-        case 12:
+        case 15:
             /* bodyItem -> test <;>  */
             /* no action. */
             yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
-        case 13:
+        case 16:
             /* test -> <%test> tokenList  */
             /* no action. */
             yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
-        case 14:
+        case 17:
             /* tokenList -> tokenList <token>  */
-            /* no action. */
-            yyval = yyparser->sp[-2];
+            #line 85 "yparser.y"
+            { YGBuilder_addTestToken(yydata,(yyparser->sp[-1]).image); }
+            #line 477 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
-        case 15:
+        case 18:
             /* tokenList ->  */
             /* no action. */
             yyval = yyparser->sp[0];
             *yyparser->sp++ = yyval;
             break;
-        case 16:
-            /* rule -> <name> <:> ruleBody  */
+        case 19:
+            /* @1 ->  */
+            #line 88 "yparser.y"
+            { yydata->lhs = (yyparser->sp[-1]).image;YGBuilder_prepareRule(yydata,yydata->lhs); }
+            #line 491 "yparser.c"
+            break;
+        case 20:
+            /* rule -> <name> @1 <:> ruleBody  */
             /* no action. */
             yyval = yyparser->sp[-3];
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
-        case 17:
+        case 21:
             /* ruleBody -> ruleItems  */
-            /* no action. */
-            yyval = yyparser->sp[-1];
+            #line 91 "yparser.y"
+            { YGBuilder_commitRule(yydata); }
+            #line 504 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
-        case 18:
-            /* ruleBody -> ruleBody <|> ruleItems  */
-            /* no action. */
-            yyval = yyparser->sp[-3];
+        case 22:
+            /* @2 ->  */
+            #line 92 "yparser.y"
+            { YGBuilder_prepareRule(yydata,yydata->lhs); }
+            #line 512 "yparser.c"
+            break;
+        case 23:
+            /* ruleBody -> ruleBody @2 <|> ruleItems  */
+            #line 92 "yparser.y"
+            { YGBuilder_commitRule(yydata); }
+            #line 518 "yparser.c"
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
-        case 19:
+        case 24:
             /* ruleItems -> ruleItems ruleItem  */
             /* no action. */
             yyval = yyparser->sp[-2];
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
-        case 20:
+        case 25:
             /* ruleItems ->  */
             /* no action. */
             yyval = yyparser->sp[0];
             *yyparser->sp++ = yyval;
             break;
-        case 21:
+        case 26:
             /* ruleItem -> <token>  */
-            /* no action. */
-            yyval = yyparser->sp[-1];
+            #line 97 "yparser.y"
+            { YGBuilder_addRuleItem(yydata,(yyparser->sp[-1]).image,1); }
+            #line 539 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
-        case 22:
+        case 27:
             /* ruleItem -> <name>  */
-            /* no action. */
-            yyval = yyparser->sp[-1];
+            #line 98 "yparser.y"
+            { YGBuilder_addRuleItem(yydata,(yyparser->sp[-1]).image,0); }
+            #line 547 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
-        case 23:
+        case 28:
             /* ruleItem -> <block>  */
-            /* no action. */
-            yyval = yyparser->sp[-1];
+            #line 99 "yparser.y"
+            { YGBuilder_addBlockItem(yydata,(yyparser->sp[-1]).image,(yyparser->sp[-1]).line); }
+            #line 555 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
@@ -480,7 +567,7 @@ int yyParser_init(yyParser *yyparser){
     yyparser->sSize = yyparser->pSize = 16;
     yyparser->state = (int *)YYMALLOC(sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
-    yyparser->sp = yyparser->pstack = (ysptr *)YYMALLOC(sizeof(ysptr) * yyparser->pSize);
+    yyparser->sp = yyparser->pstack = (YToken *)YYMALLOC(sizeof(YToken) * yyparser->pSize);
     return 0;
 }
 int yyParser_reInit(yyParser *yyparser){

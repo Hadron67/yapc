@@ -83,7 +83,7 @@ int YTokenSet_contains(YGrammar *g,char *set,int token){
     char *item = set + (token / SBITS);
     return *item & (1 << i);
 }
-int YTokenSet_union(YGrammar *g,char *dest,char *src){
+int YTokenSet_union(YGrammar *g,char *dest,const char *src){
     int ret = 0;
     int size = YGrammar_getTokenSetSize(g);
     int i;
@@ -180,6 +180,19 @@ YFirstSets *YGrammar_generateFirstSets(YGrammar *g){
     }
     
     return sets;
+}
+
+int YGrammar_printUnusedTokens(YGrammar *g,int *count,FILE *out){
+    int i;
+    *count = 0;
+    for(i = 0;i < g->tokenCount;i++){
+        YTokenDef *t = g->tokens + i;
+        if(!t->used){
+            fprintf(out,"unused token: <%s> (%s)\n",t->name,t->alias);
+            (*count)++;
+        }
+    }
+    return 0;
 }
 
 int YFirstSets_dump(YFirstSets *sets,FILE *out){

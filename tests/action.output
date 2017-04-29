@@ -1,52 +1,53 @@
+
 i0
-[ 0: (accept) -> . start, { <EOF>, } ]* (s1)
-[ 1: start -> . expr, { <EOF>, } ] (s2)
-[ 3: expr -> . expr <+> @1 atom, { <EOF>,<+>, } ] (s2)
-[ 4: expr -> . atom, { <EOF>,<+>, } ] (s6)
-[ 7: atom -> . @3 @2 <id>, { <EOF>,<+>, } ] (s7)
-[ 9: atom -> . @4 <num>, { <EOF>,<+>, } ] (s10)
-[ 6: @3 -> ., { <id>, } ] (r)
-[ 8: @4 -> ., { <num>, } ] (r)
+[ 0: (accept) -> . start, { <EOF> } ]* (s1)
+[ 1: start -> . expr, { <EOF> } ] (s2)
+[ 3: expr -> . expr <+> @1 atom, { <EOF>,<+> } ] (s2)
+[ 4: expr -> . atom, { <EOF>,<+> } ] (s6)
+[ 7: atom -> . @3 @2 <id>, { <EOF>,<+> } ] (s7)
+[ 9: atom -> . @4 <num>, { <EOF>,<+> } ] (s10)
+[ 6: @3 -> ., { <id> } ] (r)
+[ 8: @4 -> ., { <num> } ] (r)
 
 i1
-[ 0: (accept) -> start ., { <EOF>, } ]* (r)
+[ 0: (accept) -> start ., { <EOF> } ]* (r)
 
 i2
-[ 1: start -> expr ., { <EOF>, } ]* (r)
-[ 3: expr -> expr . <+> @1 atom, { <EOF>,<+>, } ]* (s3)
+[ 1: start -> expr ., { <EOF> } ]* (r)
+[ 3: expr -> expr . <+> @1 atom, { <EOF>,<+> } ]* (s3)
 
 i3
-[ 3: expr -> expr <+> . @1 atom, { <EOF>,<+>, } ]* (s4)
-[ 2: @1 -> ., { <EOF>,<id>,<+>,<num>, } ] (r)
+[ 3: expr -> expr <+> . @1 atom, { <EOF>,<+> } ]* (s4)
+[ 2: @1 -> ., { <EOF>,<id>,<+>,<num> } ] (r)
 
 i4
-[ 3: expr -> expr <+> @1 . atom, { <EOF>,<+>, } ]* (s5)
-[ 7: atom -> . @3 @2 <id>, { <EOF>,<+>, } ] (s7)
-[ 9: atom -> . @4 <num>, { <EOF>,<+>, } ] (s10)
-[ 6: @3 -> ., { <id>, } ] (r)
-[ 8: @4 -> ., { <num>, } ] (r)
+[ 3: expr -> expr <+> @1 . atom, { <EOF>,<+> } ]* (s5)
+[ 7: atom -> . @3 @2 <id>, { <EOF>,<+> } ] (s7)
+[ 9: atom -> . @4 <num>, { <EOF>,<+> } ] (s10)
+[ 6: @3 -> ., { <id> } ] (r)
+[ 8: @4 -> ., { <num> } ] (r)
 
 i5
-[ 3: expr -> expr <+> @1 atom ., { <EOF>,<+>, } ]* (r)
+[ 3: expr -> expr <+> @1 atom ., { <EOF>,<+> } ]* (r)
 
 i6
-[ 4: expr -> atom ., { <EOF>,<+>, } ]* (r)
+[ 4: expr -> atom ., { <EOF>,<+> } ]* (r)
 
 i7
-[ 7: atom -> @3 . @2 <id>, { <EOF>,<+>, } ]* (s8)
-[ 5: @2 -> ., { <id>, } ] (r)
+[ 7: atom -> @3 . @2 <id>, { <EOF>,<+> } ]* (s8)
+[ 5: @2 -> ., { <id> } ] (r)
 
 i8
-[ 7: atom -> @3 @2 . <id>, { <EOF>,<+>, } ]* (s9)
+[ 7: atom -> @3 @2 . <id>, { <EOF>,<+> } ]* (s9)
 
 i9
-[ 7: atom -> @3 @2 <id> ., { <EOF>,<+>, } ]* (r)
+[ 7: atom -> @3 @2 <id> ., { <EOF>,<+> } ]* (r)
 
 i10
-[ 9: atom -> @4 . <num>, { <EOF>,<+>, } ]* (s11)
+[ 9: atom -> @4 . <num>, { <EOF>,<+> } ]* (s11)
 
 i11
-[ 9: atom -> @4 <num> ., { <EOF>,<+>, } ]* (r)
+[ 9: atom -> @4 <num> ., { <EOF>,<+> } ]* (r)
 
 test 1:
 | <num> <+> <id> <+> <num> <+> <id> [0 ]
