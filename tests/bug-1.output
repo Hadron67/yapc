@@ -1,13 +1,13 @@
 
 state 0,reduce/reduce conflict:
     token: <EOF>
-    used:[ 2: A -> ., { <EOF> } ] (r)
-    discarded:[ 3: B -> ., { <EOF> } ] (r)
+    used:[ 2: A -> . ] (r)
+    discarded:[ 3: B -> . ] (r)
 
 state 2,reduce/reduce conflict:
     token: <EOF>
-    used:[ 2: A -> ., { <EOF> } ] (r)
-    discarded:[ 3: B -> ., { <EOF> } ] (r)
+    used:[ 2: A -> . ] (r)
+    discarded:[ 3: B -> . ] (r)
 
 warning: 2 conflict(s) detected.
 

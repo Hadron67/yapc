@@ -11,7 +11,7 @@
 %token <string> "STRING"
 
 %type "jnode"
-%ns "jm"
+%namespace "jm"
 %token_prefix "MT_"
 %datatype "jMatch"
 

@@ -5,8 +5,13 @@
 #ifndef __YY_H__
 #define __YY_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdlib.h>
 #include <stdio.h>
+#define YY_OK 0
+#define YY_ERR -1
 #define MT_EOF 0
 #define MT_CBRA 1
 #define MT_CKET 2
@@ -44,7 +49,9 @@ int jmParser_reInit(jmParser *jmparser);
 int jmParser_free(jmParser *jmparser);
 int jmParser_acceptToken(jmParser *jmparser,int jmtokenid);
 int jmParser_printError(jmParser *jmparser,FILE *out);
-int jmParser_clearStack(jmParser *jmparser);
 
 
+#ifdef __cpluplus
+}
+#endif
 #endif

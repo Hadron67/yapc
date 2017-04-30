@@ -2,123 +2,123 @@ unused token: <!> (NOT)
 
 state 68,reduce/reduce conflict:
     token: <)>
-    used:[ 18: exprList -> assignExpr ., { <)>,<,> } ]* (r)
-    discarded:[ 53: nonEmptyArgList -> assignExpr ., { <)>,<,> } ]* (r)
+    used:[ 18: exprList -> assignExpr . ]* (r)
+    discarded:[ 53: nonEmptyArgList -> assignExpr . ]* (r)
 
 state 68,reduce/reduce conflict:
     token: <,>
-    used:[ 18: exprList -> assignExpr ., { <)>,<,> } ]* (r)
-    discarded:[ 53: nonEmptyArgList -> assignExpr ., { <)>,<,> } ]* (r)
+    used:[ 18: exprList -> assignExpr . ]* (r)
+    discarded:[ 53: nonEmptyArgList -> assignExpr . ]* (r)
 
 state 74,shift/reduce conflict:
     token: <=>
-    used:[ 21: assignOptr -> . <=>, { <(>,<id>,<num>,<function> } ] (s4)
-    discarded:[ 48: lambdaBody -> assignExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 21: assignOptr -> . <=> ] (s4)
+    discarded:[ 48: lambdaBody -> assignExpr . ]* (r)
 
 state 74,shift/reduce conflict:
     token: <+=>
-    used:[ 22: assignOptr -> . <+=>, { <(>,<id>,<num>,<function> } ] (s5)
-    discarded:[ 48: lambdaBody -> assignExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 22: assignOptr -> . <+=> ] (s5)
+    discarded:[ 48: lambdaBody -> assignExpr . ]* (r)
 
 state 74,shift/reduce conflict:
     token: <-=>
-    used:[ 23: assignOptr -> . <-=>, { <(>,<id>,<num>,<function> } ] (s6)
-    discarded:[ 48: lambdaBody -> assignExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 23: assignOptr -> . <-=> ] (s6)
+    discarded:[ 48: lambdaBody -> assignExpr . ]* (r)
 
 state 74,shift/reduce conflict:
     token: <*=>
-    used:[ 24: assignOptr -> . <*=>, { <(>,<id>,<num>,<function> } ] (s7)
-    discarded:[ 48: lambdaBody -> assignExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 24: assignOptr -> . <*=> ] (s7)
+    discarded:[ 48: lambdaBody -> assignExpr . ]* (r)
 
 state 74,shift/reduce conflict:
     token: </=>
-    used:[ 25: assignOptr -> . </=>, { <(>,<id>,<num>,<function> } ] (s8)
-    discarded:[ 48: lambdaBody -> assignExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 25: assignOptr -> . </=> ] (s8)
+    discarded:[ 48: lambdaBody -> assignExpr . ]* (r)
 
 state 81,shift/reduce conflict:
     token: <?>
-    used:[ 27: conditionalExpr -> binaryExpr . <?> assignExpr <:> assignExpr, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s82)
-    discarded:[ 26: conditionalExpr -> binaryExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 27: conditionalExpr -> binaryExpr . <?> assignExpr <:> assignExpr ]* (s82)
+    discarded:[ 26: conditionalExpr -> binaryExpr . ]* (r)
 
 state 81,shift/reduce conflict:
     token: <+>
-    used:[ 28: binaryExpr -> binaryExpr . <+> multiplyExpr, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s86)
-    discarded:[ 26: conditionalExpr -> binaryExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 28: binaryExpr -> binaryExpr . <+> multiplyExpr ]* (s86)
+    discarded:[ 26: conditionalExpr -> binaryExpr . ]* (r)
 
 state 81,shift/reduce conflict:
     token: <->
-    used:[ 29: binaryExpr -> binaryExpr . <-> multiplyExpr, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s92)
-    discarded:[ 26: conditionalExpr -> binaryExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 29: binaryExpr -> binaryExpr . <-> multiplyExpr ]* (s92)
+    discarded:[ 26: conditionalExpr -> binaryExpr . ]* (r)
 
 state 85,shift/reduce conflict:
     token: <=>
-    used:[ 21: assignOptr -> . <=>, { <(>,<id>,<num>,<function> } ] (s4)
-    discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 21: assignOptr -> . <=> ] (s4)
+    discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr . ]* (r)
 
 state 85,shift/reduce conflict:
     token: <+=>
-    used:[ 22: assignOptr -> . <+=>, { <(>,<id>,<num>,<function> } ] (s5)
-    discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 22: assignOptr -> . <+=> ] (s5)
+    discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr . ]* (r)
 
 state 85,shift/reduce conflict:
     token: <-=>
-    used:[ 23: assignOptr -> . <-=>, { <(>,<id>,<num>,<function> } ] (s6)
-    discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 23: assignOptr -> . <-=> ] (s6)
+    discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr . ]* (r)
 
 state 85,shift/reduce conflict:
     token: <*=>
-    used:[ 24: assignOptr -> . <*=>, { <(>,<id>,<num>,<function> } ] (s7)
-    discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 24: assignOptr -> . <*=> ] (s7)
+    discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr . ]* (r)
 
 state 85,shift/reduce conflict:
     token: </=>
-    used:[ 25: assignOptr -> . </=>, { <(>,<id>,<num>,<function> } ] (s8)
-    discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 25: assignOptr -> . </=> ] (s8)
+    discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr . ]* (r)
 
 state 87,shift/reduce conflict:
     token: <*>
-    used:[ 31: multiplyExpr -> multiplyExpr . <*> unaryExpr, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s88)
-    discarded:[ 28: binaryExpr -> binaryExpr <+> multiplyExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 31: multiplyExpr -> multiplyExpr . <*> unaryExpr ]* (s88)
+    discarded:[ 28: binaryExpr -> binaryExpr <+> multiplyExpr . ]* (r)
 
 state 87,shift/reduce conflict:
     token: </>
-    used:[ 32: multiplyExpr -> multiplyExpr . </> unaryExpr, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s90)
-    discarded:[ 28: binaryExpr -> binaryExpr <+> multiplyExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 32: multiplyExpr -> multiplyExpr . </> unaryExpr ]* (s90)
+    discarded:[ 28: binaryExpr -> binaryExpr <+> multiplyExpr . ]* (r)
 
 state 93,shift/reduce conflict:
     token: <*>
-    used:[ 31: multiplyExpr -> multiplyExpr . <*> unaryExpr, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s88)
-    discarded:[ 29: binaryExpr -> binaryExpr <-> multiplyExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 31: multiplyExpr -> multiplyExpr . <*> unaryExpr ]* (s88)
+    discarded:[ 29: binaryExpr -> binaryExpr <-> multiplyExpr . ]* (r)
 
 state 93,shift/reduce conflict:
     token: </>
-    used:[ 32: multiplyExpr -> multiplyExpr . </> unaryExpr, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s90)
-    discarded:[ 29: binaryExpr -> binaryExpr <-> multiplyExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 32: multiplyExpr -> multiplyExpr . </> unaryExpr ]* (s90)
+    discarded:[ 29: binaryExpr -> binaryExpr <-> multiplyExpr . ]* (r)
 
 state 94,shift/reduce conflict:
     token: <*>
-    used:[ 31: multiplyExpr -> multiplyExpr . <*> unaryExpr, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s88)
-    discarded:[ 30: binaryExpr -> multiplyExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 31: multiplyExpr -> multiplyExpr . <*> unaryExpr ]* (s88)
+    discarded:[ 30: binaryExpr -> multiplyExpr . ]* (r)
 
 state 94,shift/reduce conflict:
     token: </>
-    used:[ 32: multiplyExpr -> multiplyExpr . </> unaryExpr, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s90)
-    discarded:[ 30: binaryExpr -> multiplyExpr ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 32: multiplyExpr -> multiplyExpr . </> unaryExpr ]* (s90)
+    discarded:[ 30: binaryExpr -> multiplyExpr . ]* (r)
 
 state 98,shift/reduce conflict:
     token: <[>
-    used:[ 36: trailer -> trailer . <[> subscript <]>, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s50)
-    discarded:[ 35: atomicExpr -> atom trailer ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 36: trailer -> trailer . <[> subscript <]> ]* (s50)
+    discarded:[ 35: atomicExpr -> atom trailer . ]* (r)
 
 state 98,shift/reduce conflict:
     token: <(>
-    used:[ 37: trailer -> trailer . <(> argList <)>, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s53)
-    discarded:[ 35: atomicExpr -> atom trailer ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 37: trailer -> trailer . <(> argList <)> ]* (s53)
+    discarded:[ 35: atomicExpr -> atom trailer . ]* (r)
 
 state 98,shift/reduce conflict:
     token: <member>
-    used:[ 38: trailer -> trailer . <member>, { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (s60)
-    discarded:[ 35: atomicExpr -> atom trailer ., { <+>,<->,</>,<*>,<(>,<)>,<,>,<?>,<:>,<;>,<=>,<+=>,<-=>,<*=>,</=>,<[>,<]>,<member> } ]* (r)
+    used:[ 38: trailer -> trailer . <member> ]* (s60)
+    discarded:[ 35: atomicExpr -> atom trailer . ]* (r)
 
 warning: 24 conflict(s) detected.
 

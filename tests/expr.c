@@ -188,7 +188,15 @@ int yyParser_init(yyParser *yyparser){
     yyparser->sp = yyparser->pstack = (int *)YYMALLOC(sizeof(int) * yyparser->pSize);
     return 0;
 }
+static int yyParser_clearStack(yyParser *yyparser){
+    while(yyparser->sp > yyparser->pstack){
+        yyparser->sp--;
+        YYDESTRUCTOR(yyparser->sp);
+    }
+    return 0;
+}
 int yyParser_reInit(yyParser *yyparser){
+    yyParser_clearStack(yyparser);
     yyparser->sLen = 0;
     yyparser->done = 0;
     yyparser->state[0] = 0;
@@ -196,6 +204,7 @@ int yyParser_reInit(yyParser *yyparser){
     return 0;
 }
 int yyParser_free(yyParser *yyparser){
+    yyParser_clearStack(yyparser);
     YYFREE(yyparser->state);
     YYFREE(yyparser->pstack);
     return 0;
@@ -237,11 +246,4 @@ int yyParser_printError(yyParser *yyparser,FILE *out){
         }
     }
     return YY_OK;
-}
-int yyParser_clearStack(yyParser *yyparser){
-    while(yyparser->sp > yyparser->pstack){
-        yyparser->sp--;
-        YYDESTRUCTOR(yyparser->sp);
-    }
-    return 0;
 }

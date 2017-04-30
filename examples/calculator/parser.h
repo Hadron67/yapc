@@ -5,8 +5,13 @@
 #ifndef __YY_H__
 #define __YY_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdlib.h>
 #include <stdio.h>
+#define YY_OK 0
+#define YY_ERR -1
 #define T_EOF 0
 #define T_NUM 1
 #define T_PLUS 2
@@ -62,7 +67,9 @@ int yyParser_reInit(yyParser *yyparser);
 int yyParser_free(yyParser *yyparser);
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid);
 int yyParser_printError(yyParser *yyparser,FILE *out);
-int yyParser_clearStack(yyParser *yyparser);
 
 
+#ifdef __cpluplus
+}
+#endif
 #endif

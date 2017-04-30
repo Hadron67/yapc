@@ -505,10 +505,10 @@ static int YConflict_print(YConflict *c,FILE *out){
     }
     fprintf(out,YYTAB "token: <%s>\n",g->tokens[c->token].name);
     fprintf(out,YYTAB "used:");
-    YItem_dump(c->used,g,1,out);
+    YItem_dump(c->used,g,0,out);
     fprintf(out,"\n");
     fprintf(out,YYTAB "discarded:");
-    YItem_dump(c->discarded,g,1,out);
+    YItem_dump(c->discarded,g,0,out);
     fprintf(out,"\n");
     return 0;
 }
@@ -523,6 +523,43 @@ int YConflictList_print(YConflictList *list,FILE *out){
 int YParseTable_free(YParseTable *table){
     ya_free(table);
 }
+static YItem *yResolveSRConflict(YGrammar *g,YConflictList *list,YItemSet *set,YItem *shift,YItem *reduce,int token){
+    YTokenDef *td = g->tokens + token;
+
+    //first,try to resolve conflict using operator precedence
+    if(td->pr != YP_NONE){
+        int ruleP = reduce->rule->prLevel;
+        if(ruleP != -1){
+            if(ruleP > td->prLevel){
+                return reduce;
+            }
+            else if(ruleP < td->prLevel){
+                return shift;
+            }
+            else{
+                if(td->pr == YP_LEFT){
+                    return reduce;
+                }
+                else if(td->pr == YP_RIGHT){
+                    return shift;
+                }
+                else if(td->pr == YP_NONASSOC){
+                    return NULL;
+                }
+                else {  
+                    // should not reach here
+                    assert(0);
+                }
+            }
+        }
+    }
+    
+    //no precedence available,so do shift and report conflict.
+    YConflictList_addConflict(list,YCONFLICT_SR,set,token,shift,reduce);
+    return shift;
+
+}
+
 YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YConflictList *clist){
     YParseTable *table = (YParseTable *)ya_malloc(
         sizeof(YParseTable) +
@@ -569,9 +606,9 @@ YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YConflictList *clist)
                         else if((*cItem)->actionType == YACTION_REDUCE){
                             //now we've got a shift-reduce conflict.
                             //report it,and do shift
-                            assert((*cItem)->actionType == YACTION_REDUCE);
-                            YConflictList_addConflict(clist,YCONFLICT_SR,set,rItem->id,item,*cItem);
-                            *cItem = item;
+                            //YConflictList_addConflict(clist,YCONFLICT_SR,set,rItem->id,item,*cItem);
+                            //*cItem = item;
+                            *cItem = yResolveSRConflict(g,clist,set,item,*cItem,rItem->id);
                         }
                     }
                     else {
@@ -597,7 +634,8 @@ YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YConflictList *clist)
                                 *cItem = taken;
                             }
                             else if((*cItem)->actionType == YACTION_SHIFT){
-                                YConflictList_addConflict(clist,YCONFLICT_SR,set,j,*cItem,item);
+                                //YConflictList_addConflict(clist,YCONFLICT_SR,set,j,*cItem,item);
+                                *cItem = yResolveSRConflict(g,clist,set,*cItem,item,j);
                             }
                         }
                         else {

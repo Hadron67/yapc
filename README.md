@@ -14,10 +14,11 @@
 ***
 
 ## 编译及安装
-用以下命令即可编译
+用以下命令即可编译并安装：
 ```shell
 cmake .
 make
+sudo make install
 ```
 编译需要使用cmake2.8及以上。除此之外没有其他库的依赖。
 
@@ -89,7 +90,7 @@ example.c，example.h，test.txt。其中test.txt和example.output内容完全�
 ### 名字空间定义
 在生成解析器代码的时候，所有的变量名、结构体名、函数名都加上了前缀以防止对你的命名空间的污染。这个前缀默认是“yy”。你可以用一下指令自定义这个前缀：
 ```yacc
-%ns "命名空间名"
+%namespace "命名空间名"
 ```
 ### 关键字前缀
 与名字空间类似，在对所有关键字定义宏的时候都会给宏名加前缀，默认是“T_”。同样，用以下指令可修改：
@@ -104,7 +105,7 @@ example.c，example.h，test.txt。其中test.txt和example.output内容完全�
 ```
 这样，yapc就会生成分析树节点的数据类型（yyCst）以及用于打印分析树的函数
 ```c
-int yyParser_printCst(yyParser **parser,FILE *out);
+int yyParser_printCst(yyParser *parser,FILE *out);
 ```
 只需在完成对输入串的分析后调用即可打印。
 
@@ -136,20 +137,86 @@ A: <num>;
 “*”表示可以出现任意次。
 
 ## 冲突及解决
-当文法存在冲突时yapc会在终端以及.output文件里面打印出冲突的信息以及解决的方式。当出现移进/规约冲突时yapc会选择移进，出现规约/规约冲突时写在前面的规则会被选择。目前暂时还没有实现%left,%right等解决方式。
+当文法存在冲突时yapc会在终端以及.output文件里面打印出冲突的信息以及解决的方式。当出现移进/规约冲突时yapc会选择移进，出现规约/规约冲突时写在前面的规则会被选择。也可以通过定义运算符优先关系来解决冲突，见下。
+
+### 运算符优先级
+在v0.3之后加入了运算符优先级，和yacc类似，可以在选项块中用%left,%right,%nonassoc这三个优先关系定义指令来定义运算符的结合性以及优先级从而消除冲突。格式为
+```yacc
+%left (<关键字>)*
+%right (<关键字>)*
+%nonassoc (<关键字>)*
+```
+一个优先关系定义指令中定义的关键字的优先级相同，不同指令之间写在**后面**的关键字会具有更高的优先级。一条规则的优先级就等于出现在它产生式中的最后一个终结符的优先级。这样，当发生移进/规约冲突时就会选择优先级较高的规则。
+
+你也可以手动定义各个规则的优先级，即在规则的最后加上
+```
+%prec <关键字> 偏移值（可选）
+```
+这样这条规则的优先级就被定义为给定的终结符的优先级。进一步地，还可以在后面加上偏移值，这样优先级就等于给定关键字加上偏移值。
+实际的例子请查看tests/optr_test.y以及examples/calculator。
 
 ## 生成的源码及使用方法
-yapc会生成六个函数
-```c
-int yyParser_init(yyParser *yyparser);
-int yyParser_reInit(yyParser *yyparser);
-int yyParser_free(yyParser *yyparser);
-int yyParser_acceptToken(yyParser *yyparser,int yytokenid);
-int yyParser_printError(yyParser *yyparser,FILE *out);
-int yyParser_clearStack(yyParser *yyparser);
-```
-及一个结构体yyParser。在解析器生成部分yapc和lemon比较类似，即词法扫描器调用解析器。基本使用方法是：扫描器每扫描一个关键词就调用yyParser_acceptToken使解析器移进（shift）一个关键字，如果出现了语法错误这个函数就会返回-1,这时候就调用
-yyParser_printError来打印错误信息，直到解析完成。具体的例子请参考examples。
+yapc会生成一些函数及一个结构体yyParser。在解析器生成部分yapc和lemon比较类似，即词法扫描器调用解析器。基本使用方法是：扫描器每扫描一个关键词就调用yyParser_acceptToken使解析器移进（shift）一个关键字，如果出现了语法错误这个函数就会返回-1,这时候就调用
+yyParser_printError来打印错误信息。当输入串被接受后，解析器中的done将会被设置为1，这样就可以退出循环，完成解析完了。
+
+下面对这些一一说明。
+
+### int yyParser_init(yyParser \*yyparser);
+* 作用
+用于初始化一个分析器对象，类似于构造函数。在声明了一个yyParser后，应当首先调用这个函数来初始化，之后才能正常使用。
+* 参数说明
+yyparser：要初始化的分析器对象。
+* 返回值
+始终是YY_OK
+
+### int yyParser_reInit(yyParser \*yyparser);
+* 作用
+用于重新初始化一个分析器。当分析器在完成对输入串的一次分析之后，如果想对另一个输入串进行解析，需要先调用这个函数。
+* 参数说明
+yyparser：需要重新初始化的分析器对象
+* 返回值
+始终是YY_OK
+
+### int yyParser_free(yyParser \*yyparser);
+* 作用
+用于销毁一个分析器对象，类似于析构函数。当分析完成后就需要调用这个函数来释放内存，不然会出现内存泄漏。
+* 参数说明
+yyparser：需要销毁的分析器对象。
+* 返回值
+始终是YY_OK
+
+### int yyParser_acceptToken(yyParser \*yyparser,int yytokenid);
+* 作用
+这个函数是解析器的核心。当词法分析器识别到一个关键词时，调用这个函数来将得到的关键词送给分析器进行分析。
+* 参数说明
+yyparser：用于分析输入串的分析器对象；
+yytokenid：词法分析器识别到的关键词的id，各个关键词的id是在生成的yyparser中定义的。
+* 返回值
+YY_OK：正常；
+YY_ERR：发生了语法错误。
+
+### int yyParser_printError(yyParser \*yyparser,FILE \*out);
+* 作用
+用于当出现语法错误时打印错误信息。
+* 参数说明
+yyparser：出现了错误的分析器；
+out：打印的输出。
+
+### int yyParser_printCst(yyParser \*parser,FILE \*out);
+* 作用
+打印生成的具体语法树。这个函数只有当声明了%enable_cst时才会生成。
+* 参数说明
+parser：生成语法树的分析器；
+out：打印的输出。
+* 返回值
+始终是YY_OK。
+
+### 用户可用的yyParser中的字段
+* int yyParser.done：初始时这个字段为0,当输入串被接受后将会被设置为1。
+* void *yyParser.userData：用户数据。这样使得用户可以在语义动作块中访问外面的一些数据结构。
+* yyParser.token：语义值，当调用yyParser_acceptToken后这个成员的值将会被压到分析器的语义栈中，可以被语义动作块中的代码获取到。
+
+具体的使用例子请参考examples。
 
 ## .output输出文件
 .output文件包含三个部分：文法的冲突信息、生成的LR(1)项目集合及状态转移表、测试输出。
@@ -196,8 +263,13 @@ yDestroyContext(ctx);
 欢迎大家在issues上提交bug！
 
 # 版本记录
-## v0.2，2017-4-29（最新）
-* 添加了生成并打印分析树的功能（见文档）
+## v0.3，2017-4-30（最新）
+* 添加了使用运算符优先级来解决冲突的功能（见[文档](#运算符优先级)）。
+* 修改文档中对输出文件的介绍。
+* 将命名空间指令从%ns改为%namespace
+
+## v0.2，2017-4-29
+* 添加了生成并打印分析树的功能（见[文档](#生成分析树)）
 * 将解析文法文件的解析器由之前手写的递归向下分析器改为用yapc生成的分析器（文法文件为yparser.y）
 
 ## v0.1.2，2017-4-28
@@ -216,4 +288,4 @@ yDestroyContext(ctx);
 * 第一个版本。
 
 # 许可证
-YAPC使用GPL v3进行许可。
+YAPC使用GPL v3进行许可。~~~~

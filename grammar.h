@@ -45,14 +45,24 @@ struct _YRule{
     
     int stackOffset;
     
-    
+    //precedence level,used to resolve conflicts.
+    int prLevel;
     YRuleItem *rule;
 };
+
+typedef enum _yprecedence_t{
+    YP_NONE = 1,
+    YP_LEFT,
+    YP_RIGHT,
+    YP_NONASSOC
+}yprecedence_t;
 
 typedef struct _YTokenDef{
     const char *name;
     const char *alias;
     int used;
+    int prLevel;
+    yprecedence_t pr;
 }YTokenDef;
 
 typedef struct _YNtDef{
@@ -118,7 +128,5 @@ int YFirstSets_contains(YFirstSets *sets,int nt,int t);
 char *YFirstSets_getSet(YFirstSets *sets,int nt);
 int YFirstSets_dump(YFirstSets *sets,FILE *out);
 int YFirstSets_free(YFirstSets *sets);
-
-
 
 #endif

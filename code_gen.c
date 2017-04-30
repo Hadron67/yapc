@@ -209,14 +209,15 @@ static int yPrintEscapedString(const char *s,FILE *out){
     return 0;
 }
 
-static int yGenStringTable(YGen *g,FILE *out,const char *name,const char **s,int len,int align){
+static int yGenStringTable(YGen *g,FILE *out,const char *name,void *s,int len,size_t align){
     fprintf(out,"const char *%s%s[] = {\n",g->g->nameSpace,name);
     g->line2++;
     int i,line = 0;
     fprintf(out,YYTAB);
     for(i = 0;i < len;i++){
         fprintf(out,"\"");
-        yPrintEscapedString(s[i * align],out);
+        const char **ts = (const char **)((char *)s + i * align);
+        yPrintEscapedString(ts[0],out);
         fprintf(out,"\",");
         if(line++ >= 5){
             line = 0;
@@ -229,9 +230,9 @@ static int yGenStringTable(YGen *g,FILE *out,const char *name,const char **s,int
     return 0;
 }
 static int yGenSymbolTable(YGen *g,FILE *out){
-    yGenStringTable(g,out,"tokenNames",&g->g->tokens->name,g->g->tokenCount,3);
-    yGenStringTable(g,out,"tokenAlias",&g->g->tokens->alias,g->g->tokenCount,3);
-    yGenStringTable(g,out,"nonTerminals",g->g->ntNames,g->g->ntCount,1);
+    yGenStringTable(g,out,"tokenNames",&g->g->tokens->name,g->g->tokenCount,sizeof(YTokenDef));
+    yGenStringTable(g,out,"tokenAlias",&g->g->tokens->alias,g->g->tokenCount,sizeof(YTokenDef));
+    yGenStringTable(g,out,"nonTerminals",g->g->ntNames,g->g->ntCount,sizeof(const char *));
     return 0;
 }
 
@@ -246,6 +247,9 @@ static int yGenHeader(YGen *g,FILE *out){
     fprintf(out,
         "#ifndef __YY_H__\n"
         "#define __YY_H__\n\n"
+        "#ifdef __cplusplus\n"
+        "extern \"C\" {\n"
+        "#endif\n"
         "#include <stdlib.h>\n"
         "#include <stdio.h>\n"
     );
@@ -338,12 +342,10 @@ static int yGenHeader(YGen *g,FILE *out){
        "int %sParser_free(%sParser *%sparser);\n"
        "int %sParser_acceptToken(%sParser *%sparser,int %stokenid);\n"
        "int %sParser_printError(%sParser *%sparser,FILE *out);\n"
-       "int %sParser_clearStack(%sParser *%sparser);\n"
        ,ns,ns,ns
        ,ns,ns,ns
        ,ns,ns,ns
        ,ns,ns,ns,ns
-       ,ns,ns,ns
        ,ns,ns,ns
     );
 
@@ -355,7 +357,11 @@ static int yGenHeader(YGen *g,FILE *out){
     }
 
     fprintf(out,"\n\n");
-
+    fprintf(out,
+        "#ifdef __cpluplus\n"
+        "}\n"
+        "#endif\n"
+    );
     fprintf(out,"#endif");
 }
 
@@ -703,18 +709,35 @@ static int yGenParseCode(YGen *g,FILE *out){
     g->line2 += 2;
 
     fprintf(out,
+        "static int %sParser_clearStack(%sParser *%sparser){\n"
+        YYTAB "while(%sparser->sp > %sparser->pstack){\n"
+        YYTAB YYTAB "%sparser->sp--;\n"
+        YYTAB YYTAB "YYDESTRUCTOR(%sparser->sp);\n"
+        YYTAB "}\n"
+        YYTAB "return 0;\n"
+        "}\n"
+        ,ns,ns,ns
+        ,ns,ns
+        ,ns
+        ,ns
+    );
+    g->line2 += 7;
+
+    fprintf(out,
         "int %sParser_reInit(%sParser *%sparser){\n"
+        YYTAB "%sParser_clearStack(%sparser);\n"
         YYTAB "%sparser->sLen = 0;\n"
         YYTAB "%sparser->done = 0;\n"
         YYTAB "%sparser->state[0] = 0;\n"
         YYTAB "%sparser->sp = %sparser->pstack;\n"
+        ,ns,ns
         ,ns,ns,ns
         ,ns
         ,ns
         ,ns
         ,ns,ns
     );
-    g->line2 += 5;
+    g->line2 += 6;
 
     if(g->g->genCst){
         fprintf(out,
@@ -734,13 +757,15 @@ static int yGenParseCode(YGen *g,FILE *out){
 
     fprintf(out,
         "int %sParser_free(%sParser *%sparser){\n"
+        YYTAB "%sParser_clearStack(%sparser);\n"
         YYTAB "YYFREE(%sparser->state);\n"
         YYTAB "YYFREE(%sparser->pstack);\n"
         ,ns,ns,ns
+        ,ns,ns
         ,ns
         ,ns
     );
-    g->line2 += 3;
+    g->line2 += 4;
 
     if(g->g->genCst){
         fprintf(out,
@@ -832,21 +857,6 @@ static int yGenParseCode(YGen *g,FILE *out){
         ,'%','%',ns,ns
     );
     g->line2 += 13;
-
-    fprintf(out,
-        "int %sParser_clearStack(%sParser *%sparser){\n"
-        YYTAB "while(%sparser->sp > %sparser->pstack){\n"
-        YYTAB YYTAB "%sparser->sp--;\n"
-        YYTAB YYTAB "YYDESTRUCTOR(%sparser->sp);\n"
-        YYTAB "}\n"
-        YYTAB "return 0;\n"
-        "}\n"
-        ,ns,ns,ns
-        ,ns,ns
-        ,ns
-        ,ns
-    );
-    g->line2 += 7;
 
     if(g->g->genCst){
         fprintf(out,

@@ -17,10 +17,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdarg.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include "grammar_builder.h"
+
+static void YGBuilder_vaerr(YGBuilder *gb,int line,const char *fmt,va_list args){
+    fprintf(gb->err,"error: ");
+    vfprintf(gb->err,fmt,args);
+    fprintf(gb->err,"\n at line %d\n",line);
+    gb->status = -1;
+}
+
+static void YGBuilder_err(YGBuilder *gb,int line,const char *fmt,...){
+    va_list args;
+    va_start(args,fmt);
+    YGBuilder_vaerr(gb,line,fmt,args);
+    va_end(args);
+}
 
 static int YTokenName_comp(const void *d1,const void *d2,void *arg){
     YGBuilder *gb = (YGBuilder *)arg;
@@ -64,14 +79,17 @@ int YGBuilder_init(YGBuilder *gb,FILE *err){
 
     gb->genCst = 0;
 
+    gb->prLevel = 0;
+
     gb->tokenPrefix = YGBuilder_addString(gb,"T_");
     gb->nameSpace = YGBuilder_addString(gb,"yy");
     gb->stype = YGBuilder_addString(gb,"int");
     gb->prologue = YGBuilder_addString(gb,"");
     gb->dataType = YGBuilder_addString(gb,"void");
     
-    ysptr eof = YGBuilder_addString(gb,"EOF");
-    YGBuilder_addToken(gb,eof,eof);
+    YToken tk;
+    tk.image = YGBuilder_addString(gb,"EOF");
+    YGBuilder_addToken(gb,&tk,&tk);
 
     return 0;
 }
@@ -97,23 +115,53 @@ int YGBuilder_free(YGBuilder *gb,char **spool){
 
     return 0;
 }
-int YGBuilder_addToken(YGBuilder *gb,ysptr tk,ysptr alias){
+int YGBuilder_addToken(YGBuilder *gb,const YToken *tk,const YToken *alias){
     YTree_prepareNode(&gb->tokenEntry);
-    int *node = YTree_find(&gb->tokenEntry,YSPool_getString(&gb->pool,tk));
+    const char *tname = YSPool_getString(&gb->pool,tk->image);
+    int *node = YTree_find(&gb->tokenEntry,tname);
     if(*node == -1){
         YRawToken rt;
-        rt.name = tk;
-        rt.alias = alias;
+        rt.name = tk->image;
+        rt.alias = alias->image;
+        rt.pr = YP_NONE;
         *node = YTree_newNode(&gb->tokenEntry,&rt);
         return 0;
     }
     else {
-        fprintf(gb->err,"cannot redefine token '%s'\n",YSPool_getString(&gb->pool,tk));
-        gb->status = -1;
+        YGBuilder_err(gb,tk->line,"cannot redefine token '%s'",tname);
         return -1;
     }
 }
-
+int YGBuilder_setTokenPrecedence(YGBuilder *gb,const YToken *tk,yprecedence_t p){
+    const char *tname = YGBuilder_getString(gb,tk->image);
+    int node = *YTree_find(&gb->tokenEntry,tname);
+    if(node != -1){
+        YRawToken *rt = (YRawToken *)YTree_getNode(&gb->tokenEntry,node)->data;
+        rt->pr = p;
+        rt->prLevel = gb->prLevel;
+    }
+    else{
+        YGBuilder_err(gb,tk->line,"use of undefined token '%s' in operator precedence defination",tname);
+    }
+    return 0;
+}
+int YGBuilder_setRulePrecedence(YGBuilder *gb,const YToken *prec,const YToken *rel){
+    const char *tname = YGBuilder_getString(gb,prec->image);
+    int node = *YTree_find(&gb->tokenEntry,tname);
+    if(node != -1){
+        YRawToken *rt = (YRawToken *)YTree_getNode(&gb->tokenEntry,node)->data;
+        int level = rt->prLevel + rel == NULL ? 0 : rel->num;
+        if(level <= 0){
+            YGBuilder_err(gb,prec->line,"precedence levels cannot be negtive (<%s> + (%d)) = %d <= 0",tname,rel->num,level);
+        }
+        gb->currentRule->prLevel = level;
+    }
+    else {
+        YGBuilder_err(gb,prec->line,"use of undefined token '%s' in rule precedence defination",tname);
+        return -1;
+    }
+    return -1;
+}
 ysptr YGBuilder_addString(YGBuilder *gb,const char *s){
     return YSPool_addString(&gb->pool,s);
 }
@@ -149,6 +197,7 @@ static int YGBuilder_prepareRuleRaw(YGBuilder *gb,ysptr lhs,int hasAction,ysptr 
     rule->hasValue = 1;
     rule->stackOffset = 0;
     rule->isGen = 0;
+    rule->prLevel = -1;
 
     gb->currentRule = rule;
 
@@ -273,11 +322,11 @@ int YGBuilder_addBlockItem(YGBuilder *gb,ysptr action,int line){
     }
     return 0;
 }
-int YGBuilder_addTestToken(YGBuilder *gb,ysptr tname){
-    int t = *YTree_find(&gb->tokenEntry,YSPool_getString(&gb->pool,tname));
+int YGBuilder_addTestToken(YGBuilder *gb,const YToken *tk){
+    const char *tname = YSPool_getString(&gb->pool,tk->image);
+    int t = *YTree_find(&gb->tokenEntry,tname);
     if(t == -1){
-        fprintf(gb->err,"use of undefined token '%s' in test\n",YSPool_getString(&gb->pool,tname));
-        gb->status = -1;
+        YGBuilder_err(gb,tk->line,"use of undefined token '%s' in test",tname);
         return -1;
     }
     if(gb->testLen >= gb->testSize){
@@ -299,7 +348,7 @@ int YGBuilder_commitTest(YGBuilder *gb){
     return 0;
 }
 
-YGrammar *YGBuilder_build(YGBuilder *gb,FILE *err){
+YGrammar *YGBuilder_build(YGBuilder *gb){
     YGrammar *g = (YGrammar *)ya_malloc(
         sizeof(YGrammar) + 
         sizeof(YTokenDef) * gb->tokenEntry.len +
@@ -338,6 +387,8 @@ YGrammar *YGBuilder_build(YGBuilder *gb,FILE *err){
         g->tokens[i].name = YSPool_getString(&gb->pool,rt->name);
         g->tokens[i].alias = YSPool_getString(&gb->pool,rt->alias);
         g->tokens[i].used = 0;
+        g->tokens[i].pr = rt->pr;
+        g->tokens[i].prLevel= rt->prLevel;
     }
     g->tokens[0].used = 1;
     for(i = 0;i < g->ntCount;i++){
@@ -362,6 +413,9 @@ YGrammar *YGBuilder_build(YGBuilder *gb,FILE *err){
         rule->stackOffset = raw->stackOffset;
         rule->actionBlock = raw->hasAction ? YSPool_getString(&gb->pool,raw->actionBlock) : NULL;
         rule->rule = rp;
+        rule->prLevel = raw->prLevel;
+
+        int hasPrLevel = raw->prLevel != -1;
 
         for(j = 0;j < raw->iLen;j++,rp++){
             YRawRuleItem *ritem = raw->items + j;
@@ -370,16 +424,20 @@ YGrammar *YGBuilder_build(YGBuilder *gb,FILE *err){
             const char *name = YSPool_getString(&gb->pool,ritem->name);
             if(rp->isTerminal){
                 id = *YTree_find(&gb->tokenEntry,name);
-                g->tokens[id].used = 1;
                 if(id == -1){
-                    fprintf(err,"use of undefined token '%s'\n",name);
+                    YGBuilder_err(gb,0,"use of undefined token '%s'",name);
                     goto err;
+                }
+                YTokenDef *td = g->tokens + id;
+                td->used = 1;
+                if(!hasPrLevel && td->pr != YP_NONE){
+                    rule->prLevel = td->prLevel;
                 }
             }
             else {
                 id = *YTree_find(&gb->ntEntry,name);
                 if(id == -1){
-                    fprintf(err,"use of undefined non terminal '%s'\n",name);
+                    YGBuilder_err(gb,0,"use of undefined non terminal '%s'",name);
                     goto err;
                 }
             }

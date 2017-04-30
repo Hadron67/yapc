@@ -273,7 +273,7 @@ static int jParser_parse(jParser *p,FILE *input,jsonval *val){
     p->head = p->cBlock = NULL;
     return 0;
 jjerr:
-    yyParser_clearStack(&p->parser);
+    //yyParser_clearStack(&p->parser);
     jStringBlock_free(p->head);
     p->head = p->cBlock = NULL;
     return -1;

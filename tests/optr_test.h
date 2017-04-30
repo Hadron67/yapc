@@ -5,34 +5,18 @@
 #ifndef __YY_H__
 #define __YY_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #define YY_OK 0
 #define YY_ERR -1
 #define T_EOF 0
-#define T_TOKEN_DIR 1
-#define T_TYPE_DIR 2
-#define T_DATATYPE_DIR 3
-#define T_TEST_DIR 4
-#define T_EMPTY_DIR 5
-#define T_TOKEN_PREFIX_DIR 6
-#define T_ENABLE_CST_DIR 7
-#define T_LEFT_DIR 8
-#define T_RIGHT_DIR 9
-#define T_NONASSOC_DIR 10
-#define T_PREC_DIR 11
-#define T_NS_DIR 12
-#define T_SEPERATOR 13
-#define T_ARROW 14
-#define T_OR 15
-#define T_EOL 16
-#define T_NEG 17
-#define T_NAME 18
-#define T_NUM 19
-#define T_TOKEN 20
-#define T_STRING 21
-#define T_BLOCK 22
-#define T_PROLOGUE 23
+#define T_NUM 1
+#define T_PLUS 2
+#define T_MINUS 3
+#define T_TIMES 4
 
 
 extern const char *yytokenNames[];
@@ -45,11 +29,11 @@ typedef struct _yyParser{
     int *state;
     int sLen,sSize;
     //sematic stack
-    YToken *pstack,*sp;
+    int *pstack,*sp;
     int pSize;
     //current token,this token would be accepted
     //when yyParser_acceptTokenis called.
-    YToken token;
+    int token;
     //this would be set to 1 when input is accepted.
     int done;
     //this would be set to 1 when a syntax error is detected.
@@ -64,7 +48,9 @@ int yyParser_reInit(yyParser *yyparser);
 int yyParser_free(yyParser *yyparser);
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid);
 int yyParser_printError(yyParser *yyparser,FILE *out);
-int yyParser_clearStack(yyParser *yyparser);
 
 
+#ifdef __cpluplus
+}
+#endif
 #endif

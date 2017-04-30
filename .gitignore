@@ -1,12 +1,16 @@
 # cmake files
+install_manifest.txt
 CMakeFiles/**
 CMakeCache.txt
 cmake_install.cmake
+Makefile
+
+# vscode settings
 .vscode/*
+
+# binary releases
 release/*
 
-tests/*.out
-
+# the executable and library
 yapc
-
-# sources in the examples
+*.so

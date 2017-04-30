@@ -1,6 +1,6 @@
 # YAPC
 
-[Chinese Documentation](README.md)
+[中文文档](README.md)
 
 Yet Another Parser Compiler
 
@@ -13,10 +13,11 @@ Yet Another Parser Compiler
 * Simple APIs makes it easier to embed yapc in another programme(if necesary).
 
 # Compile and install
-You can use the following command to compile yapc:
+You can use the following command to compile and install yapc:
 ```shell
 cmake .
 make
+sudo make install
 ```
 this requires cmake2.8 or latter.There is no more dependences on other libraries.
 
@@ -104,7 +105,7 @@ It could sometimes be useful to print out the concrete syntax tree of the input 
 ```
 Then yapc will generate a structure(yyCst) of the tree node and a function that prints the tree:
 ```c
-int yyParser_printCst(yyParser *parser);
+int yyParser_printCst(yyParser *parser,FILE *out);
 ```
 Just invoke it when an input sequence is accepted.
 
@@ -123,7 +124,7 @@ A: <num>;
 ```
 Where the name in "<>" can be any string.
 
-### semantic action
+### Semantic action
 Similar to yacc,semantic actions can appear at the and or middle of each production rule.Each terminal and non terminal has a semantic value,in the action block,"$$" is the value of this rule,you can set it by assign value to it;$n denotes the value of the n-th element(terminal or non terminal).The type of the semantic value it defined by %type at before.
 
 ### Test directive
@@ -136,20 +137,86 @@ Usage:
 Where "\*" indicates an arbitary number of tokens.
 
 ## Conflicts and resolution
-If conflicts are detected yapc will print informations of the conflicts and resolution to the terminal and .output file.When a shift/reduce conflict is encountered yapc will chose to shift,as for reduce/reduce conflicts,yapc will accept the production rule which was written earlier.At present,operator precedence directives like %left,%right are not implemented yet,but they will in the future version.
+If conflicts are detected yapc will print informations of the conflicts and resolution to the terminal and .output file.When a shift/reduce conflict is encountered yapc will chose to shift,as for reduce/reduce conflicts,yapc will accept the production rule which was written earlier.You can also resolve conflicts using operator precedence,see below.
 
-## Usage for generated code
-yapc will generate six functions:
-```c
-int yyParser_init(yyParser *yyparser);
-int yyParser_reInit(yyParser *yyparser);
-int yyParser_free(yyParser *yyparser);
-int yyParser_acceptToken(yyParser *yyparser,int yytokenid);
-int yyParser_clearStack(yyParser *yyparser);
-int yyParser_printError(yyParser *yyparser,FILE *out);
+### Operator precedence
+Operator precedence was added since v0.3,and is similar to that of yacc.You can use operator precedence directives %left,%right,%nonassoc in the options block to define the associatives and precedence levels of the operators to resolve the conflicts.The syntax is
+```yacc
+%left (<token>)*
+%right (<token>)*
+%nonassoc (<token>)*
 ```
-And a structure type yyParser.yapc is simmilar to lemon when generate source code,which means in yapc,the tokenizer calls the parser.Basic usage is:when every token is recognized by the tokenizer,call yyParser\_acceptToken to shift that token,this function returns -1 if a syntax error is detected,when that happens,call yyParser\_printError to print the error message.And when the input sequence is accepted,the "done" field will be set to 1.For more concrete example,see examples.
+The operators in one direcive have the same precedence level,and among different directives,the one appears **latter** has higher level.The precedence level of a rule is the level of the last token appears in the production rule.Therefore,when a shift/reduce conflict is encountered,the one with higher precedence level will be chosen.
 
+You can also define the precedence levels of the rules manually.To do this,add following to the rule:
+```
+%prec <token> offset(optional)
+```
+Then the level of this rule will be assigned to the level of the given operator.What's more,you can add offset values to the level,just follow a number to it,then the level is the token plus the given number.
+
+For more specified examples,see tests/optr_test.y or examples/calculator.
+
+## Usage of generated code
+yapc will generate some functions and a structure type yyParser.yapc is simmilar to lemon when generate source code,which means in yapc,the tokenizer calls the parser.Basic usage is:when every token is recognized by the tokenizer,call yyParser\_acceptToken to shift that token,this function returns -1 if a syntax error is detected,when that happens,call yyParser\_printError to print the error message.And when the input sequence is accepted,the "done" field will be set to 1.
+
+### int yyParser_init(yyParser \*yyparser);
+* Function
+Used to initialize a parser object,similar to constructor.When a yyParser is declared,invoke this function to initialize it.
+* Parameters
+yyparser:The parser object to be initialized.
+* Returns
+Always YY_OK.
+
+### int yyParser_reInit(yyParser \*yyparser);
+* Function
+Used to initialize a parser again.When a parsing session is finished,if you want it to parser another input sequence,you'll need to call this function first.
+* Parameters
+yyparser:The parser to be reinitialized.
+* Returns
+Always YY_OK.
+
+### int yyParser_free(yyParser \*yyparser);
+* Function
+Used to destroy a parser object,similar to destructors.When you no longer need a parser,call this function to release memory,or leak will occur.
+* Parameters
+yyparser:The parser object to be destroyed.
+* Returns
+Always YY_OK
+
+### int yyParser_acceptToken(yyParser \*yyparser,int yytokenid);
+* Function
+This is the core of the generated code.When a token is recognized by the tokenizer,call this function to pass that token to the parser to proccess.
+* Parameters
+yyparser:The parser object;
+yytokenid:The id of the token recognized by the tokenizer,ids for each token is defined in parser.h
+* Returns
+YY_OK:normal;
+YY_ERR:syntax error detected.
+
+### int yyParser_printError(yyParser \*yyparser,FILE \*out);
+* Function
+Print error message when a syntax error is encountered.
+* Parameters
+yyparser:The parser.
+out:output.
+
+### int yyParser_printCst(yyParser \*parser,FILE \*out);
+* Functions
+Print the generated concrete syntax tree.This function will only be generated when the %enable_cst directive is present.
+* Parameters
+parser:The parser;
+out:output of the printing.
+* Returns
+Always YY_OK。
+
+### Members in yyParser that user can use
+* int yyParser.done:Initially it is 0,when the input is accepted by the parser,it will be set to 1.
+* void *yyParser.userData:User data,use can access other data structures in the sementic blocks through it.
+* yyParser.token:The semantic value,which will be pushed into the semantic stack and accessed by the code in the sementic blocks when yyParser_acceptToken is called.The type of this member is mensioned [before](#Token type defination).
+
+For more concrete examples of using the parser,see examples.
+
+### The .output file
 the .output file consists three sections:conflict informations of the grammar,the generated LR(1) token sets and state table,test output.
 
 ## API
@@ -193,10 +260,15 @@ yDestroyContext(ctx);
 # Bug
 Please submit bugs on the issues page if you found!
 
-# Versions
-## v0.2,2017-4-29(latest)
-* Added printing concrete syntax tree(see above).
-* Changin the grammar file parser used by yapc from hand-written recursive desent parser to the parser generated by yapc(grammar file is yparser.y).
+# Change logs
+## v0.3,2017-4-30(latest)
+* Operator precedence added.(see [documentation](#Operator precedence))
+* Modified the usage of generated code section of the documentation.
+* Changed the namespace directive from %ns to %namespace.
+
+## v0.2,2017-4-29
+* Added printing concrete syntax tree(see [above](#Printing concrete syntax tree)).
+* Changed the grammar file parser used by yapc from hand-written recursive desent parser to the parser generated by yapc(grammar file is yparser.y).
 
 ## v0.1.2,2017-4-28
 * Fixed the bug that will cause segmentation fault occasionally in the testing module.

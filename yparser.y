@@ -21,7 +21,7 @@
     this grammar file uses yapc to generate the grammar file parser for yapc itself,
     it may seems strange to do so,but,...,it's ok.
 
-    if you change this file,please regenerate the parser by running
+    if you modify this file,please regenerate the parser by running
 
     ./yapc yparser.y
 
@@ -44,13 +44,22 @@
 %token <%empty> "EMPTY_DIR"
 %token <%token_prefix> "TOKEN_PREFIX_DIR"
 %token <%enable_cst> "ENABLE_CST_DIR"
-%token <%ns> "NS_DIR"
+
+%token <%left> "LEFT_DIR"
+%token <%right> "RIGHT_DIR"
+%token <%nonassoc> "NONASSOC_DIR"
+%token <%prec> "PREC_DIR"
+
+%token <%namespace> "NS_DIR"
+
 %token <%%> "SEPERATOR"
 %token <:> "ARROW"
 %token <|> "OR"
 %token <;> "EOL"
+%token <-> "NEG"
 
 %token <name> "NAME"
+%token <NUM> "NUM"
 %token <token> "TOKEN"
 %token <string> "STRING"
 %token <block> "BLOCK"
@@ -67,22 +76,37 @@ file: prologue options <%%> body <%%>;
 options: options option | /* empty */;
 
 option: 
-    <%token> <token> <string> { YGBuilder_addToken(yydata,$2.image,$3.image); } |
+    <%token> <token> <string> { YGBuilder_addToken(yydata,&$2,&$3); } |
     <%type> <string> { yydata->stype = $2.image; } |
     <%datatype> <string> { yydata->dataType = $2.image; } |
     <%token_prefix> <string> { yydata->tokenPrefix = $2.image; } |
-    <%ns> <string> { yydata->nameSpace = $1.image; } |
-    <%enable_cst> { yydata->genCst = 1; } ;
+    <%namespace> <string> { yydata->nameSpace = $2.image; } |
+    <%enable_cst> { yydata->genCst = 1; } |
+    <%left> incPr leftTokens |
+    <%right> incPr rightTokens |
+    <%nonassoc> incPr nonassocTokens;
 
 prologue: <prologue> { yydata->prologue = $1.image; } | /* empty */;
+
+incPr: { yydata->prLevel++; };
+
+leftTokens: 
+    leftTokens <token> { YGBuilder_setTokenPrecedence(yydata,&$2,YP_LEFT); } | 
+    <token> { YGBuilder_setTokenPrecedence(yydata,&$1,YP_LEFT); };
+rightTokens: 
+    rightTokens <token> { YGBuilder_setTokenPrecedence(yydata,&$2,YP_RIGHT); } | 
+    <token> { YGBuilder_setTokenPrecedence(yydata,&$1,YP_RIGHT); };
+nonassocTokens: 
+    nonassocTokens <token> { YGBuilder_setTokenPrecedence(yydata,&$2,YP_NONASSOC); }| 
+    <token> { YGBuilder_setTokenPrecedence(yydata,&$1,YP_NONASSOC); };
 
 body: body bodyItem | bodyItem;
 
 bodyItem: rule <;> | test <;>;
 
-test: <%test> tokenList;
+test: <%test> tokenList { YGBuilder_commitTest(yydata); } ;
 
-tokenList: tokenList <token> { YGBuilder_addTestToken(yydata,$2.image); } | /* empty */;
+tokenList: tokenList <token> { YGBuilder_addTestToken(yydata,&$2); } | /* empty */;
 
 rule: 
     <name> { yydata->lhs = $1.image;YGBuilder_prepareRule(yydata,yydata->lhs); } <:> ruleBody;
@@ -91,7 +115,14 @@ ruleBody:
     ruleItems { YGBuilder_commitRule(yydata); }| 
     ruleBody { YGBuilder_prepareRule(yydata,yydata->lhs); } <|> ruleItems { YGBuilder_commitRule(yydata); };
 
-ruleItems: ruleItems ruleItem | /* empty */;
+ruleItems: ruleItems ruleItem rulePrec | <%empty> | /* empty */;
+
+rulePrec:
+    /* empty */ |
+    <%prec> <token> { YGBuilder_setRulePrecedence(yydata,&$2,NULL); } | 
+    <%prec> <token> num { YGBuilder_setRulePrecedence(yydata,&$2,&$3); };
+
+num: <NUM> | <-> <NUM> { $$.num = -$2.num; };
 
 ruleItem: 
     <token> { YGBuilder_addRuleItem(yydata,$1.image,1); }| 

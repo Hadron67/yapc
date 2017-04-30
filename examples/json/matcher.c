@@ -165,7 +165,15 @@ int jmParser_init(jmParser *jmparser){
     jmparser->sp = jmparser->pstack = (jnode *)YYMALLOC(sizeof(jnode) * jmparser->pSize);
     return 0;
 }
+static int jmParser_clearStack(jmParser *jmparser){
+    while(jmparser->sp > jmparser->pstack){
+        jmparser->sp--;
+        YYDESTRUCTOR(jmparser->sp);
+    }
+    return 0;
+}
 int jmParser_reInit(jmParser *jmparser){
+    jmParser_clearStack(jmparser);
     jmparser->sLen = 0;
     jmparser->done = 0;
     jmparser->state[0] = 0;
@@ -173,6 +181,7 @@ int jmParser_reInit(jmParser *jmparser){
     return 0;
 }
 int jmParser_free(jmParser *jmparser){
+    jmParser_clearStack(jmparser);
     YYFREE(jmparser->state);
     YYFREE(jmparser->pstack);
     return 0;
@@ -190,17 +199,17 @@ int jmParser_acceptToken(jmParser *jmparser,int jmtokenid){
         else if(jmaction < 0){
             if(jmaction == -1){
                 jmparser->done = 1;
-                return 0;
+                return YY_OK;
             }
             jmParser_reduce(jmparser,-1 - jmaction);
         }
         else {
             jmparser->error = 1;
             jmparser->errToken = jmtokenid;
-            return -1;
+            return YY_ERR;
         }
     }
-    return 0;
+    return YY_OK;
 }
 int jmParser_printError(jmParser *jmparser,FILE *out){
     if(jmparser->error){
@@ -213,12 +222,5 @@ int jmParser_printError(jmParser *jmparser,FILE *out){
             }
         }
     }
-    return 0;
-}
-int jmParser_clearStack(jmParser *jmparser){
-    while(jmparser->sp > jmparser->pstack){
-        jmparser->sp--;
-        YYDESTRUCTOR(jmparser->sp);
-    }
-    return 0;
+    return YY_OK;
 }

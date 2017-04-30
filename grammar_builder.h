@@ -26,6 +26,7 @@
 typedef struct _YToken{
     int line;
     int id;
+    int num;
     ysptr image;
 }YToken;
 
@@ -47,6 +48,8 @@ typedef struct _YRawRule{
     int hasValue;
     int stackOffset;
     int isGen;
+
+    int prLevel;
     
     size_t iLen,iSize;
     YRawRuleItem items[1];
@@ -54,6 +57,8 @@ typedef struct _YRawRule{
 
 typedef struct _YRawToken{
     ysptr name,alias;
+    yprecedence_t pr;
+    int prLevel;
 }YRawToken;
 
 typedef struct _YGBuilder{
@@ -90,6 +95,7 @@ typedef struct _YGBuilder{
 
     //following is used by the parser
     ysptr lhs;
+    int prLevel;
 }YGBuilder;
 
 int YGBuilder_init(YGBuilder *gb,FILE *err);
@@ -97,26 +103,16 @@ int YGBuilder_reInit(YGBuilder *gb);
 int YGBuilder_free(YGBuilder *gb,char **spool);
 ysptr YGBuilder_addString(YGBuilder *gb,const char *s);
 const char *YGBuilder_getString(YGBuilder *gb,ysptr s);
-/*
-int YGBuilder_setPrologue(YGBuilder *gb,const char *prologue);
-int YGBuilder_setTokenType(YGBuilder *gb,const char *type);
-int YGBuilder_setTokenPrefix(YGBuilder *gb,const char *tp);
-int YGBuilder_setNameSpace(YGBuilder *gb,const char *ns);
-int YGBuilder_setDataType(YGBuilder *gb,const char *type);
-<<<<<<< Updated upstream
-int YGBuilder_enableCst(YGBuilder *gb);
 
-int YGBuilder_addToken(YGBuilder *gb,const char *tk,const char *alias);
-int YGBuilder_prepareRule(YGBuilder *gb,const char *lhs);
-=======
-*/
-int YGBuilder_addToken(YGBuilder *gb,ysptr tk,ysptr alias);
+int YGBuilder_addToken(YGBuilder *gb,const YToken *tk,const YToken *alias);
+int YGBuilder_setTokenPrecedence(YGBuilder *gb,const YToken *tk,yprecedence_t p);
+int YGBuilder_setRulePrecedence(YGBuilder *gb,const YToken *prec,const YToken *rel);
 int YGBuilder_prepareRule(YGBuilder *gb,ysptr lhs);
 int YGBuilder_commitRule(YGBuilder *gb);
 int YGBuilder_addRuleItem(YGBuilder *gb,ysptr name,int isTerminal);
 int YGBuilder_addBlockItem(YGBuilder *gb,ysptr action,int line);
-int YGBuilder_addTestToken(YGBuilder *gb,ysptr tname);
+int YGBuilder_addTestToken(YGBuilder *gb,const YToken *tk);
 int YGBuilder_commitTest(YGBuilder *gb);
-YGrammar *YGBuilder_build(YGBuilder *gb,FILE *err);
+YGrammar *YGBuilder_build(YGBuilder *gb);
 
 #endif

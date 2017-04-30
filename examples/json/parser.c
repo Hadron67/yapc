@@ -392,7 +392,15 @@ int yyParser_init(yyParser *yyparser){
     yyparser->sp = yyparser->pstack = (jsonval *)YYMALLOC(sizeof(jsonval) * yyparser->pSize);
     return 0;
 }
+static int yyParser_clearStack(yyParser *yyparser){
+    while(yyparser->sp > yyparser->pstack){
+        yyparser->sp--;
+        YYDESTRUCTOR(yyparser->sp);
+    }
+    return 0;
+}
 int yyParser_reInit(yyParser *yyparser){
+    yyParser_clearStack(yyparser);
     yyparser->sLen = 0;
     yyparser->done = 0;
     yyparser->state[0] = 0;
@@ -400,6 +408,7 @@ int yyParser_reInit(yyParser *yyparser){
     return 0;
 }
 int yyParser_free(yyParser *yyparser){
+    yyParser_clearStack(yyparser);
     YYFREE(yyparser->state);
     YYFREE(yyparser->pstack);
     return 0;
@@ -417,17 +426,17 @@ int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
         else if(yyaction < 0){
             if(yyaction == -1){
                 yyparser->done = 1;
-                return 0;
+                return YY_OK;
             }
             yyParser_reduce(yyparser,-1 - yyaction);
         }
         else {
             yyparser->error = 1;
             yyparser->errToken = yytokenid;
-            return -1;
+            return YY_ERR;
         }
     }
-    return 0;
+    return YY_OK;
 }
 int yyParser_printError(yyParser *yyparser,FILE *out){
     if(yyparser->error){
@@ -440,12 +449,5 @@ int yyParser_printError(yyParser *yyparser,FILE *out){
             }
         }
     }
-    return 0;
-}
-int yyParser_clearStack(yyParser *yyparser){
-    while(yyparser->sp > yyparser->pstack){
-        yyparser->sp--;
-        YYDESTRUCTOR(yyparser->sp);
-    }
-    return 0;
+    return YY_OK;
 }

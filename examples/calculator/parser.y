@@ -32,6 +32,10 @@
 %token <pi> "PI"
 %token <e> "E"
 
+%left <+> <->
+%left <*> </>
+%left <**>
+
 %type "double _Complex"
 
 %datatype "int"
@@ -41,18 +45,12 @@
 start:expr { $$ = $1; } ;
 
 expr: 
-    expr <+> multiplyExpr { $$ = $1 + $3; } | 
-    expr <-> multiplyExpr { $$ = $1 - $3; } |
-    multiplyExpr { $$ = $1; } ;
-    
-multiplyExpr:
-    multiplyExpr <*> powerExpr { $$ = $1 * $3; } |
-    multiplyExpr </> powerExpr { $$ = $1 / $3; } |
-    powerExpr { $$ = $1; };
-    
-powerExpr:
-    powerExpr <**> atomicExpr { $$ = cpow($1,$3); } |
-    atomicExpr { $$ = $1; };
+    expr <+> expr { $$ = $1 + $3; } | 
+    expr <-> expr { $$ = $1 - $3; } |
+    expr <*> expr { $$ = $1 * $3; } |
+    expr </> expr { $$ = $1 / $3; } |
+    expr <**> expr { $$ = cpow($1,$3); } |
+    atomicExpr;
     
 atomicExpr:
     atom      { $$ = $1;       } |

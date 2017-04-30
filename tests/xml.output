@@ -1,8 +1,8 @@
 
 state 10,shift/reduce conflict:
     token: <lt>
-    used:[ 5: tag -> . <lt> <id> properties <gt> innerTag <lt> </> <id> <gt>, { <lt> } ] (s7)
-    discarded:[ 9: innerTag -> ., { <lt> } ] (r)
+    used:[ 5: tag -> . <lt> <id> properties <gt> innerTag <lt> </> <id> <gt> ] (s7)
+    discarded:[ 9: innerTag -> . ] (r)
 
 warning: 1 conflict(s) detected.
 

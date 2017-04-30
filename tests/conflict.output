@@ -1,23 +1,23 @@
 
 state 4,shift/reduce conflict:
     token: <+>
-    used:[ 2: expr -> expr . <+> expr, { <EOF>,<+>,<*> } ]* (s3)
-    discarded:[ 2: expr -> expr <+> expr ., { <EOF>,<+>,<*> } ]* (r)
+    used:[ 2: expr -> expr . <+> expr ]* (s3)
+    discarded:[ 2: expr -> expr <+> expr . ]* (r)
 
 state 4,shift/reduce conflict:
     token: <*>
-    used:[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<*> } ]* (s5)
-    discarded:[ 2: expr -> expr <+> expr ., { <EOF>,<+>,<*> } ]* (r)
+    used:[ 3: expr -> expr . <*> expr ]* (s5)
+    discarded:[ 2: expr -> expr <+> expr . ]* (r)
 
 state 6,shift/reduce conflict:
     token: <+>
-    used:[ 2: expr -> expr . <+> expr, { <EOF>,<+>,<*> } ]* (s3)
-    discarded:[ 3: expr -> expr <*> expr ., { <EOF>,<+>,<*> } ]* (r)
+    used:[ 2: expr -> expr . <+> expr ]* (s3)
+    discarded:[ 3: expr -> expr <*> expr . ]* (r)
 
 state 6,shift/reduce conflict:
     token: <*>
-    used:[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<*> } ]* (s5)
-    discarded:[ 3: expr -> expr <*> expr ., { <EOF>,<+>,<*> } ]* (r)
+    used:[ 3: expr -> expr . <*> expr ]* (s5)
+    discarded:[ 3: expr -> expr <*> expr . ]* (r)
 
 warning: 4 conflict(s) detected.
 
