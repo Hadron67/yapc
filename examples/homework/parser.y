@@ -22,6 +22,9 @@
 %token <)> "KET"//
 %token <;> "SEMI_COLLON"//
 
+%left <->
+%left <*> 
+
 %enable_cst
 
 %%
@@ -72,13 +75,10 @@ writeStmt: <write> <(> varID <)>;
 assignStmt: varID <:=> expr;
 
 //<算术表达式>→<算术表达式>-<项>│<项>
-expr: expr <-> term | term;
-
 //<项>→<项>*<因子>│<因子>
-term: term <*> factor | factor;
-
 //<因子>→<变量>│<常数>│<函数调用>
-factor: constant | varID | funcCall;
+expr: expr <-> expr | expr <*> expr | constant | varID | funcCall;
+
 
 //<常数>→<无符号整数>
 constant: <NUM>;

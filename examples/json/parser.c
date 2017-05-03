@@ -271,14 +271,14 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 5:
             /* obj ->  */
-            #line 34 "parser.y"
+            #line 35 "parser.y"
             { JSON_init(&yyval,JTYPE_OBJ); }
             #line 277 "parser.c"
             *yyparser->sp++ = yyval;
             break;
         case 6:
             /* nonEmptyObj -> nonEmptyObj <,> <string> <:> json  */
-            #line 36 "parser.y"
+            #line 37 "parser.y"
             { jsonObj_add(&(yyparser->sp[-5]),(yyparser->sp[-3]).u.stringv.s,(yyparser->sp[-3]).u.stringv.length,&(yyparser->sp[-1]));yyval = (yyparser->sp[-5]); }
             #line 284 "parser.c"
             yyparser->sp -= 5;
@@ -286,7 +286,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 7:
             /* nonEmptyObj -> <string> <:> json  */
-            #line 37 "parser.y"
+            #line 38 "parser.y"
             { JSON_init(&yyval,JTYPE_OBJ);jsonObj_add(&yyval,(yyparser->sp[-3]).u.stringv.s,(yyparser->sp[-3]).u.stringv.length,&(yyparser->sp[-1])); }
             #line 292 "parser.c"
             yyparser->sp -= 3;
@@ -301,14 +301,14 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 9:
             /* array ->  */
-            #line 40 "parser.y"
+            #line 42 "parser.y"
             { JSON_init(&yyval,JTYPE_ARRAY); }
             #line 307 "parser.c"
             *yyparser->sp++ = yyval;
             break;
         case 10:
             /* nonEmptyArray -> nonEmptyArray <,> json  */
-            #line 43 "parser.y"
+            #line 45 "parser.y"
             { jsonArray_push(&(yyparser->sp[-3]),&(yyparser->sp[-1]));yyval = (yyparser->sp[-3]); }
             #line 314 "parser.c"
             yyparser->sp -= 3;
@@ -316,7 +316,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 11:
             /* nonEmptyArray -> json  */
-            #line 44 "parser.y"
+            #line 46 "parser.y"
             { JSON_init(&yyval,JTYPE_ARRAY);jsonArray_push(&yyval,&(yyparser->sp[-1])); }
             #line 322 "parser.c"
             yyparser->sp -= 1;
@@ -414,29 +414,26 @@ int yyParser_free(yyParser *yyparser){
     return 0;
 }
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
-    int shifted = 0;
-    while(!shifted){
-        int yyaction = yyshift[YYSTATE() * yytokenCount + yytokenid];
-        if(yyaction > 0){
-            YYCHECK_PUSH_TOKEN();
-            *yyparser->sp++ = yyparser->token;
-            YYPUSH_STATE(yyaction - 1);
-            shifted = 1;
-        }
-        else if(yyaction < 0){
-            if(yyaction == -1){
-                yyparser->done = 1;
-                return YY_OK;
-            }
-            yyParser_reduce(yyparser,-1 - yyaction);
-        }
-        else {
-            yyparser->error = 1;
-            yyparser->errToken = yytokenid;
-            return YY_ERR;
-        }
+    int yyaction = yyshift[YYSTATE() * yytokenCount + yytokenid];
+    if(yyaction > 0){
+        YYCHECK_PUSH_TOKEN();
+        *yyparser->sp++ = yyparser->token;
+        YYPUSH_STATE(yyaction - 1);
+        return YY_SHIFT;
     }
-    return YY_OK;
+    else if(yyaction < 0){
+        if(yyaction == -1){
+            yyparser->done = 1;
+            return YY_ACCEPT;
+        }
+        yyParser_reduce(yyparser,-1 - yyaction);
+        return YY_REDUCE;
+    }
+    else {
+        yyparser->error = 1;
+        yyparser->errToken = yytokenid;
+        return YY_ERR;
+    }
 }
 int yyParser_printError(yyParser *yyparser,FILE *out){
     if(yyparser->error){

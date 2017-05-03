@@ -19,6 +19,7 @@
 
 #ifndef __GRAMMAR_H__
 #define __GRAMMAR_H__
+
 #include <stdio.h>
 
 typedef struct _YRuleItem YRuleItem;
@@ -27,15 +28,15 @@ typedef struct _YRule YRule;
 struct _YRuleItem{
     int id;
     int isTerminal;
-    //const char *actionBlock;
 };
 
 struct _YRule{
     int index;
     int lhs;
     int length;
-    const char *actionBlock;
     int line;
+    const char *actionBlock;
+    YRule *next; //next rule with the same LHS
 
     //hasValue only makes sense when isGen is true,
     //i.e.,user-defined rules always has a value.
@@ -67,40 +68,52 @@ typedef struct _YTokenDef{
 
 typedef struct _YNtDef{
     const char *name;
+    YRule *firstRule;
     int used;
 }YNtDef;
 
 typedef struct _YGrammar{
+    // token definations
     YTokenDef *tokens;
     int tokenCount;
 
-    const char **ntNames;
+    // nonterminals
+    YNtDef *nts;
     int ntCount;
 
+    // rules
     int ruleCount;
     YRule *rules;
 
+    // length of the longest rule
+    int maxRuleLen;
+
+    // test entries
     int *tests;
     int testCount;
 
+    // total number of action block -- not used
     int actionCount;
     
+    // MIS properties
     const char *nameSpace;
     const char *tokenPrefix;
     const char *stype;
     const char *dataType;
-
     const char *prologue;
 
-    //whether to generate concrete syntax tree or not.
+    // whether to generate concrete syntax tree or not.
     int genCst;
 
+    // symbol table
     char *spool;
+
+    // actual data goes here,including tokens,nts,rules and symbol table.
     char data[1];
 }YGrammar;
 
 //keep in mind that the index of a terminal in this first set is its origin index plus 1,
-//bucause token with index 0 is reserved for epsilon,i.e.,empty.
+//because token with index 0 is reserved for epsilon,i.e.,empty.
 typedef struct _YFirstSets{
     YGrammar *g;
     int size;
@@ -111,8 +124,10 @@ int YRule_dump(YGrammar *g,YRule *rule,FILE *out);
 int YGrammar_dump(YGrammar *g,FILE *out);
 int YGrammar_free(YGrammar *g);
 
-//token set helper functions
+// token set (bit set) helper functions
 int YGrammar_getTokenSetSize(YGrammar *g);
+// here item set means LR(0) item sets,i.e.,without look-aheads.
+int YGrammar_getItemSetSize(YGrammar *g);
 int YTokenSet_add(YGrammar *g,char *set,int token);
 int YTokenSet_removeToken(YGrammar *g,char *set,int token);
 int YTokenSet_contains(YGrammar *g,char *set,int token);
@@ -123,6 +138,7 @@ int YTokenSet_isIdentical(char *s1,char *s2,YGrammar *g);
 
 YFirstSets *YGrammar_generateFirstSets(YGrammar *g);
 int YGrammar_printUnusedTokens(YGrammar *g,int *count,FILE *out);
+int YGrammar_printUnusedNts(YGrammar *g,int *count,FILE *out);
 
 int YFirstSets_contains(YFirstSets *sets,int nt,int t);
 char *YFirstSets_getSet(YFirstSets *sets,int nt);

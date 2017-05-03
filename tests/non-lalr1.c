@@ -41,7 +41,7 @@ static const int yyntCount = 4;
 */
 static const int yyshift[] = {
     /* state 0 */
-         0,     3,     9,     0,     0,     0,
+         0,     9,     3,     0,     0,     0,
     /* state 1 */
         -1,     0,     0,     0,     0,     0,
     /* state 2 */
@@ -49,25 +49,25 @@ static const int yyshift[] = {
     /* state 3 */
          0,     0,     0,     0,     5,     0,
     /* state 4 */
-        -2,     0,     0,     0,     0,     0,
+        -5,     0,     0,     0,     0,     0,
     /* state 5 */
          0,     0,     0,     0,     0,     7,
     /* state 6 */
-        -3,     0,     0,     0,     0,     0,
+        -4,     0,     0,     0,     0,     0,
     /* state 7 */
-         0,     0,     0,     0,    -6,    -7,
+         0,     0,     0,     0,    -7,    -6,
     /* state 8 */
          0,     0,     0,    14,     0,     0,
     /* state 9 */
          0,     0,     0,     0,     0,    11,
     /* state 10 */
-        -4,     0,     0,     0,     0,     0,
+        -3,     0,     0,     0,     0,     0,
     /* state 11 */
          0,     0,     0,     0,    13,     0,
     /* state 12 */
-        -5,     0,     0,     0,     0,     0,
+        -2,     0,     0,     0,     0,     0,
     /* state 13 */
-         0,     0,     0,     0,    -7,    -6,
+         0,     0,     0,     0,    -6,    -7,
 };
 /*
     goto table
@@ -78,7 +78,7 @@ static const int yygoto[] = {
     /* state 1 */
          0,     0,     0,     0,
     /* state 2 */
-         0,     0,     4,     6,
+         0,     0,     6,     4,
     /* state 3 */
          0,     0,     0,     0,
     /* state 4 */
@@ -90,7 +90,7 @@ static const int yygoto[] = {
     /* state 7 */
          0,     0,     0,     0,
     /* state 8 */
-         0,     0,    10,    12,
+         0,     0,    12,    10,
     /* state 9 */
          0,     0,     0,     0,
     /* state 10 */
@@ -218,29 +218,26 @@ int yyParser_free(yyParser *yyparser){
     return 0;
 }
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid){
-    int shifted = 0;
-    while(!shifted){
-        int yyaction = yyshift[YYSTATE() * yytokenCount + yytokenid];
-        if(yyaction > 0){
-            YYCHECK_PUSH_TOKEN();
-            *yyparser->sp++ = yyparser->token;
-            YYPUSH_STATE(yyaction - 1);
-            shifted = 1;
-        }
-        else if(yyaction < 0){
-            if(yyaction == -1){
-                yyparser->done = 1;
-                return YY_OK;
-            }
-            yyParser_reduce(yyparser,-1 - yyaction);
-        }
-        else {
-            yyparser->error = 1;
-            yyparser->errToken = yytokenid;
-            return YY_ERR;
-        }
+    int yyaction = yyshift[YYSTATE() * yytokenCount + yytokenid];
+    if(yyaction > 0){
+        YYCHECK_PUSH_TOKEN();
+        *yyparser->sp++ = yyparser->token;
+        YYPUSH_STATE(yyaction - 1);
+        return YY_SHIFT;
     }
-    return YY_OK;
+    else if(yyaction < 0){
+        if(yyaction == -1){
+            yyparser->done = 1;
+            return YY_ACCEPT;
+        }
+        yyParser_reduce(yyparser,-1 - yyaction);
+        return YY_REDUCE;
+    }
+    else {
+        yyparser->error = 1;
+        yyparser->errToken = yytokenid;
+        return YY_ERR;
+    }
 }
 int yyParser_printError(yyParser *yyparser,FILE *out){
     if(yyparser->error){

@@ -28,7 +28,7 @@ YAPC_API void yDestroyContext(void *ctx);
 
 YAPC_API int yParseFile(void *ctx,FILE *file,const char *fname,FILE *err);
 YAPC_API int yGenerateTable(void *ctx);
-YAPC_API int yPrintResult(void *ctx,FILE *out);
+YAPC_API int yPrintItemSets(void *ctx,int showLah,FILE *out);
 YAPC_API int yPrintGenerationWarnings(void *ctx,FILE *out);
 YAPC_API int yPrintTestResult(void *ctx,FILE *out);
 YAPC_API int yGenerateCCode(void *ctx,FILE *header,FILE *source,const char *headern,const char *sourcen);

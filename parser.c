@@ -377,32 +377,45 @@ YGrammar *YGParser_parse(YGParser *parser,FILE *in){
     parser->in = in;
     parser->c = fgetc(in);
     YToken *tk = &parser->parser.token;
+    YGrammar *ret;
 
-    while(!parser->parser.done){
-        if(YGParser_scan(parser,tk)){
-            goto err;
+    int done = 0;
+    int shifted = 1;
+    while(!done){
+        if(shifted){
+            if(YGParser_scan(parser,tk)){
+                goto yyerr;
+            }
         }
-        if(yyParser_acceptToken(&parser->parser,tk->id) != YY_OK){
-            yyParser_printError(&parser->parser,parser->err);
-            YGParser_err(parser,tk->line,"syntax error detected");
-            goto err;
+        switch(yyParser_acceptToken(&parser->parser,tk->id)){
+            case YY_SHIFT:
+                shifted = 1;
+                break;
+            case YY_REDUCE:
+                shifted = 0;
+                break;
+            case YY_ACCEPT:
+                done = 1;
+                break;
+            case YY_ERR:
+                yyParser_printError(&parser->parser,parser->err);
+                YGParser_err(parser,tk->line,"syntax error detected");
+                goto yyerr;
         }
         if(parser->builder.status){
-            //YGParser_err(parser,tk->line,"semantic error detected");
-            goto err;
+            goto yyerr;
         }
     }
 
-    YGrammar *ret = YGBuilder_build(&parser->builder);
+    ret = YGBuilder_build(&parser->builder);
     if(ret == NULL){
-        //YGParser_err(parser,0,"semantic error detected while building grammar");
-        goto err;
+        goto yyerr;
     }
     YGBuilder_free(&parser->builder,&ret->spool);
     yyParser_free(&parser->parser);
     ya_free(parser->buf);
     return ret;
-err:
+yyerr:
     YGBuilder_free(&parser->builder,NULL);
     yyParser_free(&parser->parser);
     ya_free(parser->buf);

@@ -150,7 +150,11 @@ int YGBuilder_setRulePrecedence(YGBuilder *gb,const YToken *prec,const YToken *r
     int node = *YTree_find(&gb->tokenEntry,tname);
     if(node != -1){
         YRawToken *rt = (YRawToken *)YTree_getNode(&gb->tokenEntry,node)->data;
-        int level = rt->prLevel + rel == NULL ? 0 : rel->num;
+        int level = rt->prLevel + (rel == NULL ? 0 : rel->num);
+        if(rt->pr == YP_NONE){
+            YGBuilder_err(gb,prec->line,"precedence levels for token '%s' is undefined",tname);
+            return -1;
+        }
         if(level <= 0){
             YGBuilder_err(gb,prec->line,"precedence levels cannot be negtive (<%s> + (%d)) = %d <= 0",tname,rel->num,level);
         }
@@ -352,7 +356,7 @@ YGrammar *YGBuilder_build(YGBuilder *gb){
     YGrammar *g = (YGrammar *)ya_malloc(
         sizeof(YGrammar) + 
         sizeof(YTokenDef) * gb->tokenEntry.len +
-        sizeof(const char *) * gb->ntEntry.len +
+        sizeof(YNtDef) * gb->ntEntry.len +
         sizeof(YRule) * gb->ruleCount + 
         sizeof(YRuleItem) * gb->itemCount
     );
@@ -363,6 +367,7 @@ YGrammar *YGBuilder_build(YGBuilder *gb){
     g->testCount = gb->testCount;
     g->actionCount = gb->actionCount;
     g->genCst = gb->genCst;
+    g->maxRuleLen = 0;
 
     g->nameSpace = YSPool_getString(&gb->pool,gb->nameSpace);
     g->tokenPrefix = YSPool_getString(&gb->pool,gb->tokenPrefix);
@@ -374,8 +379,8 @@ YGrammar *YGBuilder_build(YGBuilder *gb){
     g->tokens = (YTokenDef *)p;
     p += sizeof(YTokenDef) * g->tokenCount;
     
-    g->ntNames = (const char **)p;
-    p += sizeof(const char *) * g->ntCount;
+    g->nts = (YNtDef *)p;
+    p += sizeof(YNtDef) * g->ntCount;
 
 
     g->rules = (YRule *)p;
@@ -390,11 +395,14 @@ YGrammar *YGBuilder_build(YGBuilder *gb){
         g->tokens[i].pr = rt->pr;
         g->tokens[i].prLevel= rt->prLevel;
     }
-    g->tokens[0].used = 1;
+    g->tokens[0].used = 1; // EOF
     for(i = 0;i < g->ntCount;i++){
         ysptr sp = *(ysptr *)YTree_getNode(&gb->ntEntry,i)->data;
-        g->ntNames[i] = YSPool_getString(&gb->pool,sp);
+        g->nts[i].name = YSPool_getString(&gb->pool,sp);
+        g->nts[i].used = 0;
+        g->nts[i].firstRule = NULL;
     }
+    g->nts[0].used = 1;// (accept)
 
     YRawRule *raw;
     YRuleItem *rp = (YRuleItem *)p;
@@ -403,6 +411,8 @@ YGrammar *YGBuilder_build(YGBuilder *gb){
         const char *lhsName = YSPool_getString(&gb->pool,raw->lhs);
         int lhs = *YTree_find(&gb->ntEntry,lhsName);
         assert(lhs != -1);
+        rule->next = g->nts[lhs].firstRule;
+        g->nts[lhs].firstRule = rule;
 
         rule->lhs = lhs;
         rule->index = i;
@@ -414,6 +424,8 @@ YGrammar *YGBuilder_build(YGBuilder *gb){
         rule->actionBlock = raw->hasAction ? YSPool_getString(&gb->pool,raw->actionBlock) : NULL;
         rule->rule = rp;
         rule->prLevel = raw->prLevel;
+
+        g->maxRuleLen = g->maxRuleLen > raw->iLen ? g->maxRuleLen : raw->iLen;
 
         int hasPrLevel = raw->prLevel != -1;
 
@@ -440,6 +452,7 @@ YGrammar *YGBuilder_build(YGBuilder *gb){
                     YGBuilder_err(gb,0,"use of undefined non terminal '%s'",name);
                     goto err;
                 }
+                g->nts[id].used = 1;
             }
             rp->id = id;
         }

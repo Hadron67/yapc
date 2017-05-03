@@ -35,17 +35,13 @@ program
     │               │           ├───<if>
     │               │           ├───cond
     │               │           │   ├───expr
-    │               │           │   │   └───term
-    │               │           │   │       └───factor
-    │               │           │   │           └───varID
-    │               │           │   │               └───<ID>
+    │               │           │   │   └───varID
+    │               │           │   │       └───<ID>
     │               │           │   ├───condOptr
     │               │           │   │   └───<ltoe>
     │               │           │   └───expr
-    │               │           │       └───term
-    │               │           │           └───factor
-    │               │           │               └───constant
-    │               │           │                   └───<NUM>
+    │               │           │       └───constant
+    │               │           │           └───<NUM>
     │               │           ├───<then>
     │               │           ├───stmt
     │               │           │   └───assignStmt
@@ -53,10 +49,8 @@ program
     │               │           │       │   └───<ID>
     │               │           │       ├───<:=>
     │               │           │       └───expr
-    │               │           │           └───term
-    │               │           │               └───factor
-    │               │           │                   └───constant
-    │               │           │                       └───<NUM>
+    │               │           │           └───constant
+    │               │           │               └───<NUM>
     │               │           ├───<else>
     │               │           └───stmt
     │               │               └───assignStmt
@@ -64,28 +58,23 @@ program
     │               │                   │   └───<ID>
     │               │                   ├───<:=>
     │               │                   └───expr
-    │               │                       └───term
-    │               │                           ├───term
-    │               │                           │   └───factor
-    │               │                           │       └───varID
-    │               │                           │           └───<ID>
-    │               │                           ├───<*>
-    │               │                           └───factor
-    │               │                               └───funcCall
-    │               │                                   ├───<ID>
-    │               │                                   ├───<(>
-    │               │                                   ├───expr
-    │               │                                   │   ├───expr
-    │               │                                   │   │   └───term
-    │               │                                   │   │       └───factor
-    │               │                                   │   │           └───varID
-    │               │                                   │   │               └───<ID>
-    │               │                                   │   ├───<->
-    │               │                                   │   └───term
-    │               │                                   │       └───factor
-    │               │                                   │           └───constant
-    │               │                                   │               └───<NUM>
-    │               │                                   └───<)>
+    │               │                       ├───expr
+    │               │                       │   └───varID
+    │               │                       │       └───<ID>
+    │               │                       ├───<*>
+    │               │                       └───expr
+    │               │                           └───funcCall
+    │               │                               ├───<ID>
+    │               │                               ├───<(>
+    │               │                               ├───expr
+    │               │                               │   ├───expr
+    │               │                               │   │   └───varID
+    │               │                               │   │       └───<ID>
+    │               │                               │   ├───<->
+    │               │                               │   └───expr
+    │               │                               │       └───constant
+    │               │                               │           └───<NUM>
+    │               │                               └───<)>
     │               └───<end>
     ├───<;>
     ├───stmtList
@@ -105,22 +94,18 @@ program
     │   │           │   └───<ID>
     │   │           ├───<:=>
     │   │           └───expr
-    │   │               └───term
-    │   │                   ├───term
-    │   │                   │   └───factor
-    │   │                   │       └───funcCall
-    │   │                   │           ├───<ID>
-    │   │                   │           ├───<(>
-    │   │                   │           ├───expr
-    │   │                   │           │   └───term
-    │   │                   │           │       └───factor
-    │   │                   │           │           └───varID
-    │   │                   │           │               └───<ID>
-    │   │                   │           └───<)>
-    │   │                   ├───<*>
-    │   │                   └───factor
-    │   │                       └───constant
-    │   │                           └───<NUM>
+    │   │               ├───expr
+    │   │               │   └───funcCall
+    │   │               │       ├───<ID>
+    │   │               │       ├───<(>
+    │   │               │       ├───expr
+    │   │               │       │   └───varID
+    │   │               │       │       └───<ID>
+    │   │               │       └───<)>
+    │   │               ├───<*>
+    │   │               └───expr
+    │   │                   └───constant
+    │   │                       └───<NUM>
     │   ├───<;>
     │   └───stmt
     │       └───writeStmt

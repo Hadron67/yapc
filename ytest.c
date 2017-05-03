@@ -107,7 +107,7 @@ static int YTest_dump(YTest *t){
             fprintf(t->out,"<%s> ",t->g->tokens[item->id].name);
         }
         else {
-            fprintf(t->out,"%s ",t->g->ntNames[item->id]);
+            fprintf(t->out,"%s ",t->g->nts[item->id].name);
         }
     }
     fprintf(t->out,"| ");

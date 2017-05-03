@@ -1,128 +1,127 @@
-
 i0
-[ 0: (accept) -> . expr, { <EOF> } ]* (s1)
-[ 1: expr -> . expr <+> expr, { <EOF>,<+>,<->,<*> } ] (s1)
-[ 2: expr -> . expr <-> expr, { <EOF>,<+>,<->,<*> } ] (s1)
-[ 3: expr -> . expr <*> expr, { <EOF>,<+>,<->,<*> } ] (s1)
-[ 4: expr -> . <+> expr, { <EOF>,<+>,<->,<*> } ] (s8)
-[ 5: expr -> . <-> expr, { <EOF>,<+>,<->,<*> } ] (s10)
-[ 6: expr -> . <NUM>, { <EOF>,<+>,<->,<*> } ] (s12)
+[ 0: (accept) -> . expr ]* (s1)
+[ 6: expr -> . <NUM> ] (s8)
+[ 5: expr -> . <-> expr ] (s9)
+[ 4: expr -> . <+> expr ] (s11)
+[ 3: expr -> . expr <*> expr ] (s1)
+[ 2: expr -> . expr <-> expr ] (s1)
+[ 1: expr -> . expr <+> expr ] (s1)
 
 i1
-[ 0: (accept) -> expr ., { <EOF> } ]* (r)
-[ 1: expr -> expr . <+> expr, { <EOF>,<+>,<->,<*> } ]* (s2)
-[ 2: expr -> expr . <-> expr, { <EOF>,<+>,<->,<*> } ]* (s4)
-[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<->,<*> } ]* (s6)
+[ 0: (accept) -> expr . ]* (r)
+[ 3: expr -> expr . <*> expr ]* (s2)
+[ 2: expr -> expr . <-> expr ]* (s4)
+[ 1: expr -> expr . <+> expr ]* (s6)
 
 i2
-[ 1: expr -> expr <+> . expr, { <EOF>,<+>,<->,<*> } ]* (s3)
-[ 1: expr -> . expr <+> expr, { <EOF>,<+>,<->,<*> } ] (s3)
-[ 2: expr -> . expr <-> expr, { <EOF>,<+>,<->,<*> } ] (s3)
-[ 3: expr -> . expr <*> expr, { <EOF>,<+>,<->,<*> } ] (s3)
-[ 4: expr -> . <+> expr, { <EOF>,<+>,<->,<*> } ] (s8)
-[ 5: expr -> . <-> expr, { <EOF>,<+>,<->,<*> } ] (s10)
-[ 6: expr -> . <NUM>, { <EOF>,<+>,<->,<*> } ] (s12)
+[ 3: expr -> expr <*> . expr ]* (s3)
+[ 6: expr -> . <NUM> ] (s8)
+[ 5: expr -> . <-> expr ] (s9)
+[ 4: expr -> . <+> expr ] (s11)
+[ 3: expr -> . expr <*> expr ] (s3)
+[ 2: expr -> . expr <-> expr ] (s3)
+[ 1: expr -> . expr <+> expr ] (s3)
 
 i3
-[ 1: expr -> expr <+> expr ., { <EOF>,<+>,<->,<*> } ]* (r)
-[ 1: expr -> expr . <+> expr, { <EOF>,<+>,<->,<*> } ]* (s2)
-[ 2: expr -> expr . <-> expr, { <EOF>,<+>,<->,<*> } ]* (s4)
-[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<->,<*> } ]* (s6)
+[ 3: expr -> expr <*> expr . ]* (r)
+[ 3: expr -> expr . <*> expr ]* (s2)
+[ 2: expr -> expr . <-> expr ]* (s4)
+[ 1: expr -> expr . <+> expr ]* (s6)
 
 i4
-[ 2: expr -> expr <-> . expr, { <EOF>,<+>,<->,<*> } ]* (s5)
-[ 1: expr -> . expr <+> expr, { <EOF>,<+>,<->,<*> } ] (s5)
-[ 2: expr -> . expr <-> expr, { <EOF>,<+>,<->,<*> } ] (s5)
-[ 3: expr -> . expr <*> expr, { <EOF>,<+>,<->,<*> } ] (s5)
-[ 4: expr -> . <+> expr, { <EOF>,<+>,<->,<*> } ] (s8)
-[ 5: expr -> . <-> expr, { <EOF>,<+>,<->,<*> } ] (s10)
-[ 6: expr -> . <NUM>, { <EOF>,<+>,<->,<*> } ] (s12)
+[ 2: expr -> expr <-> . expr ]* (s5)
+[ 6: expr -> . <NUM> ] (s8)
+[ 5: expr -> . <-> expr ] (s9)
+[ 4: expr -> . <+> expr ] (s11)
+[ 3: expr -> . expr <*> expr ] (s5)
+[ 2: expr -> . expr <-> expr ] (s5)
+[ 1: expr -> . expr <+> expr ] (s5)
 
 i5
-[ 2: expr -> expr <-> expr ., { <EOF>,<+>,<->,<*> } ]* (r)
-[ 1: expr -> expr . <+> expr, { <EOF>,<+>,<->,<*> } ]* (s2)
-[ 2: expr -> expr . <-> expr, { <EOF>,<+>,<->,<*> } ]* (s4)
-[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<->,<*> } ]* (s6)
+[ 2: expr -> expr <-> expr . ]* (r)
+[ 3: expr -> expr . <*> expr ]* (s2)
+[ 2: expr -> expr . <-> expr ]* (s4)
+[ 1: expr -> expr . <+> expr ]* (s6)
 
 i6
-[ 3: expr -> expr <*> . expr, { <EOF>,<+>,<->,<*> } ]* (s7)
-[ 1: expr -> . expr <+> expr, { <EOF>,<+>,<->,<*> } ] (s7)
-[ 2: expr -> . expr <-> expr, { <EOF>,<+>,<->,<*> } ] (s7)
-[ 3: expr -> . expr <*> expr, { <EOF>,<+>,<->,<*> } ] (s7)
-[ 4: expr -> . <+> expr, { <EOF>,<+>,<->,<*> } ] (s8)
-[ 5: expr -> . <-> expr, { <EOF>,<+>,<->,<*> } ] (s10)
-[ 6: expr -> . <NUM>, { <EOF>,<+>,<->,<*> } ] (s12)
+[ 1: expr -> expr <+> . expr ]* (s7)
+[ 6: expr -> . <NUM> ] (s8)
+[ 5: expr -> . <-> expr ] (s9)
+[ 4: expr -> . <+> expr ] (s11)
+[ 3: expr -> . expr <*> expr ] (s7)
+[ 2: expr -> . expr <-> expr ] (s7)
+[ 1: expr -> . expr <+> expr ] (s7)
 
 i7
-[ 3: expr -> expr <*> expr ., { <EOF>,<+>,<->,<*> } ]* (r)
-[ 1: expr -> expr . <+> expr, { <EOF>,<+>,<->,<*> } ]* (s2)
-[ 2: expr -> expr . <-> expr, { <EOF>,<+>,<->,<*> } ]* (s4)
-[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<->,<*> } ]* (s6)
+[ 1: expr -> expr <+> expr . ]* (r)
+[ 3: expr -> expr . <*> expr ]* (s2)
+[ 2: expr -> expr . <-> expr ]* (s4)
+[ 1: expr -> expr . <+> expr ]* (s6)
 
 i8
-[ 4: expr -> <+> . expr, { <EOF>,<+>,<->,<*> } ]* (s9)
-[ 1: expr -> . expr <+> expr, { <EOF>,<+>,<->,<*> } ] (s9)
-[ 2: expr -> . expr <-> expr, { <EOF>,<+>,<->,<*> } ] (s9)
-[ 3: expr -> . expr <*> expr, { <EOF>,<+>,<->,<*> } ] (s9)
-[ 4: expr -> . <+> expr, { <EOF>,<+>,<->,<*> } ] (s8)
-[ 5: expr -> . <-> expr, { <EOF>,<+>,<->,<*> } ] (s10)
-[ 6: expr -> . <NUM>, { <EOF>,<+>,<->,<*> } ] (s12)
+[ 6: expr -> <NUM> . ]* (r)
 
 i9
-[ 4: expr -> <+> expr ., { <EOF>,<+>,<->,<*> } ]* (r)
-[ 1: expr -> expr . <+> expr, { <EOF>,<+>,<->,<*> } ]* (s2)
-[ 2: expr -> expr . <-> expr, { <EOF>,<+>,<->,<*> } ]* (s4)
-[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<->,<*> } ]* (s6)
+[ 5: expr -> <-> . expr ]* (s10)
+[ 6: expr -> . <NUM> ] (s8)
+[ 5: expr -> . <-> expr ] (s9)
+[ 4: expr -> . <+> expr ] (s11)
+[ 3: expr -> . expr <*> expr ] (s10)
+[ 2: expr -> . expr <-> expr ] (s10)
+[ 1: expr -> . expr <+> expr ] (s10)
 
 i10
-[ 5: expr -> <-> . expr, { <EOF>,<+>,<->,<*> } ]* (s11)
-[ 1: expr -> . expr <+> expr, { <EOF>,<+>,<->,<*> } ] (s11)
-[ 2: expr -> . expr <-> expr, { <EOF>,<+>,<->,<*> } ] (s11)
-[ 3: expr -> . expr <*> expr, { <EOF>,<+>,<->,<*> } ] (s11)
-[ 4: expr -> . <+> expr, { <EOF>,<+>,<->,<*> } ] (s8)
-[ 5: expr -> . <-> expr, { <EOF>,<+>,<->,<*> } ] (s10)
-[ 6: expr -> . <NUM>, { <EOF>,<+>,<->,<*> } ] (s12)
+[ 5: expr -> <-> expr . ]* (r)
+[ 3: expr -> expr . <*> expr ]* (s2)
+[ 2: expr -> expr . <-> expr ]* (s4)
+[ 1: expr -> expr . <+> expr ]* (s6)
 
 i11
-[ 5: expr -> <-> expr ., { <EOF>,<+>,<->,<*> } ]* (r)
-[ 1: expr -> expr . <+> expr, { <EOF>,<+>,<->,<*> } ]* (s2)
-[ 2: expr -> expr . <-> expr, { <EOF>,<+>,<->,<*> } ]* (s4)
-[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<->,<*> } ]* (s6)
+[ 4: expr -> <+> . expr ]* (s12)
+[ 6: expr -> . <NUM> ] (s8)
+[ 5: expr -> . <-> expr ] (s9)
+[ 4: expr -> . <+> expr ] (s11)
+[ 3: expr -> . expr <*> expr ] (s12)
+[ 2: expr -> . expr <-> expr ] (s12)
+[ 1: expr -> . expr <+> expr ] (s12)
 
 i12
-[ 6: expr -> <NUM> ., { <EOF>,<+>,<->,<*> } ]* (r)
+[ 4: expr -> <+> expr . ]* (r)
+[ 3: expr -> expr . <*> expr ]* (s2)
+[ 2: expr -> expr . <-> expr ]* (s4)
+[ 1: expr -> expr . <+> expr ]* (s6)
 
 test 1:
 | <NUM> <+> <NUM> <*> <-> <NUM> <+> <NUM> [0 ]
-<NUM> | <+> <NUM> <*> <-> <NUM> <+> <NUM> [0 12 ]
+<NUM> | <+> <NUM> <*> <-> <NUM> <+> <NUM> [0 8 ]
 expr | <+> <NUM> <*> <-> <NUM> <+> <NUM> [0 1 ]
-expr <+> | <NUM> <*> <-> <NUM> <+> <NUM> [0 1 2 ]
-expr <+> <NUM> | <*> <-> <NUM> <+> <NUM> [0 1 2 12 ]
-expr <+> expr | <*> <-> <NUM> <+> <NUM> [0 1 2 3 ]
-expr <+> expr <*> | <-> <NUM> <+> <NUM> [0 1 2 3 6 ]
-expr <+> expr <*> <-> | <NUM> <+> <NUM> [0 1 2 3 6 10 ]
-expr <+> expr <*> <-> <NUM> | <+> <NUM> [0 1 2 3 6 10 12 ]
-expr <+> expr <*> <-> expr | <+> <NUM> [0 1 2 3 6 10 11 ]
-expr <+> expr <*> expr | <+> <NUM> [0 1 2 3 6 7 ]
-expr <+> expr | <+> <NUM> [0 1 2 3 ]
+expr <+> | <NUM> <*> <-> <NUM> <+> <NUM> [0 1 6 ]
+expr <+> <NUM> | <*> <-> <NUM> <+> <NUM> [0 1 6 8 ]
+expr <+> expr | <*> <-> <NUM> <+> <NUM> [0 1 6 7 ]
+expr <+> expr <*> | <-> <NUM> <+> <NUM> [0 1 6 7 2 ]
+expr <+> expr <*> <-> | <NUM> <+> <NUM> [0 1 6 7 2 9 ]
+expr <+> expr <*> <-> <NUM> | <+> <NUM> [0 1 6 7 2 9 8 ]
+expr <+> expr <*> <-> expr | <+> <NUM> [0 1 6 7 2 9 10 ]
+expr <+> expr <*> expr | <+> <NUM> [0 1 6 7 2 3 ]
+expr <+> expr | <+> <NUM> [0 1 6 7 ]
 expr | <+> <NUM> [0 1 ]
-expr <+> | <NUM> [0 1 2 ]
-expr <+> <NUM> | [0 1 2 12 ]
-expr <+> expr | [0 1 2 3 ]
+expr <+> | <NUM> [0 1 6 ]
+expr <+> <NUM> | [0 1 6 8 ]
+expr <+> expr | [0 1 6 7 ]
 expr | [0 1 ]
 accepted!
 
 test 2:
 | <NUM> <+> <NUM> <*> <NUM> [0 ]
-<NUM> | <+> <NUM> <*> <NUM> [0 12 ]
+<NUM> | <+> <NUM> <*> <NUM> [0 8 ]
 expr | <+> <NUM> <*> <NUM> [0 1 ]
-expr <+> | <NUM> <*> <NUM> [0 1 2 ]
-expr <+> <NUM> | <*> <NUM> [0 1 2 12 ]
-expr <+> expr | <*> <NUM> [0 1 2 3 ]
-expr <+> expr <*> | <NUM> [0 1 2 3 6 ]
-expr <+> expr <*> <NUM> | [0 1 2 3 6 12 ]
-expr <+> expr <*> expr | [0 1 2 3 6 7 ]
-expr <+> expr | [0 1 2 3 ]
+expr <+> | <NUM> <*> <NUM> [0 1 6 ]
+expr <+> <NUM> | <*> <NUM> [0 1 6 8 ]
+expr <+> expr | <*> <NUM> [0 1 6 7 ]
+expr <+> expr <*> | <NUM> [0 1 6 7 2 ]
+expr <+> expr <*> <NUM> | [0 1 6 7 2 8 ]
+expr <+> expr <*> expr | [0 1 6 7 2 3 ]
+expr <+> expr | [0 1 6 7 ]
 expr | [0 1 ]
 accepted!
 

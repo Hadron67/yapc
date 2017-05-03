@@ -2,150 +2,150 @@ unused token: <(> (BRA)
 unused token: <)> (KET)
 
 i0
-[ 0: (accept) -> . json, { <EOF> } ]* (s1)
-[ 1: json -> . <{> obj <}>, { <EOF> } ] (s16)
-[ 2: json -> . <[> array <]>, { <EOF> } ] (s19)
-[ 3: json -> . primitives, { <EOF> } ] (s22)
-[ 12: primitives -> . <string>, { <EOF> } ] (s23)
-[ 13: primitives -> . <num>, { <EOF> } ] (s24)
-[ 14: primitives -> . <true>, { <EOF> } ] (s25)
-[ 15: primitives -> . <false>, { <EOF> } ] (s26)
-[ 16: primitives -> . <null>, { <EOF> } ] (s27)
-[ 17: primitives -> . <undefined>, { <EOF> } ] (s28)
+[ 0: (accept) -> . json ]* (s1)
+[ 1: json -> . <{> obj <}> ] (s16)
+[ 2: json -> . <[> array <]> ] (s19)
+[ 3: json -> . primitives ] (s22)
+[ 12: primitives -> . <string> ] (s23)
+[ 13: primitives -> . <num> ] (s24)
+[ 14: primitives -> . <true> ] (s25)
+[ 15: primitives -> . <false> ] (s26)
+[ 16: primitives -> . <null> ] (s27)
+[ 17: primitives -> . <undefined> ] (s28)
 
 i1
-[ 0: (accept) -> json ., { <EOF> } ]* (r)
+[ 0: (accept) -> json . ]* (r)
 
 i2
-[ 4: obj -> nonEmptyObj . possibleComma, { <}> } ]* (s3)
-[ 6: nonEmptyObj -> nonEmptyObj . <,> <string> <:> json, { <}>,<,> } ]* (s4)
-[ 18: possibleComma -> . <,>, { <}> } ] (s4)
-[ 19: possibleComma -> ., { <}> } ] (r)
+[ 4: obj -> nonEmptyObj . possibleComma ]* (s3)
+[ 6: nonEmptyObj -> nonEmptyObj . <,> <string> <:> json ]* (s4)
+[ 18: possibleComma -> . <,> ] (s4)
+[ 19: possibleComma -> . ] (r)
 
 i3
-[ 4: obj -> nonEmptyObj possibleComma ., { <}> } ]* (r)
+[ 4: obj -> nonEmptyObj possibleComma . ]* (r)
 
 i4
-[ 6: nonEmptyObj -> nonEmptyObj <,> . <string> <:> json, { <}>,<,> } ]* (s5)
-[ 18: possibleComma -> <,> ., { <}> } ]* (r)
+[ 6: nonEmptyObj -> nonEmptyObj <,> . <string> <:> json ]* (s5)
+[ 18: possibleComma -> <,> . ]* (r)
 
 i5
-[ 6: nonEmptyObj -> nonEmptyObj <,> <string> . <:> json, { <}>,<,> } ]* (s6)
+[ 6: nonEmptyObj -> nonEmptyObj <,> <string> . <:> json ]* (s6)
 
 i6
-[ 6: nonEmptyObj -> nonEmptyObj <,> <string> <:> . json, { <}>,<,> } ]* (s7)
-[ 1: json -> . <{> obj <}>, { <}>,<,> } ] (s16)
-[ 2: json -> . <[> array <]>, { <}>,<,> } ] (s19)
-[ 3: json -> . primitives, { <}>,<,> } ] (s22)
-[ 12: primitives -> . <string>, { <}>,<,> } ] (s23)
-[ 13: primitives -> . <num>, { <}>,<,> } ] (s24)
-[ 14: primitives -> . <true>, { <}>,<,> } ] (s25)
-[ 15: primitives -> . <false>, { <}>,<,> } ] (s26)
-[ 16: primitives -> . <null>, { <}>,<,> } ] (s27)
-[ 17: primitives -> . <undefined>, { <}>,<,> } ] (s28)
+[ 6: nonEmptyObj -> nonEmptyObj <,> <string> <:> . json ]* (s7)
+[ 1: json -> . <{> obj <}> ] (s16)
+[ 2: json -> . <[> array <]> ] (s19)
+[ 3: json -> . primitives ] (s22)
+[ 12: primitives -> . <string> ] (s23)
+[ 13: primitives -> . <num> ] (s24)
+[ 14: primitives -> . <true> ] (s25)
+[ 15: primitives -> . <false> ] (s26)
+[ 16: primitives -> . <null> ] (s27)
+[ 17: primitives -> . <undefined> ] (s28)
 
 i7
-[ 6: nonEmptyObj -> nonEmptyObj <,> <string> <:> json ., { <}>,<,> } ]* (r)
+[ 6: nonEmptyObj -> nonEmptyObj <,> <string> <:> json . ]* (r)
 
 i8
-[ 7: nonEmptyObj -> <string> . <:> json, { <}>,<,> } ]* (s9)
+[ 7: nonEmptyObj -> <string> . <:> json ]* (s9)
 
 i9
-[ 7: nonEmptyObj -> <string> <:> . json, { <}>,<,> } ]* (s10)
-[ 1: json -> . <{> obj <}>, { <}>,<,> } ] (s16)
-[ 2: json -> . <[> array <]>, { <}>,<,> } ] (s19)
-[ 3: json -> . primitives, { <}>,<,> } ] (s22)
-[ 12: primitives -> . <string>, { <}>,<,> } ] (s23)
-[ 13: primitives -> . <num>, { <}>,<,> } ] (s24)
-[ 14: primitives -> . <true>, { <}>,<,> } ] (s25)
-[ 15: primitives -> . <false>, { <}>,<,> } ] (s26)
-[ 16: primitives -> . <null>, { <}>,<,> } ] (s27)
-[ 17: primitives -> . <undefined>, { <}>,<,> } ] (s28)
+[ 7: nonEmptyObj -> <string> <:> . json ]* (s10)
+[ 1: json -> . <{> obj <}> ] (s16)
+[ 2: json -> . <[> array <]> ] (s19)
+[ 3: json -> . primitives ] (s22)
+[ 12: primitives -> . <string> ] (s23)
+[ 13: primitives -> . <num> ] (s24)
+[ 14: primitives -> . <true> ] (s25)
+[ 15: primitives -> . <false> ] (s26)
+[ 16: primitives -> . <null> ] (s27)
+[ 17: primitives -> . <undefined> ] (s28)
 
 i10
-[ 7: nonEmptyObj -> <string> <:> json ., { <}>,<,> } ]* (r)
+[ 7: nonEmptyObj -> <string> <:> json . ]* (r)
 
 i11
-[ 8: array -> nonEmptyArray . possibleComma, { <]> } ]* (s12)
-[ 10: nonEmptyArray -> nonEmptyArray . <,> json, { <]>,<,> } ]* (s13)
-[ 18: possibleComma -> . <,>, { <]> } ] (s13)
-[ 19: possibleComma -> ., { <]> } ] (r)
+[ 8: array -> nonEmptyArray . possibleComma ]* (s12)
+[ 10: nonEmptyArray -> nonEmptyArray . <,> json ]* (s13)
+[ 18: possibleComma -> . <,> ] (s13)
+[ 19: possibleComma -> . ] (r)
 
 i12
-[ 8: array -> nonEmptyArray possibleComma ., { <]> } ]* (r)
+[ 8: array -> nonEmptyArray possibleComma . ]* (r)
 
 i13
-[ 10: nonEmptyArray -> nonEmptyArray <,> . json, { <]>,<,> } ]* (s14)
-[ 18: possibleComma -> <,> ., { <]> } ]* (r)
-[ 1: json -> . <{> obj <}>, { <]>,<,> } ] (s16)
-[ 2: json -> . <[> array <]>, { <]>,<,> } ] (s19)
-[ 3: json -> . primitives, { <]>,<,> } ] (s22)
-[ 12: primitives -> . <string>, { <]>,<,> } ] (s23)
-[ 13: primitives -> . <num>, { <]>,<,> } ] (s24)
-[ 14: primitives -> . <true>, { <]>,<,> } ] (s25)
-[ 15: primitives -> . <false>, { <]>,<,> } ] (s26)
-[ 16: primitives -> . <null>, { <]>,<,> } ] (s27)
-[ 17: primitives -> . <undefined>, { <]>,<,> } ] (s28)
+[ 10: nonEmptyArray -> nonEmptyArray <,> . json ]* (s14)
+[ 18: possibleComma -> <,> . ]* (r)
+[ 1: json -> . <{> obj <}> ] (s16)
+[ 2: json -> . <[> array <]> ] (s19)
+[ 3: json -> . primitives ] (s22)
+[ 12: primitives -> . <string> ] (s23)
+[ 13: primitives -> . <num> ] (s24)
+[ 14: primitives -> . <true> ] (s25)
+[ 15: primitives -> . <false> ] (s26)
+[ 16: primitives -> . <null> ] (s27)
+[ 17: primitives -> . <undefined> ] (s28)
 
 i14
-[ 10: nonEmptyArray -> nonEmptyArray <,> json ., { <]>,<,> } ]* (r)
+[ 10: nonEmptyArray -> nonEmptyArray <,> json . ]* (r)
 
 i15
-[ 11: nonEmptyArray -> json ., { <]>,<,> } ]* (r)
+[ 11: nonEmptyArray -> json . ]* (r)
 
 i16
-[ 1: json -> <{> . obj <}>, { <EOF>,<]>,<}>,<,> } ]* (s17)
-[ 4: obj -> . nonEmptyObj possibleComma, { <}> } ] (s2)
-[ 5: obj -> ., { <}> } ] (r)
-[ 6: nonEmptyObj -> . nonEmptyObj <,> <string> <:> json, { <}>,<,> } ] (s2)
-[ 7: nonEmptyObj -> . <string> <:> json, { <}>,<,> } ] (s8)
+[ 1: json -> <{> . obj <}> ]* (s17)
+[ 4: obj -> . nonEmptyObj possibleComma ] (s2)
+[ 5: obj -> . ] (r)
+[ 6: nonEmptyObj -> . nonEmptyObj <,> <string> <:> json ] (s2)
+[ 7: nonEmptyObj -> . <string> <:> json ] (s8)
 
 i17
-[ 1: json -> <{> obj . <}>, { <EOF>,<]>,<}>,<,> } ]* (s18)
+[ 1: json -> <{> obj . <}> ]* (s18)
 
 i18
-[ 1: json -> <{> obj <}> ., { <EOF>,<]>,<}>,<,> } ]* (r)
+[ 1: json -> <{> obj <}> . ]* (r)
 
 i19
-[ 2: json -> <[> . array <]>, { <EOF>,<]>,<}>,<,> } ]* (s20)
-[ 8: array -> . nonEmptyArray possibleComma, { <]> } ] (s11)
-[ 9: array -> ., { <]> } ] (r)
-[ 10: nonEmptyArray -> . nonEmptyArray <,> json, { <]>,<,> } ] (s11)
-[ 11: nonEmptyArray -> . json, { <]>,<,> } ] (s15)
-[ 1: json -> . <{> obj <}>, { <]>,<,> } ] (s16)
-[ 2: json -> . <[> array <]>, { <]>,<,> } ] (s19)
-[ 3: json -> . primitives, { <]>,<,> } ] (s22)
-[ 12: primitives -> . <string>, { <]>,<,> } ] (s23)
-[ 13: primitives -> . <num>, { <]>,<,> } ] (s24)
-[ 14: primitives -> . <true>, { <]>,<,> } ] (s25)
-[ 15: primitives -> . <false>, { <]>,<,> } ] (s26)
-[ 16: primitives -> . <null>, { <]>,<,> } ] (s27)
-[ 17: primitives -> . <undefined>, { <]>,<,> } ] (s28)
+[ 2: json -> <[> . array <]> ]* (s20)
+[ 8: array -> . nonEmptyArray possibleComma ] (s11)
+[ 9: array -> . ] (r)
+[ 10: nonEmptyArray -> . nonEmptyArray <,> json ] (s11)
+[ 11: nonEmptyArray -> . json ] (s15)
+[ 1: json -> . <{> obj <}> ] (s16)
+[ 2: json -> . <[> array <]> ] (s19)
+[ 3: json -> . primitives ] (s22)
+[ 12: primitives -> . <string> ] (s23)
+[ 13: primitives -> . <num> ] (s24)
+[ 14: primitives -> . <true> ] (s25)
+[ 15: primitives -> . <false> ] (s26)
+[ 16: primitives -> . <null> ] (s27)
+[ 17: primitives -> . <undefined> ] (s28)
 
 i20
-[ 2: json -> <[> array . <]>, { <EOF>,<]>,<}>,<,> } ]* (s21)
+[ 2: json -> <[> array . <]> ]* (s21)
 
 i21
-[ 2: json -> <[> array <]> ., { <EOF>,<]>,<}>,<,> } ]* (r)
+[ 2: json -> <[> array <]> . ]* (r)
 
 i22
-[ 3: json -> primitives ., { <EOF>,<]>,<}>,<,> } ]* (r)
+[ 3: json -> primitives . ]* (r)
 
 i23
-[ 12: primitives -> <string> ., { <EOF>,<]>,<}>,<,> } ]* (r)
+[ 12: primitives -> <string> . ]* (r)
 
 i24
-[ 13: primitives -> <num> ., { <EOF>,<]>,<}>,<,> } ]* (r)
+[ 13: primitives -> <num> . ]* (r)
 
 i25
-[ 14: primitives -> <true> ., { <EOF>,<]>,<}>,<,> } ]* (r)
+[ 14: primitives -> <true> . ]* (r)
 
 i26
-[ 15: primitives -> <false> ., { <EOF>,<]>,<}>,<,> } ]* (r)
+[ 15: primitives -> <false> . ]* (r)
 
 i27
-[ 16: primitives -> <null> ., { <EOF>,<]>,<}>,<,> } ]* (r)
+[ 16: primitives -> <null> . ]* (r)
 
 i28
-[ 17: primitives -> <undefined> ., { <EOF>,<]>,<}>,<,> } ]* (r)
+[ 17: primitives -> <undefined> . ]* (r)
 

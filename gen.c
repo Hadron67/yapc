@@ -22,6 +22,7 @@
 #include <string.h>
 #include "ydef.h"
 #include "gen.h"
+#include "hash.h"
 
 
 static YItemSet *YItemSet_new(YGrammar *g){
@@ -41,7 +42,7 @@ static YItemSet *YItemSet_new(YGrammar *g){
     return set;
 }
 
-static YItem *YItemSet_getItem(YItemSet *set,int index){
+static inline YItem *YItemSet_getItem(YItemSet *set,int index){
     return (YItem *)((char *)set->items + set->itemSize * index);
 }
 
@@ -181,7 +182,9 @@ int YItemSet_free(YItemSet *set){
 static int YItemSet_closure(YItemSet *set,YFirstSets *fsets){
     YGrammar *g = set->g;
     int changed = 1;
-    char tSet[YGrammar_getTokenSetSize(g)];
+    int ssize = YGrammar_getTokenSetSize(g);
+    char tSet[ssize];
+    memset(tSet,0,ssize * sizeof(char));
     while(changed){
         changed = 0;
         int i,j;
@@ -191,8 +194,8 @@ static int YItemSet_closure(YItemSet *set,YFirstSets *fsets){
                 YRuleItem *rItem = YItem_getShift(item);
                 if(!rItem->isTerminal){
                     YItem_getFollowSet(item,tSet,g,fsets);
-                    for(j = 0;j < g->ruleCount;j++){
-                        YRule *rule = g->rules + j;
+                    YRule *rule;
+                    for(rule = g->nts[rItem->id].firstRule;rule != NULL;rule = rule->next){
                         if(rule->lhs == rItem->id){
                             int changed2 = YItemSet_addItem(set,rule,0,0,tSet,0);
                             changed = changed || changed2;
@@ -202,6 +205,18 @@ static int YItemSet_closure(YItemSet *set,YFirstSets *fsets){
             }
         }
     }
+
+    int i;
+    unsigned int ret = 0;
+    for(i = 0;i < set->len;i++){
+        YItem *item = YItemSet_getItem(set,i);
+        if(item->isKernel){
+            ret = (ret << 5 + ret) + item->rule->index;
+            ret = (ret << 5 + ret) + item->marker;
+        }
+    }
+
+    set->hash = ret;
 
     return 0;
 }
@@ -228,7 +243,7 @@ int YItemSet_dump(YItemSet *set,int showLah,FILE *out){
 
 int YItem_dump(YItem *item,YGrammar *g,int showLah,FILE *out){
     
-    fprintf(out,"[ %d: %s ->",item->rule->index,g->ntNames[item->rule->lhs]);
+    fprintf(out,"[ %d: %s ->",item->rule->index,g->nts[item->rule->lhs].name);
         
     int i;
     for(i = 0;i < item->rule->length;i++){
@@ -240,7 +255,7 @@ int YItem_dump(YItem *item,YGrammar *g,int showLah,FILE *out){
             fprintf(out," <%s>",g->tokens[ritem->id].name);
         }
         else{
-            fprintf(out," %s",g->ntNames[ritem->id]);
+            fprintf(out," %s",g->nts[ritem->id].name);
         }
         
     }
@@ -316,6 +331,10 @@ int YItemSetList_append(YItemSetList *list,YItemSet *set){
     return 0;
 }
 int YItemSetList_remove(YItemSetList *list,YItemSet *set){
+    if(set == &list->head || set == &list->tail){
+        fprintf(stderr,"attempt to remove the head or tail of a list\n");
+        abort();
+    }
     set->prev->next = set->next;
     set->next->prev = set->prev;
     set->prev = set->next = NULL;
@@ -346,14 +365,22 @@ int YItemSetList_number(YItemSetList *list){
     return 0;
 }
 
+static unsigned int YItemSet_coreHash(const void *s,void *arg){
+    const YItemSet *set = *(const YItemSet **)s;
+    return set->hash;
+}
+
 int yGenItemSets(YGrammar *g,YItemSetList *doneList){
     int index = 0;
     YItemSetList todoList,incList,trash;
+    YHashTable htable;
     YFirstSets *fsets = YGrammar_generateFirstSets(g);
 
     YItemSetList_init(&todoList);
     YItemSetList_init(&incList);
     YItemSetList_init(&trash);
+    YHashTable_init(&htable,YItemSet_coreHash,g->ruleCount,sizeof(YItemSet *));
+    htable.arg = g;
 
     YItemSetList_append(&todoList,yGenInitialItemSet(g));
 
@@ -401,7 +428,7 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
             
             //find possible merges
             int i;
-            YItemSet *gSet;
+            YItemSet *gSet;/*
             for(gSet = doneList->head.next;gSet != &doneList->tail;gSet = gSet->next){
                 if(YItemSet_canMergeTo(gSet,set)){
                     if(YItemSet_mergeTo(gSet,set)){
@@ -423,6 +450,7 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
                     set = NULL;
                     break;
                 }
+
             }
             //find possible merge in incomplete list
             if(set != NULL){
@@ -445,8 +473,39 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
                         break;
                     }
                 }
+            }*/
+            
+            
+            
+            YBucket *bk = *YHashTable_findBucket(&htable,&set);
+            if(bk != NULL){
+                for(i = 0;i < bk->len;i++){
+                    gSet = *(YItemSet **)YBucket_getItem(bk,i);
+                    if(YItemSet_canMergeTo(gSet,set)){
+                        if(YItemSet_mergeTo(gSet,set)){
+                            if(gSet->complete){
+                                merged = gSet;
+                            }
+                        }
+                        //fix previous transition actions to merged set
+                        if(comeFrom != NULL){
+                            int i;
+                            for(i = 0;i < comeFrom->len;i++){
+                                YItem *sItem = YItemSet_getItem(comeFrom,i);
+                                if(sItem->actionType == YACTION_SHIFT && sItem->shift == set){
+                                    sItem->shift = gSet;
+                                }
+                            }
+                        }
+                        YItemSetList_append(&trash,set);
+                        //YItemSet_free(set);
+                        set = NULL;
+                        break;
+                    }
+                }
             }
-            //if set is merged with another set,
+
+            //if set is merged with another complete set,
             if(merged != NULL){
                 YItemSetList_remove(doneList,merged);
                 YItemSetList_append(&incList,merged);
@@ -454,9 +513,11 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
             }
             else if(set != NULL){
                 YItemSetList_append(&incList,set);
+                YHashTable_add(&htable,&set);
             }
         }
     }
+    YHashTable_free(&htable);
     YFirstSets_free(fsets);
     YItemSetList_clear(&trash);
     YItemSetList_number(doneList);

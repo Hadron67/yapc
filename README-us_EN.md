@@ -19,7 +19,7 @@ cmake .
 make
 sudo make install
 ```
-this requires cmake2.8 or latter.There is no more dependences on other libraries.
+this requires cmake2.8 or later.There is no more dependences on other libraries.
 
 # Documentation for YAPC
 ## Usage
@@ -27,7 +27,7 @@ yapc requires one argument as input file:
 ```shell
 yapc example.y
 ```
-three files will be generated,they are example.c,example.h,example.output.the first two files are source for the parser,the last one contains informations for of result,which will be mentioned latter.This output can be --output,for example:
+three files will be generated,they are example.c,example.h,example.output.the first two files are source for the parser,the last one contains informations for of result,which will be mentioned later.This output can be --output,for example:
 ```shell
 yapc example.y --output test.txt
 ```
@@ -146,7 +146,7 @@ Operator precedence was added since v0.3,and is similar to that of yacc.You can 
 %right (<token>)*
 %nonassoc (<token>)*
 ```
-The operators in one direcive have the same precedence level,and among different directives,the one appears **latter** has higher level.The precedence level of a rule is the level of the last token appears in the production rule.Therefore,when a shift/reduce conflict is encountered,the one with higher precedence level will be chosen.
+The operators in one direcive have the same precedence level,for any two different directives,the one appears **later** has higher level.The precedence level of a rule is the level of the last token appears in the production rule.Therefore,when a shift/reduce conflict is encountered,if the token has a higher level,shift will be chosen;if the reduction rule is higher,reduce is chosen;if they have the same levels,the choice depends on the associaticity of that token.
 
 You can also define the precedence levels of the rules manually.To do this,add following to the rule:
 ```
@@ -188,16 +188,23 @@ Always YY_OK
 This is the core of the generated code.When a token is recognized by the tokenizer,call this function to pass that token to the parser to proccess.
 * Parameters
 yyparser:The parser object;
+
 yytokenid:The id of the token recognized by the tokenizer,ids for each token is defined in parser.h
 * Returns
-YY_OK:normal;
-YY_ERR:syntax error detected.
+YY_SHIFT: the parser has done a shift action,which means the token has been consumed,and the tokenizer should read the next token;
+
+YY_REDUCE: the parser did a reduction,i.e.,the token is not consumed,so the same token should be passed to the parser the next time;
+
+TT_ACCEPT: the input has been accepted by the parser,so just leave the parsing loop and return;
+
+YY_ERR: syntax error detected.
 
 ### int yyParser_printError(yyParser \*yyparser,FILE \*out);
 * Function
 Print error message when a syntax error is encountered.
 * Parameters
 yyparser:The parser.
+
 out:output.
 
 ### int yyParser_printCst(yyParser \*parser,FILE \*out);
@@ -205,11 +212,13 @@ out:output.
 Print the generated concrete syntax tree.This function will only be generated when the %enable_cst directive is present.
 * Parameters
 parser:The parser;
+
 out:output of the printing.
+
 * Returns
 Always YY_OK。
 
-### Members in yyParser that user can use
+### Properties in yyParser that user can use
 * int yyParser.done:Initially it is 0,when the input is accepted by the parser,it will be set to 1.
 * void *yyParser.userData:User data,use can access other data structures in the sementic blocks through it.
 * yyParser.token:The semantic value,which will be pushed into the semantic stack and accessed by the code in the sementic blocks when yyParser_acceptToken is called.The type of this member is mensioned [before](#Token type defination).
@@ -261,7 +270,12 @@ yDestroyContext(ctx);
 Please submit bugs on the issues page if you found!
 
 # Change logs
-## v0.3,2017-4-30(latest)
+## v0.3.1,2017-5-1(latest)
+* Modified the generated function yyParser_acceptToken.
+* Optimized the item set generating algorithm,using hash table.
+* Unused non-terminals will be reported now.
+
+## v0.3,2017-4-30
 * Operator precedence added.(see [documentation](#Operator precedence))
 * Modified the usage of generated code section of the documentation.
 * Changed the namespace directive from %ns to %namespace.

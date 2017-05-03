@@ -26,14 +26,14 @@
 
 int YRule_dump(YGrammar *g,YRule *rule,FILE *out){
     int j;
-    fprintf(out,"%s -> ",g->ntNames[rule->lhs]);
+    fprintf(out,"%s -> ",g->nts[rule->lhs].name);
     for(j = 0;j < rule->length;j++){
         YRuleItem *item = rule->rule + j;
         if(item->isTerminal){
             fprintf(out,"<%s> ",g->tokens[item->id].name);
         }
         else {
-            fprintf(out,"%s ",g->ntNames[item->id]);
+            fprintf(out,"%s ",g->nts[item->id].name);
         }
     }
     return 0;
@@ -62,6 +62,14 @@ int YGrammar_getTokenSetSize(YGrammar *g){
         size++;
     }
     
+    return size;
+}
+int YGrammar_getItemSetSize(YGrammar *g){
+    int count = g->maxRuleLen * g->ruleCount;
+    int size = count / SBITS;
+    if(count % SBITS != 0){
+        size++;
+    }
     return size;
 }
 int YTokenSet_add(YGrammar *g,char *set,int token){
@@ -188,18 +196,35 @@ int YGrammar_printUnusedTokens(YGrammar *g,int *count,FILE *out){
     for(i = 0;i < g->tokenCount;i++){
         YTokenDef *t = g->tokens + i;
         if(!t->used){
-            fprintf(out,"unused token: <%s> (%s)\n",t->name,t->alias);
+            if(*count == 0){
+                fprintf(out,"unused token(s):\n");
+            }
+            fprintf(out,YYTAB "<%s> (%s)\n",t->name,t->alias);
             (*count)++;
         }
     }
     return 0;
 }
-
+int YGrammar_printUnusedNts(YGrammar *g,int *count,FILE *out){
+    int i;
+    *count = 0;
+    for(i = 0;i < g->ntCount;i++){
+        YNtDef *nt = g->nts + i;
+        if(!nt->used){
+            if(*count == 0){
+                fprintf(out,"unused non terminal(s):\n");
+            }
+            fprintf(out,YYTAB "%s\n",nt->name);
+            (*count)++;
+        }
+    }
+    return 0;
+}
 int YFirstSets_dump(YFirstSets *sets,FILE *out){
     int i,j;
     YGrammar *g = sets->g;
     for(i = 0;i < g->ntCount;i++){
-        fprintf(out,"FIRST(%s) = { ",g->ntNames[i]);
+        fprintf(out,"FIRST(%s) = { ",g->nts[i].name);
         if(YFirstSets_contains(sets,i,0)){
             fprintf(out,"<>,");
         }

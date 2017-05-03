@@ -1,220 +1,219 @@
-
 i0
-[ 0: (accept) -> . json, { <EOF> } ]* (s1)
-[ 1: json -> . <{> obj <}>, { <EOF> } ] (s17)
-[ 2: json -> . <[> array <]>, { <EOF> } ] (s20)
-[ 3: json -> . atom, { <EOF> } ] (s23)
-[ 15: atom -> . <num>, { <EOF> } ] (s24)
-[ 16: atom -> . <true>, { <EOF> } ] (s25)
-[ 17: atom -> . <false>, { <EOF> } ] (s26)
-[ 18: atom -> . <string>, { <EOF> } ] (s27)
-[ 19: atom -> . <id>, { <EOF> } ] (s28)
+[ 0: (accept) -> . json ]* (s1)
+[ 3: json -> . atom ] (s15)
+[ 2: json -> . <[> array <]> ] (s16)
+[ 1: json -> . <{> obj <}> ] (s19)
+[ 19: atom -> . <id> ] (s24)
+[ 18: atom -> . <string> ] (s25)
+[ 17: atom -> . <false> ] (s26)
+[ 16: atom -> . <true> ] (s27)
+[ 15: atom -> . <num> ] (s28)
 
 i1
-[ 0: (accept) -> json ., { <EOF> } ]* (r)
+[ 0: (accept) -> json . ]* (r)
 
 i2
-[ 4: obj -> nonEmptyObj . possibleComma, { <}> } ]* (s3)
-[ 6: nonEmptyObj -> nonEmptyObj . <,> objItem, { <}>,<,> } ]* (s4)
-[ 20: possibleComma -> . <,>, { <}> } ] (s4)
-[ 21: possibleComma -> ., { <}> } ] (r)
+[ 11: array -> nonEmptyArray . possibleComma ]* (s3)
+[ 13: nonEmptyArray -> nonEmptyArray . <,> json ]* (s4)
+[ 21: possibleComma -> . ] (r)
+[ 20: possibleComma -> . <,> ] (s4)
 
 i3
-[ 4: obj -> nonEmptyObj possibleComma ., { <}> } ]* (r)
+[ 11: array -> nonEmptyArray possibleComma . ]* (r)
 
 i4
-[ 6: nonEmptyObj -> nonEmptyObj <,> . objItem, { <}>,<,> } ]* (s5)
-[ 20: possibleComma -> <,> ., { <}> } ]* (r)
-[ 8: objItem -> . objKey <:> json, { <}>,<,> } ] (s7)
-[ 9: objKey -> . <id>, { <:> } ] (s10)
-[ 10: objKey -> . <string>, { <:> } ] (s11)
+[ 13: nonEmptyArray -> nonEmptyArray <,> . json ]* (s5)
+[ 20: possibleComma -> <,> . ]* (r)
+[ 3: json -> . atom ] (s15)
+[ 2: json -> . <[> array <]> ] (s16)
+[ 1: json -> . <{> obj <}> ] (s19)
+[ 19: atom -> . <id> ] (s24)
+[ 18: atom -> . <string> ] (s25)
+[ 17: atom -> . <false> ] (s26)
+[ 16: atom -> . <true> ] (s27)
+[ 15: atom -> . <num> ] (s28)
 
 i5
-[ 6: nonEmptyObj -> nonEmptyObj <,> objItem ., { <}>,<,> } ]* (r)
+[ 13: nonEmptyArray -> nonEmptyArray <,> json . ]* (r)
 
 i6
-[ 7: nonEmptyObj -> objItem ., { <}>,<,> } ]* (r)
+[ 14: nonEmptyArray -> json . ]* (r)
 
 i7
-[ 8: objItem -> objKey . <:> json, { <}>,<,> } ]* (s8)
+[ 4: obj -> nonEmptyObj . possibleComma ]* (s8)
+[ 6: nonEmptyObj -> nonEmptyObj . <,> objItem ]* (s9)
+[ 21: possibleComma -> . ] (r)
+[ 20: possibleComma -> . <,> ] (s9)
 
 i8
-[ 8: objItem -> objKey <:> . json, { <}>,<,> } ]* (s9)
-[ 1: json -> . <{> obj <}>, { <}>,<,> } ] (s17)
-[ 2: json -> . <[> array <]>, { <}>,<,> } ] (s20)
-[ 3: json -> . atom, { <}>,<,> } ] (s23)
-[ 15: atom -> . <num>, { <}>,<,> } ] (s24)
-[ 16: atom -> . <true>, { <}>,<,> } ] (s25)
-[ 17: atom -> . <false>, { <}>,<,> } ] (s26)
-[ 18: atom -> . <string>, { <}>,<,> } ] (s27)
-[ 19: atom -> . <id>, { <}>,<,> } ] (s28)
+[ 4: obj -> nonEmptyObj possibleComma . ]* (r)
 
 i9
-[ 8: objItem -> objKey <:> json ., { <}>,<,> } ]* (r)
+[ 6: nonEmptyObj -> nonEmptyObj <,> . objItem ]* (s10)
+[ 20: possibleComma -> <,> . ]* (r)
+[ 8: objItem -> . objKey <:> json ] (s12)
+[ 10: objKey -> . <string> ] (s22)
+[ 9: objKey -> . <id> ] (s23)
 
 i10
-[ 9: objKey -> <id> ., { <:> } ]* (r)
+[ 6: nonEmptyObj -> nonEmptyObj <,> objItem . ]* (r)
 
 i11
-[ 10: objKey -> <string> ., { <:> } ]* (r)
+[ 7: nonEmptyObj -> objItem . ]* (r)
 
 i12
-[ 11: array -> nonEmptyArray . possibleComma, { <]> } ]* (s13)
-[ 13: nonEmptyArray -> nonEmptyArray . <,> json, { <,>,<]> } ]* (s14)
-[ 20: possibleComma -> . <,>, { <]> } ] (s14)
-[ 21: possibleComma -> ., { <]> } ] (r)
+[ 8: objItem -> objKey . <:> json ]* (s13)
 
 i13
-[ 11: array -> nonEmptyArray possibleComma ., { <]> } ]* (r)
+[ 8: objItem -> objKey <:> . json ]* (s14)
+[ 3: json -> . atom ] (s15)
+[ 2: json -> . <[> array <]> ] (s16)
+[ 1: json -> . <{> obj <}> ] (s19)
+[ 19: atom -> . <id> ] (s24)
+[ 18: atom -> . <string> ] (s25)
+[ 17: atom -> . <false> ] (s26)
+[ 16: atom -> . <true> ] (s27)
+[ 15: atom -> . <num> ] (s28)
 
 i14
-[ 13: nonEmptyArray -> nonEmptyArray <,> . json, { <,>,<]> } ]* (s15)
-[ 20: possibleComma -> <,> ., { <]> } ]* (r)
-[ 1: json -> . <{> obj <}>, { <,>,<]> } ] (s17)
-[ 2: json -> . <[> array <]>, { <,>,<]> } ] (s20)
-[ 3: json -> . atom, { <,>,<]> } ] (s23)
-[ 15: atom -> . <num>, { <,>,<]> } ] (s24)
-[ 16: atom -> . <true>, { <,>,<]> } ] (s25)
-[ 17: atom -> . <false>, { <,>,<]> } ] (s26)
-[ 18: atom -> . <string>, { <,>,<]> } ] (s27)
-[ 19: atom -> . <id>, { <,>,<]> } ] (s28)
+[ 8: objItem -> objKey <:> json . ]* (r)
 
 i15
-[ 13: nonEmptyArray -> nonEmptyArray <,> json ., { <,>,<]> } ]* (r)
+[ 3: json -> atom . ]* (r)
 
 i16
-[ 14: nonEmptyArray -> json ., { <,>,<]> } ]* (r)
+[ 2: json -> <[> . array <]> ]* (s17)
+[ 12: array -> . ] (r)
+[ 11: array -> . nonEmptyArray possibleComma ] (s2)
+[ 14: nonEmptyArray -> . json ] (s6)
+[ 13: nonEmptyArray -> . nonEmptyArray <,> json ] (s2)
+[ 3: json -> . atom ] (s15)
+[ 2: json -> . <[> array <]> ] (s16)
+[ 1: json -> . <{> obj <}> ] (s19)
+[ 19: atom -> . <id> ] (s24)
+[ 18: atom -> . <string> ] (s25)
+[ 17: atom -> . <false> ] (s26)
+[ 16: atom -> . <true> ] (s27)
+[ 15: atom -> . <num> ] (s28)
 
 i17
-[ 1: json -> <{> . obj <}>, { <EOF>,<}>,<,>,<]> } ]* (s18)
-[ 4: obj -> . nonEmptyObj possibleComma, { <}> } ] (s2)
-[ 5: obj -> ., { <}> } ] (r)
-[ 6: nonEmptyObj -> . nonEmptyObj <,> objItem, { <}>,<,> } ] (s2)
-[ 7: nonEmptyObj -> . objItem, { <}>,<,> } ] (s6)
-[ 8: objItem -> . objKey <:> json, { <}>,<,> } ] (s7)
-[ 9: objKey -> . <id>, { <:> } ] (s10)
-[ 10: objKey -> . <string>, { <:> } ] (s11)
+[ 2: json -> <[> array . <]> ]* (s18)
 
 i18
-[ 1: json -> <{> obj . <}>, { <EOF>,<}>,<,>,<]> } ]* (s19)
+[ 2: json -> <[> array <]> . ]* (r)
 
 i19
-[ 1: json -> <{> obj <}> ., { <EOF>,<}>,<,>,<]> } ]* (r)
+[ 1: json -> <{> . obj <}> ]* (s20)
+[ 5: obj -> . ] (r)
+[ 4: obj -> . nonEmptyObj possibleComma ] (s7)
+[ 7: nonEmptyObj -> . objItem ] (s11)
+[ 6: nonEmptyObj -> . nonEmptyObj <,> objItem ] (s7)
+[ 8: objItem -> . objKey <:> json ] (s12)
+[ 10: objKey -> . <string> ] (s22)
+[ 9: objKey -> . <id> ] (s23)
 
 i20
-[ 2: json -> <[> . array <]>, { <EOF>,<}>,<,>,<]> } ]* (s21)
-[ 11: array -> . nonEmptyArray possibleComma, { <]> } ] (s12)
-[ 12: array -> ., { <]> } ] (r)
-[ 13: nonEmptyArray -> . nonEmptyArray <,> json, { <,>,<]> } ] (s12)
-[ 14: nonEmptyArray -> . json, { <,>,<]> } ] (s16)
-[ 1: json -> . <{> obj <}>, { <,>,<]> } ] (s17)
-[ 2: json -> . <[> array <]>, { <,>,<]> } ] (s20)
-[ 3: json -> . atom, { <,>,<]> } ] (s23)
-[ 15: atom -> . <num>, { <,>,<]> } ] (s24)
-[ 16: atom -> . <true>, { <,>,<]> } ] (s25)
-[ 17: atom -> . <false>, { <,>,<]> } ] (s26)
-[ 18: atom -> . <string>, { <,>,<]> } ] (s27)
-[ 19: atom -> . <id>, { <,>,<]> } ] (s28)
+[ 1: json -> <{> obj . <}> ]* (s21)
 
 i21
-[ 2: json -> <[> array . <]>, { <EOF>,<}>,<,>,<]> } ]* (s22)
+[ 1: json -> <{> obj <}> . ]* (r)
 
 i22
-[ 2: json -> <[> array <]> ., { <EOF>,<}>,<,>,<]> } ]* (r)
+[ 10: objKey -> <string> . ]* (r)
 
 i23
-[ 3: json -> atom ., { <EOF>,<}>,<,>,<]> } ]* (r)
+[ 9: objKey -> <id> . ]* (r)
 
 i24
-[ 15: atom -> <num> ., { <EOF>,<}>,<,>,<]> } ]* (r)
+[ 19: atom -> <id> . ]* (r)
 
 i25
-[ 16: atom -> <true> ., { <EOF>,<}>,<,>,<]> } ]* (r)
+[ 18: atom -> <string> . ]* (r)
 
 i26
-[ 17: atom -> <false> ., { <EOF>,<}>,<,>,<]> } ]* (r)
+[ 17: atom -> <false> . ]* (r)
 
 i27
-[ 18: atom -> <string> ., { <EOF>,<}>,<,>,<]> } ]* (r)
+[ 16: atom -> <true> . ]* (r)
 
 i28
-[ 19: atom -> <id> ., { <EOF>,<}>,<,>,<]> } ]* (r)
+[ 15: atom -> <num> . ]* (r)
 
 test 1:
 | <{> <id> <:> <[> <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 ]
-<{> | <id> <:> <[> <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 17 ]
-<{> <id> | <:> <[> <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 17 10 ]
-<{> objKey | <:> <[> <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 17 7 ]
-<{> objKey <:> | <[> <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 17 7 8 ]
-<{> objKey <:> <[> | <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 17 7 8 20 ]
-<{> objKey <:> <[> <num> | <,> <num> <]> <,> <id> <:> <true> <}> [0 17 7 8 20 24 ]
-<{> objKey <:> <[> atom | <,> <num> <]> <,> <id> <:> <true> <}> [0 17 7 8 20 23 ]
-<{> objKey <:> <[> json | <,> <num> <]> <,> <id> <:> <true> <}> [0 17 7 8 20 16 ]
-<{> objKey <:> <[> nonEmptyArray | <,> <num> <]> <,> <id> <:> <true> <}> [0 17 7 8 20 12 ]
-<{> objKey <:> <[> nonEmptyArray <,> | <num> <]> <,> <id> <:> <true> <}> [0 17 7 8 20 12 14 ]
-<{> objKey <:> <[> nonEmptyArray <,> <num> | <]> <,> <id> <:> <true> <}> [0 17 7 8 20 12 14 24 ]
-<{> objKey <:> <[> nonEmptyArray <,> atom | <]> <,> <id> <:> <true> <}> [0 17 7 8 20 12 14 23 ]
-<{> objKey <:> <[> nonEmptyArray <,> json | <]> <,> <id> <:> <true> <}> [0 17 7 8 20 12 14 15 ]
-<{> objKey <:> <[> nonEmptyArray | <]> <,> <id> <:> <true> <}> [0 17 7 8 20 12 ]
-<{> objKey <:> <[> nonEmptyArray possibleComma | <]> <,> <id> <:> <true> <}> [0 17 7 8 20 12 13 ]
-<{> objKey <:> <[> array | <]> <,> <id> <:> <true> <}> [0 17 7 8 20 21 ]
-<{> objKey <:> <[> array <]> | <,> <id> <:> <true> <}> [0 17 7 8 20 21 22 ]
-<{> objKey <:> json | <,> <id> <:> <true> <}> [0 17 7 8 9 ]
-<{> objItem | <,> <id> <:> <true> <}> [0 17 6 ]
-<{> nonEmptyObj | <,> <id> <:> <true> <}> [0 17 2 ]
-<{> nonEmptyObj <,> | <id> <:> <true> <}> [0 17 2 4 ]
-<{> nonEmptyObj <,> <id> | <:> <true> <}> [0 17 2 4 10 ]
-<{> nonEmptyObj <,> objKey | <:> <true> <}> [0 17 2 4 7 ]
-<{> nonEmptyObj <,> objKey <:> | <true> <}> [0 17 2 4 7 8 ]
-<{> nonEmptyObj <,> objKey <:> <true> | <}> [0 17 2 4 7 8 25 ]
-<{> nonEmptyObj <,> objKey <:> atom | <}> [0 17 2 4 7 8 23 ]
-<{> nonEmptyObj <,> objKey <:> json | <}> [0 17 2 4 7 8 9 ]
-<{> nonEmptyObj <,> objItem | <}> [0 17 2 4 5 ]
-<{> nonEmptyObj | <}> [0 17 2 ]
-<{> nonEmptyObj possibleComma | <}> [0 17 2 3 ]
-<{> obj | <}> [0 17 18 ]
-<{> obj <}> | [0 17 18 19 ]
+<{> | <id> <:> <[> <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 19 ]
+<{> <id> | <:> <[> <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 19 23 ]
+<{> objKey | <:> <[> <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 19 12 ]
+<{> objKey <:> | <[> <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 19 12 13 ]
+<{> objKey <:> <[> | <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 19 12 13 16 ]
+<{> objKey <:> <[> <num> | <,> <num> <]> <,> <id> <:> <true> <}> [0 19 12 13 16 28 ]
+<{> objKey <:> <[> atom | <,> <num> <]> <,> <id> <:> <true> <}> [0 19 12 13 16 15 ]
+<{> objKey <:> <[> json | <,> <num> <]> <,> <id> <:> <true> <}> [0 19 12 13 16 6 ]
+<{> objKey <:> <[> nonEmptyArray | <,> <num> <]> <,> <id> <:> <true> <}> [0 19 12 13 16 2 ]
+<{> objKey <:> <[> nonEmptyArray <,> | <num> <]> <,> <id> <:> <true> <}> [0 19 12 13 16 2 4 ]
+<{> objKey <:> <[> nonEmptyArray <,> <num> | <]> <,> <id> <:> <true> <}> [0 19 12 13 16 2 4 28 ]
+<{> objKey <:> <[> nonEmptyArray <,> atom | <]> <,> <id> <:> <true> <}> [0 19 12 13 16 2 4 15 ]
+<{> objKey <:> <[> nonEmptyArray <,> json | <]> <,> <id> <:> <true> <}> [0 19 12 13 16 2 4 5 ]
+<{> objKey <:> <[> nonEmptyArray | <]> <,> <id> <:> <true> <}> [0 19 12 13 16 2 ]
+<{> objKey <:> <[> nonEmptyArray possibleComma | <]> <,> <id> <:> <true> <}> [0 19 12 13 16 2 3 ]
+<{> objKey <:> <[> array | <]> <,> <id> <:> <true> <}> [0 19 12 13 16 17 ]
+<{> objKey <:> <[> array <]> | <,> <id> <:> <true> <}> [0 19 12 13 16 17 18 ]
+<{> objKey <:> json | <,> <id> <:> <true> <}> [0 19 12 13 14 ]
+<{> objItem | <,> <id> <:> <true> <}> [0 19 11 ]
+<{> nonEmptyObj | <,> <id> <:> <true> <}> [0 19 7 ]
+<{> nonEmptyObj <,> | <id> <:> <true> <}> [0 19 7 9 ]
+<{> nonEmptyObj <,> <id> | <:> <true> <}> [0 19 7 9 23 ]
+<{> nonEmptyObj <,> objKey | <:> <true> <}> [0 19 7 9 12 ]
+<{> nonEmptyObj <,> objKey <:> | <true> <}> [0 19 7 9 12 13 ]
+<{> nonEmptyObj <,> objKey <:> <true> | <}> [0 19 7 9 12 13 27 ]
+<{> nonEmptyObj <,> objKey <:> atom | <}> [0 19 7 9 12 13 15 ]
+<{> nonEmptyObj <,> objKey <:> json | <}> [0 19 7 9 12 13 14 ]
+<{> nonEmptyObj <,> objItem | <}> [0 19 7 9 10 ]
+<{> nonEmptyObj | <}> [0 19 7 ]
+<{> nonEmptyObj possibleComma | <}> [0 19 7 8 ]
+<{> obj | <}> [0 19 20 ]
+<{> obj <}> | [0 19 20 21 ]
 json | [0 1 ]
 accepted!
 
 test 2:
 | <[> <id> <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 ]
-<[> | <id> <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 ]
-<[> <id> | <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 28 ]
-<[> atom | <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 23 ]
-<[> json | <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 16 ]
-<[> nonEmptyArray | <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 ]
-<[> nonEmptyArray <,> | <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 ]
-<[> nonEmptyArray <,> <{> | <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 17 ]
-<[> nonEmptyArray <,> <{> obj | <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 17 18 ]
-<[> nonEmptyArray <,> <{> obj <}> | <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 17 18 19 ]
-<[> nonEmptyArray <,> json | <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 15 ]
-<[> nonEmptyArray | <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 ]
-<[> nonEmptyArray <,> | <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 ]
-<[> nonEmptyArray <,> <true> | <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 25 ]
-<[> nonEmptyArray <,> atom | <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 23 ]
-<[> nonEmptyArray <,> json | <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 15 ]
-<[> nonEmptyArray | <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 ]
-<[> nonEmptyArray <,> | <[> <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 ]
-<[> nonEmptyArray <,> <[> | <num> <,> <id> <]> <,> <]> <]> [0 20 12 14 20 ]
-<[> nonEmptyArray <,> <[> <num> | <,> <id> <]> <,> <]> <]> [0 20 12 14 20 24 ]
-<[> nonEmptyArray <,> <[> atom | <,> <id> <]> <,> <]> <]> [0 20 12 14 20 23 ]
-<[> nonEmptyArray <,> <[> json | <,> <id> <]> <,> <]> <]> [0 20 12 14 20 16 ]
-<[> nonEmptyArray <,> <[> nonEmptyArray | <,> <id> <]> <,> <]> <]> [0 20 12 14 20 12 ]
-<[> nonEmptyArray <,> <[> nonEmptyArray <,> | <id> <]> <,> <]> <]> [0 20 12 14 20 12 14 ]
-<[> nonEmptyArray <,> <[> nonEmptyArray <,> <id> | <]> <,> <]> <]> [0 20 12 14 20 12 14 28 ]
-<[> nonEmptyArray <,> <[> nonEmptyArray <,> atom | <]> <,> <]> <]> [0 20 12 14 20 12 14 23 ]
-<[> nonEmptyArray <,> <[> nonEmptyArray <,> json | <]> <,> <]> <]> [0 20 12 14 20 12 14 15 ]
-<[> nonEmptyArray <,> <[> nonEmptyArray | <]> <,> <]> <]> [0 20 12 14 20 12 ]
-<[> nonEmptyArray <,> <[> nonEmptyArray possibleComma | <]> <,> <]> <]> [0 20 12 14 20 12 13 ]
-<[> nonEmptyArray <,> <[> array | <]> <,> <]> <]> [0 20 12 14 20 21 ]
-<[> nonEmptyArray <,> <[> array <]> | <,> <]> <]> [0 20 12 14 20 21 22 ]
-<[> nonEmptyArray <,> json | <,> <]> <]> [0 20 12 14 15 ]
-<[> nonEmptyArray | <,> <]> <]> [0 20 12 ]
-<[> nonEmptyArray <,> | <]> <]> [0 20 12 14 ]
-<[> nonEmptyArray possibleComma | <]> <]> [0 20 12 13 ]
-<[> array | <]> <]> [0 20 21 ]
-<[> array <]> | <]> [0 20 21 22 ]
+<[> | <id> <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 ]
+<[> <id> | <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 24 ]
+<[> atom | <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 15 ]
+<[> json | <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 6 ]
+<[> nonEmptyArray | <,> <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 ]
+<[> nonEmptyArray <,> | <{> <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 ]
+<[> nonEmptyArray <,> <{> | <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 19 ]
+<[> nonEmptyArray <,> <{> obj | <}> <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 19 20 ]
+<[> nonEmptyArray <,> <{> obj <}> | <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 19 20 21 ]
+<[> nonEmptyArray <,> json | <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 5 ]
+<[> nonEmptyArray | <,> <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 ]
+<[> nonEmptyArray <,> | <true> <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 ]
+<[> nonEmptyArray <,> <true> | <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 27 ]
+<[> nonEmptyArray <,> atom | <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 15 ]
+<[> nonEmptyArray <,> json | <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 5 ]
+<[> nonEmptyArray | <,> <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 ]
+<[> nonEmptyArray <,> | <[> <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 ]
+<[> nonEmptyArray <,> <[> | <num> <,> <id> <]> <,> <]> <]> [0 16 2 4 16 ]
+<[> nonEmptyArray <,> <[> <num> | <,> <id> <]> <,> <]> <]> [0 16 2 4 16 28 ]
+<[> nonEmptyArray <,> <[> atom | <,> <id> <]> <,> <]> <]> [0 16 2 4 16 15 ]
+<[> nonEmptyArray <,> <[> json | <,> <id> <]> <,> <]> <]> [0 16 2 4 16 6 ]
+<[> nonEmptyArray <,> <[> nonEmptyArray | <,> <id> <]> <,> <]> <]> [0 16 2 4 16 2 ]
+<[> nonEmptyArray <,> <[> nonEmptyArray <,> | <id> <]> <,> <]> <]> [0 16 2 4 16 2 4 ]
+<[> nonEmptyArray <,> <[> nonEmptyArray <,> <id> | <]> <,> <]> <]> [0 16 2 4 16 2 4 24 ]
+<[> nonEmptyArray <,> <[> nonEmptyArray <,> atom | <]> <,> <]> <]> [0 16 2 4 16 2 4 15 ]
+<[> nonEmptyArray <,> <[> nonEmptyArray <,> json | <]> <,> <]> <]> [0 16 2 4 16 2 4 5 ]
+<[> nonEmptyArray <,> <[> nonEmptyArray | <]> <,> <]> <]> [0 16 2 4 16 2 ]
+<[> nonEmptyArray <,> <[> nonEmptyArray possibleComma | <]> <,> <]> <]> [0 16 2 4 16 2 3 ]
+<[> nonEmptyArray <,> <[> array | <]> <,> <]> <]> [0 16 2 4 16 17 ]
+<[> nonEmptyArray <,> <[> array <]> | <,> <]> <]> [0 16 2 4 16 17 18 ]
+<[> nonEmptyArray <,> json | <,> <]> <]> [0 16 2 4 5 ]
+<[> nonEmptyArray | <,> <]> <]> [0 16 2 ]
+<[> nonEmptyArray <,> | <]> <]> [0 16 2 4 ]
+<[> nonEmptyArray possibleComma | <]> <]> [0 16 2 3 ]
+<[> array | <]> <]> [0 16 17 ]
+<[> array <]> | <]> [0 16 17 18 ]
 json | <]> [0 1 ]
 syntax error!unexpected token ']' (CKET)
 

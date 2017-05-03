@@ -221,14 +221,20 @@ yylex:
     
 yyparse:
     //pass the token to the parser to parse.
-    if(yyParser_acceptToken(&parser,tokenid)){
-        //error occurs,print error message
-        yyParser_printError(&parser,stderr);
-        goto yyerr;
-    }
-    //if input is accepted
-    if(!parser.done){
-        goto yylex;
+    switch(yyParser_acceptToken(&parser,tokenid)){
+        case YY_SHIFT:
+            // the action is shift,so the token is consumed,go to read next token
+            goto yylex;
+        case YY_REDUCE:
+            // the action is reduce,the token is still there,do it again.
+            goto yyparse;
+        case YY_ACCEPT:
+            // input is accepted,exit.
+            break;
+        case YY_ERR:
+            //error occurs,print error message
+            yyParser_printError(&parser,stderr);
+            goto yyerr;
     }
     *err = 0;
     double _Complex ret = *parser.pstack;

@@ -53,6 +53,7 @@ struct _YItemSet{
     int len,size;
     size_t itemSize;
     YItem *items;
+    unsigned int hash;
     int complete;
 };
 

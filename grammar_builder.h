@@ -110,7 +110,7 @@ int YGBuilder_setRulePrecedence(YGBuilder *gb,const YToken *prec,const YToken *r
 int YGBuilder_prepareRule(YGBuilder *gb,ysptr lhs);
 int YGBuilder_commitRule(YGBuilder *gb);
 int YGBuilder_addRuleItem(YGBuilder *gb,ysptr name,int isTerminal);
-int YGBuilder_addBlockItem(YGBuilder *gb,ysptr action,int line);
+int YGBuilder_addBlockItem(YGBuilder *gb,ysptr block,int line);
 int YGBuilder_addTestToken(YGBuilder *gb,const YToken *tk);
 int YGBuilder_commitTest(YGBuilder *gb);
 YGrammar *YGBuilder_build(YGBuilder *gb);

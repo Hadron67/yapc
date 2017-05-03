@@ -232,7 +232,7 @@ static int yGenStringTable(YGen *g,FILE *out,const char *name,void *s,int len,si
 static int yGenSymbolTable(YGen *g,FILE *out){
     yGenStringTable(g,out,"tokenNames",&g->g->tokens->name,g->g->tokenCount,sizeof(YTokenDef));
     yGenStringTable(g,out,"tokenAlias",&g->g->tokens->alias,g->g->tokenCount,sizeof(YTokenDef));
-    yGenStringTable(g,out,"nonTerminals",g->g->ntNames,g->g->ntCount,sizeof(const char *));
+    yGenStringTable(g,out,"nonTerminals",&g->g->nts->name,g->g->ntCount,sizeof(YNtDef));
     return 0;
 }
 
@@ -257,6 +257,10 @@ static int yGenHeader(YGen *g,FILE *out){
     fprintf(out,
         "#define YY_OK 0\n"
         "#define YY_ERR -1\n"
+        "#define YY_SHIFT 1\n"
+        "#define YY_REDUCE 2\n"
+        "#define YY_ACCEPT 3\n"
+        "\n\n"
     );
 
 
@@ -785,45 +789,43 @@ static int yGenParseCode(YGen *g,FILE *out){
 
     fprintf(out,
         "int %sParser_acceptToken(%sParser *%sparser,int %stokenid){\n"
-        YYTAB "int shifted = 0;\n"
-        YYTAB "while(!shifted){\n"
-        YYTAB YYTAB "int %saction = %sshift[YYSTATE() * %stokenCount + %stokenid];\n"
-        YYTAB YYTAB "if(%saction > 0){\n"
-        YYTAB YYTAB YYTAB "YYCHECK_PUSH_TOKEN();\n"
-        YYTAB YYTAB YYTAB "*%sparser->sp++ = %sparser->token;\n"
-        YYTAB YYTAB YYTAB "YYPUSH_STATE(%saction - 1);\n"
-        YYTAB YYTAB YYTAB "shifted = 1;\n"
+        YYTAB "int %saction = %sshift[YYSTATE() * %stokenCount + %stokenid];\n"
+        YYTAB "if(%saction > 0){\n"
+        YYTAB YYTAB "YYCHECK_PUSH_TOKEN();\n"
+        YYTAB YYTAB "*%sparser->sp++ = %sparser->token;\n"
+        YYTAB YYTAB "YYPUSH_STATE(%saction - 1);\n"
         ,ns,ns,ns,ns
         ,ns,ns,ns,ns
         ,ns
         ,ns,ns
         ,ns
     );
-    g->line2 += 9;
+    g->line2 += 6;
 
     if(g->g->genCst){
         fprintf(out,
-            YYTAB YYTAB YYTAB "%sParser_pushCst(%sparser,1,%stokenid,0);\n"
+            YYTAB YYTAB "%sParser_pushCst(%sparser,1,%stokenid,0);\n"
             ,ns,ns,ns
         );
+        g->line2++;
     }
 
     fprintf(out,
-        YYTAB YYTAB "}\n"
-        YYTAB YYTAB "else if(%saction < 0){\n"
-        YYTAB YYTAB YYTAB "if(%saction == -1){\n"
-        YYTAB YYTAB YYTAB YYTAB "%sparser->done = 1;\n"
-        YYTAB YYTAB YYTAB YYTAB "return YY_OK;\n"
-        YYTAB YYTAB YYTAB "}\n"
-        YYTAB YYTAB YYTAB "%sParser_reduce(%sparser,-1 - %saction);\n"
-        YYTAB YYTAB "}\n"
-        YYTAB YYTAB "else {\n"
-        YYTAB YYTAB YYTAB "%sparser->error = 1;\n"
-        YYTAB YYTAB YYTAB "%sparser->errToken = %stokenid;\n"
-        YYTAB YYTAB YYTAB "return YY_ERR;\n"
-        YYTAB YYTAB "}\n"
+        YYTAB YYTAB "return YY_SHIFT;\n"
         YYTAB "}\n"
-        YYTAB "return YY_OK;\n"
+        YYTAB "else if(%saction < 0){\n"
+        YYTAB YYTAB "if(%saction == -1){\n"
+        YYTAB YYTAB YYTAB "%sparser->done = 1;\n"
+        YYTAB YYTAB YYTAB "return YY_ACCEPT;\n"
+        YYTAB YYTAB "}\n"
+        YYTAB YYTAB "%sParser_reduce(%sparser,-1 - %saction);\n"
+        YYTAB YYTAB "return YY_REDUCE;\n"
+        YYTAB "}\n"
+        YYTAB "else {\n"
+        YYTAB YYTAB "%sparser->error = 1;\n"
+        YYTAB YYTAB "%sparser->errToken = %stokenid;\n"
+        YYTAB YYTAB "return YY_ERR;\n"
+        YYTAB "}\n"
         "}\n"
         ,ns
         ,ns
@@ -931,7 +933,7 @@ static int yGenParseCode(YGen *g,FILE *out){
             YYTAB "%sCst **cstack = (%sCst **)YYMALLOC(sizeof(%sCst *) * parser->cstLen);\n"
             YYTAB "int sp = 0;\n"
             YYTAB "%sCst *root = &parser->cst[parser->cStack[0]];\n"
-            YYTAB "root->printP;\n"
+            YYTAB "root->printP = 0;\n"
             YYTAB "root->level = 1;\n"
             YYTAB "%sCst_printNode(root,cstack,sp,out);\n"
             YYTAB "cstack[sp++] = root;\n"

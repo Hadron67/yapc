@@ -1,4 +1,3 @@
-
 state 0,reduce/reduce conflict:
     token: <EOF>
     used:[ 2: A -> . ] (r)
@@ -12,20 +11,20 @@ state 2,reduce/reduce conflict:
 warning: 2 conflict(s) detected.
 
 i0
-[ 0: (accept) -> . A, { <EOF> } ]* (s1)
-[ 1: A -> . B A, { <EOF> } ] (s2)
-[ 2: A -> ., { <EOF> } ] (r)
-[ 3: B -> ., { <EOF> } ] (r)
+[ 0: (accept) -> . A ]* (s1)
+[ 2: A -> . ] (r)
+[ 1: A -> . B A ] (s2)
+[ 3: B -> . ] (r)
 
 i1
-[ 0: (accept) -> A ., { <EOF> } ]* (r)
+[ 0: (accept) -> A . ]* (r)
 
 i2
-[ 1: A -> B . A, { <EOF> } ]* (s3)
-[ 1: A -> . B A, { <EOF> } ] (s2)
-[ 2: A -> ., { <EOF> } ] (r)
-[ 3: B -> ., { <EOF> } ] (r)
+[ 1: A -> B . A ]* (s3)
+[ 2: A -> . ] (r)
+[ 1: A -> . B A ] (s2)
+[ 3: B -> . ] (r)
 
 i3
-[ 1: A -> B A ., { <EOF> } ]* (r)
+[ 1: A -> B A . ]* (r)
 

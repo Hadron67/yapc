@@ -25,6 +25,7 @@
 typedef struct _YConfig{
     const char *input;
     const char *output;
+    int showLah;
 }YConfig;
 
 
@@ -41,6 +42,9 @@ static int parseArg(YConfig *config,int agv,const char *ags[]){
                 fprintf(stderr,"--output requires one argument.\n");
                 return -1;
             }
+        }
+        else if(!strcmp(ags[i],"--show-lah")){
+            config->showLah = 1;
         }
         else {
             if(config->input != NULL){
@@ -95,7 +99,7 @@ int main(int agv,const char *ags[]){
 
         yGenerateTable(yctx);
         yPrintGenerationWarnings(yctx,out);
-        yPrintResult(yctx,out);
+        yPrintItemSets(yctx,config.showLah,out);
         yPrintTestResult(yctx,out);
 
         yPrintGenerationWarnings(yctx,stdout);

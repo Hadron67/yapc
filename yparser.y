@@ -73,60 +73,82 @@
 
 file: prologue options <%%> body <%%>;
 
-options: options option | /* empty */;
+options: options option | /* empty */ ;
 
 option: 
-    <%token> <token> <string> { YGBuilder_addToken(yydata,&$2,&$3); } |
-    <%type> <string> { yydata->stype = $2.image; } |
-    <%datatype> <string> { yydata->dataType = $2.image; } |
-    <%token_prefix> <string> { yydata->tokenPrefix = $2.image; } |
-    <%namespace> <string> { yydata->nameSpace = $2.image; } |
-    <%enable_cst> { yydata->genCst = 1; } |
-    <%left> incPr leftTokens |
-    <%right> incPr rightTokens |
-    <%nonassoc> incPr nonassocTokens;
+    <%token> tokenDefs 
+|   <%type> <string> { yydata->stype = $2.image; }
+|   <%datatype> <string> { yydata->dataType = $2.image; }
+|   <%token_prefix> <string> { yydata->tokenPrefix = $2.image; }
+|   <%namespace> <string> { yydata->nameSpace = $2.image; }
+|   <%enable_cst> { yydata->genCst = 1; }
+|   <%left> incPr leftTokens
+|   <%right> incPr rightTokens
+|   <%nonassoc> incPr nonassocTokens
+;
 
-prologue: <prologue> { yydata->prologue = $1.image; } | /* empty */;
+prologue: <prologue> { yydata->prologue = $1.image; } | /* empty */ ;
+
+tokenDefs:
+    tokenDefs <token> <string> { YGBuilder_addToken(yydata,&$2,&$3); }
+|   <token> <string> { YGBuilder_addToken(yydata,&$1,&$2); }
+;
 
 incPr: { yydata->prLevel++; };
 
 leftTokens: 
-    leftTokens <token> { YGBuilder_setTokenPrecedence(yydata,&$2,YP_LEFT); } | 
-    <token> { YGBuilder_setTokenPrecedence(yydata,&$1,YP_LEFT); };
+    leftTokens <token> { YGBuilder_setTokenPrecedence(yydata,&$2,YP_LEFT); }
+|   <token> { YGBuilder_setTokenPrecedence(yydata,&$1,YP_LEFT); }
+;
 rightTokens: 
-    rightTokens <token> { YGBuilder_setTokenPrecedence(yydata,&$2,YP_RIGHT); } | 
-    <token> { YGBuilder_setTokenPrecedence(yydata,&$1,YP_RIGHT); };
+    rightTokens <token> { YGBuilder_setTokenPrecedence(yydata,&$2,YP_RIGHT); }
+|   <token> { YGBuilder_setTokenPrecedence(yydata,&$1,YP_RIGHT); }
+;
 nonassocTokens: 
-    nonassocTokens <token> { YGBuilder_setTokenPrecedence(yydata,&$2,YP_NONASSOC); }| 
-    <token> { YGBuilder_setTokenPrecedence(yydata,&$1,YP_NONASSOC); };
+    nonassocTokens <token> { YGBuilder_setTokenPrecedence(yydata,&$2,YP_NONASSOC); }
+|   <token> { YGBuilder_setTokenPrecedence(yydata,&$1,YP_NONASSOC); }
+;
 
 body: body bodyItem | bodyItem;
 
-bodyItem: rule <;> | test <;>;
+bodyItem: compoundRule <;> | test <;>;
 
 test: <%test> tokenList { YGBuilder_commitTest(yydata); } ;
 
-tokenList: tokenList <token> { YGBuilder_addTestToken(yydata,&$2); } | /* empty */;
+tokenList: tokenList <token> { YGBuilder_addTestToken(yydata,&$2); } | /* empty */ ;
 
-rule: 
-    <name> { yydata->lhs = $1.image;YGBuilder_prepareRule(yydata,yydata->lhs); } <:> ruleBody;
+compoundRule: 
+    <name> { yydata->lhs = $1.image;YGBuilder_prepareRule(yydata,yydata->lhs); } 
+    <:> ruleBody
+;
 
 ruleBody: 
-    ruleItems { YGBuilder_commitRule(yydata); }| 
-    ruleBody { YGBuilder_prepareRule(yydata,yydata->lhs); } <|> ruleItems { YGBuilder_commitRule(yydata); };
+    rule { YGBuilder_commitRule(yydata); }
+|   ruleBody { YGBuilder_prepareRule(yydata,yydata->lhs); } 
+    <|> rule { YGBuilder_commitRule(yydata); }
+;
 
-ruleItems: ruleItems ruleItem rulePrec | <%empty> | /* empty */;
+rule: ruleItems rulePrec ;
+
+ruleItems: ruleItems ruleItem | <%empty> | /* empty */;
 
 rulePrec:
-    /* empty */ |
-    <%prec> <token> { YGBuilder_setRulePrecedence(yydata,&$2,NULL); } | 
-    <%prec> <token> num { YGBuilder_setRulePrecedence(yydata,&$2,&$3); };
+    /* empty */
+|   nonEmptyRulePrec
+|   nonEmptyRulePrec <block> { YGBuilder_addBlockItem(yydata,$2.image,$2.line); }
+;
+
+nonEmptyRulePrec:
+    <%prec> <token> { YGBuilder_setRulePrecedence(yydata,&$2,NULL); }
+|   <%prec> <token> num { YGBuilder_setRulePrecedence(yydata,&$2,&$3); }
+;
 
 num: <NUM> | <-> <NUM> { $$.num = -$2.num; };
 
 ruleItem: 
-    <token> { YGBuilder_addRuleItem(yydata,$1.image,1); }| 
-    <name>  { YGBuilder_addRuleItem(yydata,$1.image,0); }| 
-    <block> { YGBuilder_addBlockItem(yydata,$1.image,$1.line); };
+    <token> { YGBuilder_addRuleItem(yydata,$1.image,1); }
+|   <name>  { YGBuilder_addRuleItem(yydata,$1.image,0); }
+|   <block> { YGBuilder_addBlockItem(yydata,$1.image,$1.line); }
+;
 
 %%

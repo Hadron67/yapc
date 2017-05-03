@@ -1,263 +1,284 @@
-
 i0
-[ 0: (accept) -> . file, { <EOF> } ]* (s1)
-[ 1: file -> . prologue options <%%> body <%%>, { <EOF> } ] (s2)
-[ 13: prologue -> . <prologue>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s64)
-[ 14: prologue -> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (r)
+[ 0: (accept) -> . file ]* (s1)
+[ 1: file -> . prologue options <%%> body <%%> ] (s2)
+[ 14: prologue -> . ] (r)
+[ 13: prologue -> . <prologue> ] (s70)
 
 i1
-[ 0: (accept) -> file ., { <EOF> } ]* (r)
+[ 0: (accept) -> file . ]* (r)
 
 i2
-[ 1: file -> prologue . options <%%> body <%%>, { <EOF> } ]* (s3)
-[ 2: options -> . options option, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s3)
-[ 3: options -> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (r)
+[ 1: file -> prologue . options <%%> body <%%> ]* (s3)
+[ 3: options -> . ] (r)
+[ 2: options -> . options option ] (s3)
 
 i3
-[ 1: file -> prologue options . <%%> body <%%>, { <EOF> } ]* (s4)
-[ 2: options -> options . option, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s36)
-[ 4: option -> . <%token> <token> <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s37)
-[ 5: option -> . <%type> <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s40)
-[ 6: option -> . <%datatype> <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s42)
-[ 7: option -> . <%token_prefix> <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s44)
-[ 8: option -> . <%namespace> <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s46)
-[ 9: option -> . <%enable_cst>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s48)
-[ 10: option -> . <%left> incPr leftTokens, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s49)
-[ 11: option -> . <%right> incPr rightTokens, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s54)
-[ 12: option -> . <%nonassoc> incPr nonassocTokens, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ] (s59)
+[ 1: file -> prologue options . <%%> body <%%> ]* (s4)
+[ 2: options -> options . option ]* (s39)
+[ 12: option -> . <%nonassoc> incPr nonassocTokens ] (s40)
+[ 11: option -> . <%right> incPr rightTokens ] (s45)
+[ 10: option -> . <%left> incPr leftTokens ] (s50)
+[ 9: option -> . <%enable_cst> ] (s55)
+[ 8: option -> . <%namespace> <string> ] (s56)
+[ 7: option -> . <%token_prefix> <string> ] (s58)
+[ 6: option -> . <%datatype> <string> ] (s60)
+[ 5: option -> . <%type> <string> ] (s62)
+[ 4: option -> . <%token> tokenDefs ] (s64)
 
 i4
-[ 1: file -> prologue options <%%> . body <%%>, { <EOF> } ]* (s5)
-[ 22: body -> . body bodyItem, { <%test>,<%%>,<name> } ] (s5)
-[ 23: body -> . bodyItem, { <%test>,<%%>,<name> } ] (s8)
-[ 24: bodyItem -> . rule <;>, { <%test>,<%%>,<name> } ] (s9)
-[ 25: bodyItem -> . test <;>, { <%test>,<%%>,<name> } ] (s11)
-[ 30: rule -> . <name> @1 <:> ruleBody, { <;> } ] (s13)
-[ 26: test -> . <%test> tokenList, { <;> } ] (s33)
+[ 1: file -> prologue options <%%> . body <%%> ]* (s5)
+[ 25: body -> . bodyItem ] (s8)
+[ 24: body -> . body bodyItem ] (s5)
+[ 27: bodyItem -> . test <;> ] (s9)
+[ 26: bodyItem -> . compoundRule <;> ] (s11)
+[ 28: test -> . <%test> tokenList ] (s13)
+[ 32: compoundRule -> . <name> @1 <:> ruleBody ] (s16)
 
 i5
-[ 1: file -> prologue options <%%> body . <%%>, { <EOF> } ]* (s6)
-[ 22: body -> body . bodyItem, { <%test>,<%%>,<name> } ]* (s7)
-[ 24: bodyItem -> . rule <;>, { <%test>,<%%>,<name> } ] (s9)
-[ 25: bodyItem -> . test <;>, { <%test>,<%%>,<name> } ] (s11)
-[ 30: rule -> . <name> @1 <:> ruleBody, { <;> } ] (s13)
-[ 26: test -> . <%test> tokenList, { <;> } ] (s33)
+[ 1: file -> prologue options <%%> body . <%%> ]* (s6)
+[ 24: body -> body . bodyItem ]* (s7)
+[ 27: bodyItem -> . test <;> ] (s9)
+[ 26: bodyItem -> . compoundRule <;> ] (s11)
+[ 28: test -> . <%test> tokenList ] (s13)
+[ 32: compoundRule -> . <name> @1 <:> ruleBody ] (s16)
 
 i6
-[ 1: file -> prologue options <%%> body <%%> ., { <EOF> } ]* (r)
+[ 1: file -> prologue options <%%> body <%%> . ]* (r)
 
 i7
-[ 22: body -> body bodyItem ., { <%test>,<%%>,<name> } ]* (r)
+[ 24: body -> body bodyItem . ]* (r)
 
 i8
-[ 23: body -> bodyItem ., { <%test>,<%%>,<name> } ]* (r)
+[ 25: body -> bodyItem . ]* (r)
 
 i9
-[ 24: bodyItem -> rule . <;>, { <%test>,<%%>,<name> } ]* (s10)
+[ 27: bodyItem -> test . <;> ]* (s10)
 
 i10
-[ 24: bodyItem -> rule <;> ., { <%test>,<%%>,<name> } ]* (r)
+[ 27: bodyItem -> test <;> . ]* (r)
 
 i11
-[ 25: bodyItem -> test . <;>, { <%test>,<%%>,<name> } ]* (s12)
+[ 26: bodyItem -> compoundRule . <;> ]* (s12)
 
 i12
-[ 25: bodyItem -> test <;> ., { <%test>,<%%>,<name> } ]* (r)
+[ 26: bodyItem -> compoundRule <;> . ]* (r)
 
 i13
-[ 30: rule -> <name> . @1 <:> ruleBody, { <;> } ]* (s14)
-[ 29: @1 -> ., { <:> } ] (r)
+[ 28: test -> <%test> . tokenList ]* (s14)
+[ 30: tokenList -> . ] (r)
+[ 29: tokenList -> . tokenList <token> ] (s14)
 
 i14
-[ 30: rule -> <name> @1 . <:> ruleBody, { <;> } ]* (s15)
+[ 28: test -> <%test> tokenList . ]* (r)
+[ 29: tokenList -> tokenList . <token> ]* (s15)
 
 i15
-[ 30: rule -> <name> @1 <:> . ruleBody, { <;> } ]* (s16)
-[ 31: ruleBody -> . ruleItems, { <|>,<;> } ] (s31)
-[ 33: ruleBody -> . ruleBody @2 <|> ruleItems, { <|>,<;> } ] (s16)
-[ 34: ruleItems -> . ruleItems ruleItem rulePrec, { <|>,<;>,<name>,<token>,<block> } ] (s31)
-[ 35: ruleItems -> . <%empty>, { <|>,<;>,<name>,<token>,<block> } ] (s32)
-[ 36: ruleItems -> ., { <|>,<;>,<name>,<token>,<block> } ] (r)
+[ 29: tokenList -> tokenList <token> . ]* (r)
 
 i16
-[ 30: rule -> <name> @1 <:> ruleBody ., { <;> } ]* (r)
-[ 33: ruleBody -> ruleBody . @2 <|> ruleItems, { <|>,<;> } ]* (s17)
-[ 32: @2 -> ., { <|> } ] (r)
+[ 32: compoundRule -> <name> . @1 <:> ruleBody ]* (s17)
+[ 31: @1 -> . ] (r)
 
 i17
-[ 33: ruleBody -> ruleBody @2 . <|> ruleItems, { <|>,<;> } ]* (s18)
+[ 32: compoundRule -> <name> @1 . <:> ruleBody ]* (s18)
 
 i18
-[ 33: ruleBody -> ruleBody @2 <|> . ruleItems, { <|>,<;> } ]* (s19)
-[ 34: ruleItems -> . ruleItems ruleItem rulePrec, { <|>,<;>,<name>,<token>,<block> } ] (s19)
-[ 35: ruleItems -> . <%empty>, { <|>,<;>,<name>,<token>,<block> } ] (s32)
-[ 36: ruleItems -> ., { <|>,<;>,<name>,<token>,<block> } ] (r)
+[ 32: compoundRule -> <name> @1 <:> . ruleBody ]* (s19)
+[ 35: ruleBody -> . ruleBody @2 <|> rule ] (s19)
+[ 33: ruleBody -> . rule ] (s23)
+[ 36: rule -> . ruleItems rulePrec ] (s24)
+[ 39: ruleItems -> . ] (r)
+[ 38: ruleItems -> . <%empty> ] (s38)
+[ 37: ruleItems -> . ruleItems ruleItem ] (s24)
 
 i19
-[ 33: ruleBody -> ruleBody @2 <|> ruleItems ., { <|>,<;> } ]* (r)
-[ 34: ruleItems -> ruleItems . ruleItem rulePrec, { <|>,<;>,<name>,<token>,<block> } ]* (s20)
-[ 42: ruleItem -> . <token>, { <%prec>,<|>,<;>,<name>,<token>,<block> } ] (s28)
-[ 43: ruleItem -> . <name>, { <%prec>,<|>,<;>,<name>,<token>,<block> } ] (s29)
-[ 44: ruleItem -> . <block>, { <%prec>,<|>,<;>,<name>,<token>,<block> } ] (s30)
+[ 32: compoundRule -> <name> @1 <:> ruleBody . ]* (r)
+[ 35: ruleBody -> ruleBody . @2 <|> rule ]* (s20)
+[ 34: @2 -> . ] (r)
 
 i20
-[ 34: ruleItems -> ruleItems ruleItem . rulePrec, { <|>,<;>,<name>,<token>,<block> } ]* (s21)
-[ 37: rulePrec -> ., { <|>,<;>,<name>,<token>,<block> } ] (r)
-[ 38: rulePrec -> . <%prec> <token>, { <|>,<;>,<name>,<token>,<block> } ] (s22)
-[ 39: rulePrec -> . <%prec> <token> num, { <|>,<;>,<name>,<token>,<block> } ] (s22)
+[ 35: ruleBody -> ruleBody @2 . <|> rule ]* (s21)
 
 i21
-[ 34: ruleItems -> ruleItems ruleItem rulePrec ., { <|>,<;>,<name>,<token>,<block> } ]* (r)
+[ 35: ruleBody -> ruleBody @2 <|> . rule ]* (s22)
+[ 36: rule -> . ruleItems rulePrec ] (s24)
+[ 39: ruleItems -> . ] (r)
+[ 38: ruleItems -> . <%empty> ] (s38)
+[ 37: ruleItems -> . ruleItems ruleItem ] (s24)
 
 i22
-[ 38: rulePrec -> <%prec> . <token>, { <|>,<;>,<name>,<token>,<block> } ]* (s23)
-[ 39: rulePrec -> <%prec> . <token> num, { <|>,<;>,<name>,<token>,<block> } ]* (s23)
+[ 35: ruleBody -> ruleBody @2 <|> rule . ]* (r)
 
 i23
-[ 38: rulePrec -> <%prec> <token> ., { <|>,<;>,<name>,<token>,<block> } ]* (r)
-[ 39: rulePrec -> <%prec> <token> . num, { <|>,<;>,<name>,<token>,<block> } ]* (s24)
-[ 40: num -> . <NUM>, { <|>,<;>,<name>,<token>,<block> } ] (s25)
-[ 41: num -> . <-> <NUM>, { <|>,<;>,<name>,<token>,<block> } ] (s26)
+[ 33: ruleBody -> rule . ]* (r)
 
 i24
-[ 39: rulePrec -> <%prec> <token> num ., { <|>,<;>,<name>,<token>,<block> } ]* (r)
+[ 36: rule -> ruleItems . rulePrec ]* (s25)
+[ 37: ruleItems -> ruleItems . ruleItem ]* (s26)
+[ 42: rulePrec -> . nonEmptyRulePrec <block> ] (s27)
+[ 41: rulePrec -> . nonEmptyRulePrec ] (s27)
+[ 40: rulePrec -> . ] (r)
+[ 49: ruleItem -> . <block> ] (s29)
+[ 48: ruleItem -> . <name> ] (s30)
+[ 47: ruleItem -> . <token> ] (s31)
+[ 44: nonEmptyRulePrec -> . <%prec> <token> num ] (s32)
+[ 43: nonEmptyRulePrec -> . <%prec> <token> ] (s32)
 
 i25
-[ 40: num -> <NUM> ., { <|>,<;>,<name>,<token>,<block> } ]* (r)
+[ 36: rule -> ruleItems rulePrec . ]* (r)
 
 i26
-[ 41: num -> <-> . <NUM>, { <|>,<;>,<name>,<token>,<block> } ]* (s27)
+[ 37: ruleItems -> ruleItems ruleItem . ]* (r)
 
 i27
-[ 41: num -> <-> <NUM> ., { <|>,<;>,<name>,<token>,<block> } ]* (r)
+[ 42: rulePrec -> nonEmptyRulePrec . <block> ]* (s28)
+[ 41: rulePrec -> nonEmptyRulePrec . ]* (r)
 
 i28
-[ 42: ruleItem -> <token> ., { <%prec>,<|>,<;>,<name>,<token>,<block> } ]* (r)
+[ 42: rulePrec -> nonEmptyRulePrec <block> . ]* (r)
 
 i29
-[ 43: ruleItem -> <name> ., { <%prec>,<|>,<;>,<name>,<token>,<block> } ]* (r)
+[ 49: ruleItem -> <block> . ]* (r)
 
 i30
-[ 44: ruleItem -> <block> ., { <%prec>,<|>,<;>,<name>,<token>,<block> } ]* (r)
+[ 48: ruleItem -> <name> . ]* (r)
 
 i31
-[ 31: ruleBody -> ruleItems ., { <|>,<;> } ]* (r)
-[ 34: ruleItems -> ruleItems . ruleItem rulePrec, { <|>,<;>,<name>,<token>,<block> } ]* (s20)
-[ 42: ruleItem -> . <token>, { <%prec>,<|>,<;>,<name>,<token>,<block> } ] (s28)
-[ 43: ruleItem -> . <name>, { <%prec>,<|>,<;>,<name>,<token>,<block> } ] (s29)
-[ 44: ruleItem -> . <block>, { <%prec>,<|>,<;>,<name>,<token>,<block> } ] (s30)
+[ 47: ruleItem -> <token> . ]* (r)
 
 i32
-[ 35: ruleItems -> <%empty> ., { <|>,<;>,<name>,<token>,<block> } ]* (r)
+[ 44: nonEmptyRulePrec -> <%prec> . <token> num ]* (s33)
+[ 43: nonEmptyRulePrec -> <%prec> . <token> ]* (s33)
 
 i33
-[ 26: test -> <%test> . tokenList, { <;> } ]* (s34)
-[ 27: tokenList -> . tokenList <token>, { <;>,<token> } ] (s34)
-[ 28: tokenList -> ., { <;>,<token> } ] (r)
+[ 44: nonEmptyRulePrec -> <%prec> <token> . num ]* (s34)
+[ 43: nonEmptyRulePrec -> <%prec> <token> . ]* (r)
+[ 46: num -> . <-> <NUM> ] (s35)
+[ 45: num -> . <NUM> ] (s37)
 
 i34
-[ 26: test -> <%test> tokenList ., { <;> } ]* (r)
-[ 27: tokenList -> tokenList . <token>, { <;>,<token> } ]* (s35)
+[ 44: nonEmptyRulePrec -> <%prec> <token> num . ]* (r)
 
 i35
-[ 27: tokenList -> tokenList <token> ., { <;>,<token> } ]* (r)
+[ 46: num -> <-> . <NUM> ]* (s36)
 
 i36
-[ 2: options -> options option ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
+[ 46: num -> <-> <NUM> . ]* (r)
 
 i37
-[ 4: option -> <%token> . <token> <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s38)
+[ 45: num -> <NUM> . ]* (r)
 
 i38
-[ 4: option -> <%token> <token> . <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s39)
+[ 38: ruleItems -> <%empty> . ]* (r)
 
 i39
-[ 4: option -> <%token> <token> <string> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
+[ 2: options -> options option . ]* (r)
 
 i40
-[ 5: option -> <%type> . <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s41)
+[ 12: option -> <%nonassoc> . incPr nonassocTokens ]* (s41)
+[ 17: incPr -> . ] (r)
 
 i41
-[ 5: option -> <%type> <string> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
+[ 12: option -> <%nonassoc> incPr . nonassocTokens ]* (s42)
+[ 23: nonassocTokens -> . <token> ] (s44)
+[ 22: nonassocTokens -> . nonassocTokens <token> ] (s42)
 
 i42
-[ 6: option -> <%datatype> . <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s43)
+[ 12: option -> <%nonassoc> incPr nonassocTokens . ]* (r)
+[ 22: nonassocTokens -> nonassocTokens . <token> ]* (s43)
 
 i43
-[ 6: option -> <%datatype> <string> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
+[ 22: nonassocTokens -> nonassocTokens <token> . ]* (r)
 
 i44
-[ 7: option -> <%token_prefix> . <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s45)
+[ 23: nonassocTokens -> <token> . ]* (r)
 
 i45
-[ 7: option -> <%token_prefix> <string> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
+[ 11: option -> <%right> . incPr rightTokens ]* (s46)
+[ 17: incPr -> . ] (r)
 
 i46
-[ 8: option -> <%namespace> . <string>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s47)
+[ 11: option -> <%right> incPr . rightTokens ]* (s47)
+[ 21: rightTokens -> . <token> ] (s49)
+[ 20: rightTokens -> . rightTokens <token> ] (s47)
 
 i47
-[ 8: option -> <%namespace> <string> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
+[ 11: option -> <%right> incPr rightTokens . ]* (r)
+[ 20: rightTokens -> rightTokens . <token> ]* (s48)
 
 i48
-[ 9: option -> <%enable_cst> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
+[ 20: rightTokens -> rightTokens <token> . ]* (r)
 
 i49
-[ 10: option -> <%left> . incPr leftTokens, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s50)
-[ 15: incPr -> ., { <token> } ] (r)
+[ 21: rightTokens -> <token> . ]* (r)
 
 i50
-[ 10: option -> <%left> incPr . leftTokens, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s51)
-[ 16: leftTokens -> . leftTokens <token>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ] (s51)
-[ 17: leftTokens -> . <token>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ] (s53)
+[ 10: option -> <%left> . incPr leftTokens ]* (s51)
+[ 17: incPr -> . ] (r)
 
 i51
-[ 10: option -> <%left> incPr leftTokens ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
-[ 16: leftTokens -> leftTokens . <token>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ]* (s52)
+[ 10: option -> <%left> incPr . leftTokens ]* (s52)
+[ 19: leftTokens -> . <token> ] (s54)
+[ 18: leftTokens -> . leftTokens <token> ] (s52)
 
 i52
-[ 16: leftTokens -> leftTokens <token> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ]* (r)
+[ 10: option -> <%left> incPr leftTokens . ]* (r)
+[ 18: leftTokens -> leftTokens . <token> ]* (s53)
 
 i53
-[ 17: leftTokens -> <token> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ]* (r)
+[ 18: leftTokens -> leftTokens <token> . ]* (r)
 
 i54
-[ 11: option -> <%right> . incPr rightTokens, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s55)
-[ 15: incPr -> ., { <token> } ] (r)
+[ 19: leftTokens -> <token> . ]* (r)
 
 i55
-[ 11: option -> <%right> incPr . rightTokens, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s56)
-[ 18: rightTokens -> . rightTokens <token>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ] (s56)
-[ 19: rightTokens -> . <token>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ] (s58)
+[ 9: option -> <%enable_cst> . ]* (r)
 
 i56
-[ 11: option -> <%right> incPr rightTokens ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
-[ 18: rightTokens -> rightTokens . <token>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ]* (s57)
+[ 8: option -> <%namespace> . <string> ]* (s57)
 
 i57
-[ 18: rightTokens -> rightTokens <token> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ]* (r)
+[ 8: option -> <%namespace> <string> . ]* (r)
 
 i58
-[ 19: rightTokens -> <token> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ]* (r)
+[ 7: option -> <%token_prefix> . <string> ]* (s59)
 
 i59
-[ 12: option -> <%nonassoc> . incPr nonassocTokens, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s60)
-[ 15: incPr -> ., { <token> } ] (r)
+[ 7: option -> <%token_prefix> <string> . ]* (r)
 
 i60
-[ 12: option -> <%nonassoc> incPr . nonassocTokens, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (s61)
-[ 20: nonassocTokens -> . nonassocTokens <token>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ] (s61)
-[ 21: nonassocTokens -> . <token>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ] (s63)
+[ 6: option -> <%datatype> . <string> ]* (s61)
 
 i61
-[ 12: option -> <%nonassoc> incPr nonassocTokens ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
-[ 20: nonassocTokens -> nonassocTokens . <token>, { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ]* (s62)
+[ 6: option -> <%datatype> <string> . ]* (r)
 
 i62
-[ 20: nonassocTokens -> nonassocTokens <token> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ]* (r)
+[ 5: option -> <%type> . <string> ]* (s63)
 
 i63
-[ 21: nonassocTokens -> <token> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%>,<token> } ]* (r)
+[ 5: option -> <%type> <string> . ]* (r)
 
 i64
-[ 13: prologue -> <prologue> ., { <%token>,<%type>,<%datatype>,<%token_prefix>,<%enable_cst>,<%left>,<%right>,<%nonassoc>,<%namespace>,<%%> } ]* (r)
+[ 4: option -> <%token> . tokenDefs ]* (s65)
+[ 16: tokenDefs -> . <token> <string> ] (s68)
+[ 15: tokenDefs -> . tokenDefs <token> <string> ] (s65)
+
+i65
+[ 4: option -> <%token> tokenDefs . ]* (r)
+[ 15: tokenDefs -> tokenDefs . <token> <string> ]* (s66)
+
+i66
+[ 15: tokenDefs -> tokenDefs <token> . <string> ]* (s67)
+
+i67
+[ 15: tokenDefs -> tokenDefs <token> <string> . ]* (r)
+
+i68
+[ 16: tokenDefs -> <token> . <string> ]* (s69)
+
+i69
+[ 16: tokenDefs -> <token> <string> . ]* (r)
+
+i70
+[ 13: prologue -> <prologue> . ]* (r)
 

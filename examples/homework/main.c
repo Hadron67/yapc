@@ -45,24 +45,34 @@ int runParsing(){
     yyParser parser;
     yyParser_init(&parser);
 
-    yyToken t;
-    while(!parser.done){
+    while(1){
+        yyToken t;
+        yylex:
         yyScanner_next(&s,&t);
-        if(yyParser_acceptToken(&parser,t.id) != YY_OK){
-            yyParser_printError(&parser,err);
-            fprintf(err," at line %d\n",t.line);
-            status = -1;
-            break;
+        /* fall through */
+        yyparse:
+        switch(yyParser_acceptToken(&parser,t.id)){
+            case YY_SHIFT:
+                goto yylex;
+            case YY_REDUCE:
+                goto yyparse;
+            case YY_ACCEPT:
+                goto yyaccept;
+            case YY_ERR:
+                yyParser_printError(&parser,err);
+                fprintf(err," at line %d\n",t.line);
+                goto yyexit;
         }
     }
 
-    if(!status){
-        printf("accepted!\n");
-        yyParser_printCst(&parser,out);
-    }
-
+    yyaccept:
+    printf("accepted!\n");
+    yyParser_printCst(&parser,out);
+    /* fall through */
+    yyexit:
     yyScanner_free(&s);
     yyParser_free(&parser);
+
     fclose(in);
     fclose(out);
     return 0;

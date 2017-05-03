@@ -98,10 +98,10 @@ int yGenerateTable(void *ctx1){
     yGenItemSets(ctx->g,&ctx->doneList);
     ctx->table = yGenParseTable(ctx->g,&ctx->doneList,&ctx->cList);
 }
-int yPrintResult(void *ctx1,FILE *out){
+int yPrintItemSets(void *ctx1,int showLah,FILE *out){
     YContext *ctx = (YContext *)ctx1;
 
-    YItemSetList_dump(&ctx->doneList,1,out);
+    YItemSetList_dump(&ctx->doneList,showLah,out);
     return 0;
 }
 int yPrintTestResult(void *ctx1,FILE *out){
@@ -116,7 +116,13 @@ int yPrintGenerationWarnings(void *ctx1,FILE *out){
     YContext *ctx = (YContext *)ctx1;
     int count;
     YGrammar_printUnusedTokens(ctx->g,&count,out);
-    fprintf(out,"\n");
+    if(count > 0){
+        fprintf(out,"\n");
+    }
+    YGrammar_printUnusedNts(ctx->g,&count,out);
+    if(count > 0){
+        fprintf(out,"\n");
+    }
     if(ctx->cList.len > 0){
         YConflictList_print(&ctx->cList,out);
         fprintf(out,"warning: %d conflict(s) detected.\n\n",ctx->cList.len);
