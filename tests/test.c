@@ -1074,7 +1074,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 10:
             /* @1 ->  */
-            #line 43 "./test.y"
+            #line 43 "--show-lah"
             { printf("before expression"); }
             #line 1080 "./test.c"
             break;
@@ -1219,7 +1219,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 31:
             /* multiplyExpr -> multiplyExpr <*> unaryExpr  */
-            #line 63 "./test.y"
+            #line 63 "--show-lah"
             { yyval = (yyparser->sp[-3]) + (yyparser->sp[-1]); }
             #line 1225 "./test.c"
             yyparser->sp -= 3;

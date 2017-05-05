@@ -6,121 +6,121 @@ state 12,shift/reduce conflict:
 warning: 1 conflict(s) detected.
 
 i0
-[ 0: (accept) -> . xml ]* (s1)
-[ 1: xml -> . head body ] (s2)
-[ 3: head -> . ] (r)
-[ 2: head -> . <lt?> <id> properties <gt?> ] (s18)
+[ 0: (accept) -> . xml, { <EOF> } ]* (s1)
+[ 1: xml -> . head body, { <EOF> } ] (s2)
+[ 3: head -> ., { <lt> } ] (r)
+[ 2: head -> . <lt?> <id> properties <gt?>, { <lt> } ] (s18)
 
 i1
-[ 0: (accept) -> xml . ]* (r)
+[ 0: (accept) -> xml ., { <EOF> } ]* (r)
 
 i2
-[ 1: xml -> head . body ]* (s3)
-[ 4: body -> . tag ] (s4)
-[ 6: tag -> . <lt> <id> properties </> <gt> ] (s7)
-[ 5: tag -> . <lt> <id> properties <gt> innerTag <lt> </> <id> <gt> ] (s7)
+[ 1: xml -> head . body, { <EOF> } ]* (s3)
+[ 4: body -> . tag, { <EOF> } ] (s4)
+[ 6: tag -> . <lt> <id> properties </> <gt>, { <EOF> } ] (s7)
+[ 5: tag -> . <lt> <id> properties <gt> innerTag <lt> </> <id> <gt>, { <EOF> } ] (s7)
 
 i3
-[ 1: xml -> head body . ]* (r)
+[ 1: xml -> head body ., { <EOF> } ]* (r)
 
 i4
-[ 4: body -> tag . ]* (r)
+[ 4: body -> tag ., { <EOF> } ]* (r)
 
 i5
-[ 8: innerTag -> <content> . ]* (r)
+[ 8: innerTag -> <content> ., { <lt> } ]* (r)
 
 i6
-[ 7: innerTag -> tag . ]* (r)
+[ 7: innerTag -> tag ., { <lt> } ]* (r)
 
 i7
-[ 6: tag -> <lt> . <id> properties </> <gt> ]* (s8)
-[ 5: tag -> <lt> . <id> properties <gt> innerTag <lt> </> <id> <gt> ]* (s8)
+[ 6: tag -> <lt> . <id> properties </> <gt>, { <EOF>,<lt> } ]* (s8)
+[ 5: tag -> <lt> . <id> properties <gt> innerTag <lt> </> <id> <gt>, { <EOF>,<lt> } ]* (s8)
 
 i8
-[ 6: tag -> <lt> <id> . properties </> <gt> ]* (s9)
-[ 5: tag -> <lt> <id> . properties <gt> innerTag <lt> </> <id> <gt> ]* (s9)
-[ 11: properties -> . ] (r)
-[ 10: properties -> . properties property ] (s9)
+[ 6: tag -> <lt> <id> . properties </> <gt>, { <EOF>,<lt> } ]* (s9)
+[ 5: tag -> <lt> <id> . properties <gt> innerTag <lt> </> <id> <gt>, { <EOF>,<lt> } ]* (s9)
+[ 11: properties -> ., { <gt>,</>,<id> } ] (r)
+[ 10: properties -> . properties property, { <gt>,</>,<id> } ] (s9)
 
 i9
-[ 6: tag -> <lt> <id> properties . </> <gt> ]* (s10)
-[ 5: tag -> <lt> <id> properties . <gt> innerTag <lt> </> <id> <gt> ]* (s12)
-[ 10: properties -> properties . property ]* (s22)
-[ 13: property -> . propertyName <=> <string> ] (s23)
-[ 12: property -> . propertyName ] (s23)
-[ 15: propertyName -> . <id> ] (s26)
-[ 14: propertyName -> . <id> <:> <id> ] (s26)
+[ 6: tag -> <lt> <id> properties . </> <gt>, { <EOF>,<lt> } ]* (s10)
+[ 5: tag -> <lt> <id> properties . <gt> innerTag <lt> </> <id> <gt>, { <EOF>,<lt> } ]* (s12)
+[ 10: properties -> properties . property, { <gt>,</>,<id> } ]* (s22)
+[ 13: property -> . propertyName <=> <string>, { <gt>,</>,<id> } ] (s23)
+[ 12: property -> . propertyName, { <gt>,</>,<id> } ] (s23)
+[ 15: propertyName -> . <id>, { <gt>,<=>,</>,<id> } ] (s26)
+[ 14: propertyName -> . <id> <:> <id>, { <gt>,<=>,</>,<id> } ] (s26)
 
 i10
-[ 6: tag -> <lt> <id> properties </> . <gt> ]* (s11)
+[ 6: tag -> <lt> <id> properties </> . <gt>, { <EOF>,<lt> } ]* (s11)
 
 i11
-[ 6: tag -> <lt> <id> properties </> <gt> . ]* (r)
+[ 6: tag -> <lt> <id> properties </> <gt> ., { <EOF>,<lt> } ]* (r)
 
 i12
-[ 5: tag -> <lt> <id> properties <gt> . innerTag <lt> </> <id> <gt> ]* (s13)
-[ 9: innerTag -> . ] (r)
-[ 8: innerTag -> . <content> ] (s5)
-[ 7: innerTag -> . tag ] (s6)
-[ 6: tag -> . <lt> <id> properties </> <gt> ] (s7)
-[ 5: tag -> . <lt> <id> properties <gt> innerTag <lt> </> <id> <gt> ] (s7)
+[ 5: tag -> <lt> <id> properties <gt> . innerTag <lt> </> <id> <gt>, { <EOF>,<lt> } ]* (s13)
+[ 9: innerTag -> ., { <lt> } ] (r)
+[ 8: innerTag -> . <content>, { <lt> } ] (s5)
+[ 7: innerTag -> . tag, { <lt> } ] (s6)
+[ 6: tag -> . <lt> <id> properties </> <gt>, { <lt> } ] (s7)
+[ 5: tag -> . <lt> <id> properties <gt> innerTag <lt> </> <id> <gt>, { <lt> } ] (s7)
 
 i13
-[ 5: tag -> <lt> <id> properties <gt> innerTag . <lt> </> <id> <gt> ]* (s14)
+[ 5: tag -> <lt> <id> properties <gt> innerTag . <lt> </> <id> <gt>, { <EOF>,<lt> } ]* (s14)
 
 i14
-[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> . </> <id> <gt> ]* (s15)
+[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> . </> <id> <gt>, { <EOF>,<lt> } ]* (s15)
 
 i15
-[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> </> . <id> <gt> ]* (s16)
+[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> </> . <id> <gt>, { <EOF>,<lt> } ]* (s16)
 
 i16
-[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> </> <id> . <gt> ]* (s17)
+[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> </> <id> . <gt>, { <EOF>,<lt> } ]* (s17)
 
 i17
-[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> </> <id> <gt> . ]* (r)
+[ 5: tag -> <lt> <id> properties <gt> innerTag <lt> </> <id> <gt> ., { <EOF>,<lt> } ]* (r)
 
 i18
-[ 2: head -> <lt?> . <id> properties <gt?> ]* (s19)
+[ 2: head -> <lt?> . <id> properties <gt?>, { <lt> } ]* (s19)
 
 i19
-[ 2: head -> <lt?> <id> . properties <gt?> ]* (s20)
-[ 11: properties -> . ] (r)
-[ 10: properties -> . properties property ] (s20)
+[ 2: head -> <lt?> <id> . properties <gt?>, { <lt> } ]* (s20)
+[ 11: properties -> ., { <gt?>,<id> } ] (r)
+[ 10: properties -> . properties property, { <gt?>,<id> } ] (s20)
 
 i20
-[ 2: head -> <lt?> <id> properties . <gt?> ]* (s21)
-[ 10: properties -> properties . property ]* (s22)
-[ 13: property -> . propertyName <=> <string> ] (s23)
-[ 12: property -> . propertyName ] (s23)
-[ 15: propertyName -> . <id> ] (s26)
-[ 14: propertyName -> . <id> <:> <id> ] (s26)
+[ 2: head -> <lt?> <id> properties . <gt?>, { <lt> } ]* (s21)
+[ 10: properties -> properties . property, { <gt?>,<id> } ]* (s22)
+[ 13: property -> . propertyName <=> <string>, { <gt?>,<id> } ] (s23)
+[ 12: property -> . propertyName, { <gt?>,<id> } ] (s23)
+[ 15: propertyName -> . <id>, { <=>,<gt?>,<id> } ] (s26)
+[ 14: propertyName -> . <id> <:> <id>, { <=>,<gt?>,<id> } ] (s26)
 
 i21
-[ 2: head -> <lt?> <id> properties <gt?> . ]* (r)
+[ 2: head -> <lt?> <id> properties <gt?> ., { <lt> } ]* (r)
 
 i22
-[ 10: properties -> properties property . ]* (r)
+[ 10: properties -> properties property ., { <gt>,<gt?>,</>,<id> } ]* (r)
 
 i23
-[ 13: property -> propertyName . <=> <string> ]* (s24)
-[ 12: property -> propertyName . ]* (r)
+[ 13: property -> propertyName . <=> <string>, { <gt>,<gt?>,</>,<id> } ]* (s24)
+[ 12: property -> propertyName ., { <gt>,<gt?>,</>,<id> } ]* (r)
 
 i24
-[ 13: property -> propertyName <=> . <string> ]* (s25)
+[ 13: property -> propertyName <=> . <string>, { <gt>,<gt?>,</>,<id> } ]* (s25)
 
 i25
-[ 13: property -> propertyName <=> <string> . ]* (r)
+[ 13: property -> propertyName <=> <string> ., { <gt>,<gt?>,</>,<id> } ]* (r)
 
 i26
-[ 15: propertyName -> <id> . ]* (r)
-[ 14: propertyName -> <id> . <:> <id> ]* (s27)
+[ 15: propertyName -> <id> ., { <gt>,<=>,<gt?>,</>,<id> } ]* (r)
+[ 14: propertyName -> <id> . <:> <id>, { <gt>,<=>,<gt?>,</>,<id> } ]* (s27)
 
 i27
-[ 14: propertyName -> <id> <:> . <id> ]* (s28)
+[ 14: propertyName -> <id> <:> . <id>, { <gt>,<=>,<gt?>,</>,<id> } ]* (s28)
 
 i28
-[ 14: propertyName -> <id> <:> <id> . ]* (r)
+[ 14: propertyName -> <id> <:> <id> ., { <gt>,<=>,<gt?>,</>,<id> } ]* (r)
 
 test 1:
 | <lt> <id> <id> <=> <string> <gt> <lt> <id> <id> <=> <string> <gt> <lt> <id> </> <gt> <lt> <id> </> <gt> [0 ]

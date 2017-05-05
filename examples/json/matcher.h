@@ -12,6 +12,11 @@ extern "C" {
 #include <stdio.h>
 #define YY_OK 0
 #define YY_ERR -1
+#define YY_SHIFT 1
+#define YY_REDUCE 2
+#define YY_ACCEPT 3
+
+
 #define MT_EOF 0
 #define MT_CBRA 1
 #define MT_CKET 2

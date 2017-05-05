@@ -116,15 +116,14 @@ int YGBuilder_free(YGBuilder *gb,char **spool){
     return 0;
 }
 int YGBuilder_addToken(YGBuilder *gb,const YToken *tk,const YToken *alias){
-    YTree_prepareNode(&gb->tokenEntry);
     const char *tname = YSPool_getString(&gb->pool,tk->image);
-    int *node = YTree_find(&gb->tokenEntry,tname);
-    if(*node == -1){
-        YRawToken rt;
-        rt.name = tk->image;
-        rt.alias = alias->image;
-        rt.pr = YP_NONE;
-        *node = YTree_newNode(&gb->tokenEntry,&rt);
+    ynptr node;
+    ynptr *pos = YTree_findEX(&gb->tokenEntry,tname,&node);
+    if(*pos == -1){
+        YRawToken *rt = (YRawToken *)YTree_insertAt(&gb->tokenEntry,node,pos);
+        rt->name = tk->image;
+        rt->alias = alias->image;
+        rt->pr = YP_NONE;
         return 0;
     }
     else {
@@ -188,11 +187,11 @@ static int YGBuilder_prepareRuleRaw(YGBuilder *gb,ysptr lhs,int hasAction,ysptr 
         YGBuilder_commitRule(gb);
     }
     YRawRule *rule = YGBuilder_newRule(gb);
-    YTree_prepareNode(&gb->ntEntry);
-    int *node = YTree_find(&gb->ntEntry,YGBuilder_getString(gb,lhs));
+    ynptr node;
+    ynptr *pos = YTree_findEX(&gb->ntEntry,YGBuilder_getString(gb,lhs),&node);
     ysptr sp;
-    if(*node == -1){
-        *node = YTree_newNode(&gb->ntEntry,&lhs);
+    if(*pos == -1){
+        *(ysptr *)YTree_insertAt(&gb->ntEntry,node,pos) = lhs;
     }
     rule->lhs = lhs;
     rule->actionBlock = action;

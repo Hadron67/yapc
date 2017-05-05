@@ -132,7 +132,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 1:
             /* start -> expr  */
-            #line 25 "./action.y"
+            #line 25 "--show-lah"
             { printf("accept");yyval = (yyparser->sp[-1]); }
             #line 138 "./action.c"
             yyparser->sp -= 1;
@@ -140,14 +140,14 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 2:
             /* @1 ->  */
-            #line 27 "./action.y"
+            #line 27 "--show-lah"
             { printf("i saw a plus");yyval = 0; }
             #line 146 "./action.c"
             *yyparser->sp++ = yyval;
             break;
         case 3:
             /* expr -> expr <+> @1 atom  */
-            #line 27 "./action.y"
+            #line 27 "--show-lah"
             { yyval = (yyparser->sp[-4]) + (yyparser->sp[-2]); }
             #line 153 "./action.c"
             yyparser->sp -= 4;
@@ -155,7 +155,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 4:
             /* expr -> atom  */
-            #line 27 "./action.y"
+            #line 27 "--show-lah"
             { yyval = (yyparser->sp[-1]); }
             #line 161 "./action.c"
             yyparser->sp -= 1;
@@ -163,19 +163,19 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 5:
             /* @2 ->  */
-            #line 29 "./action.y"
+            #line 29 "--show-lah"
             { printf("a new node"); }
             #line 169 "./action.c"
             break;
         case 6:
             /* @3 ->  */
-            #line 29 "./action.y"
+            #line 29 "--show-lah"
             { printf("i'm expecting an id"); }
             #line 175 "./action.c"
             break;
         case 7:
             /* atom -> @3 @2 <id>  */
-            #line 29 "./action.y"
+            #line 29 "--show-lah"
             { yyval = (yyparser->sp[-1]); }
             #line 181 "./action.c"
             yyparser->sp -= 1;
@@ -183,13 +183,13 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 8:
             /* @4 ->  */
-            #line 29 "./action.y"
+            #line 29 "--show-lah"
             { printf("i'm expecting a num"); }
             #line 189 "./action.c"
             break;
         case 9:
             /* atom -> @4 <num>  */
-            #line 29 "./action.y"
+            #line 29 "--show-lah"
             { yyval = (yyparser->sp[-1]); }
             #line 195 "./action.c"
             yyparser->sp -= 1;

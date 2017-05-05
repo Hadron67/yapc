@@ -259,15 +259,25 @@ static int jParser_parse(jParser *p,FILE *input,jsonval *val){
     p->c = fgetc(input);
     p->head = p->cBlock = jStringBlock_new(NULL,JBLOCKSIZE);
     JSON_init(val,JTYPE_UNUSED);
-    while(!p->parser.done){
+    while(1){
+        jjlex:
         if(jParser_next(p)){
             goto jjerr;
         }
-        if(yyParser_acceptToken(&p->parser,p->tokenid)){
-            yyParser_printError(&p->parser,p->err);
-            goto jjerr;
+        jjparse:
+        switch(yyParser_acceptToken(&p->parser,p->tokenid)){
+            case YY_SHIFT:
+                goto jjlex;
+            case YY_REDUCE:
+                goto jjparse;
+            case YY_ACCEPT:
+                goto jjaccept;
+            case YY_ERR:
+                yyParser_printError(&p->parser,p->err);
+                goto jjerr;
         }
     }
+    jjaccept:
     *val = *p->parser.pstack;
     val->reserved = p->head;
     p->head = p->cBlock = NULL;

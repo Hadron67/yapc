@@ -1,52 +1,52 @@
 i0
-[ 0: (accept) -> . start ]* (s1)
-[ 1: start -> . expr ] (s2)
-[ 4: expr -> . atom ] (s6)
-[ 3: expr -> . expr <+> @1 atom ] (s2)
-[ 9: atom -> . @4 <num> ] (s7)
-[ 7: atom -> . @3 @2 <id> ] (s9)
-[ 8: @4 -> . ] (r)
-[ 6: @3 -> . ] (r)
+[ 0: (accept) -> . start, { <EOF> } ]* (s1)
+[ 1: start -> . expr, { <EOF> } ] (s2)
+[ 4: expr -> . atom, { <EOF>,<+> } ] (s6)
+[ 3: expr -> . expr <+> @1 atom, { <EOF>,<+> } ] (s2)
+[ 9: atom -> . @4 <num>, { <EOF>,<+> } ] (s7)
+[ 7: atom -> . @3 @2 <id>, { <EOF>,<+> } ] (s9)
+[ 8: @4 -> ., { <num> } ] (r)
+[ 6: @3 -> ., { <id> } ] (r)
 
 i1
-[ 0: (accept) -> start . ]* (r)
+[ 0: (accept) -> start ., { <EOF> } ]* (r)
 
 i2
-[ 1: start -> expr . ]* (r)
-[ 3: expr -> expr . <+> @1 atom ]* (s3)
+[ 1: start -> expr ., { <EOF> } ]* (r)
+[ 3: expr -> expr . <+> @1 atom, { <EOF>,<+> } ]* (s3)
 
 i3
-[ 3: expr -> expr <+> . @1 atom ]* (s4)
-[ 2: @1 -> . ] (r)
+[ 3: expr -> expr <+> . @1 atom, { <EOF>,<+> } ]* (s4)
+[ 2: @1 -> ., { <EOF>,<id>,<+>,<num> } ] (r)
 
 i4
-[ 3: expr -> expr <+> @1 . atom ]* (s5)
-[ 9: atom -> . @4 <num> ] (s7)
-[ 7: atom -> . @3 @2 <id> ] (s9)
-[ 8: @4 -> . ] (r)
-[ 6: @3 -> . ] (r)
+[ 3: expr -> expr <+> @1 . atom, { <EOF>,<+> } ]* (s5)
+[ 9: atom -> . @4 <num>, { <EOF>,<+> } ] (s7)
+[ 7: atom -> . @3 @2 <id>, { <EOF>,<+> } ] (s9)
+[ 8: @4 -> ., { <num> } ] (r)
+[ 6: @3 -> ., { <id> } ] (r)
 
 i5
-[ 3: expr -> expr <+> @1 atom . ]* (r)
+[ 3: expr -> expr <+> @1 atom ., { <EOF>,<+> } ]* (r)
 
 i6
-[ 4: expr -> atom . ]* (r)
+[ 4: expr -> atom ., { <EOF>,<+> } ]* (r)
 
 i7
-[ 9: atom -> @4 . <num> ]* (s8)
+[ 9: atom -> @4 . <num>, { <EOF>,<+> } ]* (s8)
 
 i8
-[ 9: atom -> @4 <num> . ]* (r)
+[ 9: atom -> @4 <num> ., { <EOF>,<+> } ]* (r)
 
 i9
-[ 7: atom -> @3 . @2 <id> ]* (s10)
-[ 5: @2 -> . ] (r)
+[ 7: atom -> @3 . @2 <id>, { <EOF>,<+> } ]* (s10)
+[ 5: @2 -> ., { <id> } ] (r)
 
 i10
-[ 7: atom -> @3 @2 . <id> ]* (s11)
+[ 7: atom -> @3 @2 . <id>, { <EOF>,<+> } ]* (s11)
 
 i11
-[ 7: atom -> @3 @2 <id> . ]* (r)
+[ 7: atom -> @3 @2 <id> ., { <EOF>,<+> } ]* (r)
 
 test 1:
 | <num> <+> <id> <+> <num> <+> <id> [0 ]

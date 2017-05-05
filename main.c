@@ -61,8 +61,6 @@ static int parseArg(YConfig *config,int agv,const char *ags[]){
     return 0;
 }
 
-
-
 int main(int agv,const char *ags[]){
     int ret = 0;
     YConfig config;

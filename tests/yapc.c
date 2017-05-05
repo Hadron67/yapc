@@ -330,7 +330,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 4:
             /* option -> <%token> <token> <string>  */
-            #line 37 "./yapc.y"
+            #line 37 "--show-lah"
             { YGBuilder_addToken(yydata,(yyparser->sp[-2]),(yyparser->sp[-1])); }
             #line 336 "./yapc.c"
             yyparser->sp -= 3;
@@ -338,7 +338,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 5:
             /* option -> <%type> <string>  */
-            #line 38 "./yapc.y"
+            #line 38 "--show-lah"
             { YGBuilder_setTokenType(yydata,(yyparser->sp[-1])); }
             #line 344 "./yapc.c"
             yyparser->sp -= 2;
@@ -346,7 +346,7 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
             break;
         case 6:
             /* option -> <%datatype> <string>  */
-            #line 39 "./yapc.y"
+            #line 39 "--show-lah"
             { YGBuilder_setDataType(yydata,(yyparser->sp[-1])); }
             #line 352 "./yapc.c"
             yyparser->sp -= 2;

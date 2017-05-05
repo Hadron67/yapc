@@ -19,7 +19,10 @@
 
 #ifndef __GEN_H__
 #define __GEN_H__
+
 #include <stdio.h>
+
+#include "spool.h"
 #include "grammar.h"
 
 typedef struct _YItem YItem;
@@ -42,6 +45,7 @@ struct _YItem{
     int isKernel;
     yaction_t actionType;
     YItemSet *shift;
+    int changed;// used in generating closure
     char lah[1];
 };
 
@@ -50,12 +54,15 @@ struct _YItemSet{
     YGrammar *g;
     int index;
     int pact;//used in generating parsing table,for compressing.
-    int len,size;
+    //int len,size;
     size_t itemSize;
-    YItem *items;
+    //YItem *items;
+    YTree itemr;
     unsigned int hash;
     int complete;
 };
+
+#define YITEMSET_LEN(s) ((s)->itemr.len)
 
 typedef struct _YItemSetList{
     YItemSet head,tail;

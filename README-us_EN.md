@@ -270,7 +270,10 @@ yDestroyContext(ctx);
 Please submit bugs on the issues page if you found!
 
 # Change logs
-## v0.3.1,2017-5-1(latest)
+## v0.3.2,2017-5-5(latest)
+* Optimized the generating algorithm of items sets,using AVL trees.
+
+## v0.3.1,2017-5-1
 * Modified the generated function yyParser_acceptToken.
 * Optimized the item set generating algorithm,using hash table.
 * Unused non-terminals will be reported now.

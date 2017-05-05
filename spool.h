@@ -1,6 +1,10 @@
 /*  
     YAPC - Yet Another Parser Compiler - An LR(1) parser generator
 
+    This file contains objects and functions for AVL tree and string 
+    pool.
+
+
     Copyright (C) 2017  Chen FeiYu
 
     This program is free software: you can redistribute it and/or modify
@@ -24,35 +28,41 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "ydef.h"
+#define YTNODE_NULL (-1)
 
 typedef struct _YSPool YSPool;
 typedef struct _YTNode YTNode;
 typedef struct _YTree YTree;
 
+typedef long ynptr;
+
 struct _YTNode{
-    int left,right;
-    int index;
+    ynptr left,right,parent;
+    ynptr index;
+    unsigned int depth;
     char data[1];
 };
 
+// used when calling YTree_find,where d1 is the argument data.
 typedef int (*ycomparator)(const void *d1,const void *d2,void *arg);
 
 struct _YTree{
     YTNode *buf;
     int len,size;
     size_t elemSize,nodeSize;
-    int root;
+    ynptr root;
     ycomparator comp;
     void *arg;
 };
 
 int YTree_init(YTree *tree,int size,size_t elemsize,ycomparator comp,void *arg);
+int YTree_reInit(YTree *tree);
 int YTree_free(YTree *tree);
 int YTree_getLength(YTree *tree);
-YTNode *YTree_getNode(YTree *tree,int p);
-int YTree_newNode(YTree *tree,const void *data);
-int YTree_prepareNode(YTree *tree);
-int *YTree_find(YTree *tree,const void *data);
+YTNode *YTree_getNode(YTree *tree,ynptr p);
+ynptr *YTree_findEX(YTree *tree,const void *data,ynptr *node);
+#define YTree_find(tree,data) (YTree_findEX(tree,data,NULL))
+void *YTree_insertAt(YTree *tree,ynptr node,ynptr *pos);
 
 
 //persistent string pool---------------------------------

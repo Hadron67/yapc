@@ -1,143 +1,143 @@
 i0
-[ 0: (accept) -> . json ]* (s1)
-[ 3: json -> . atom ] (s15)
-[ 2: json -> . <[> array <]> ] (s16)
-[ 1: json -> . <{> obj <}> ] (s19)
-[ 19: atom -> . <id> ] (s24)
-[ 18: atom -> . <string> ] (s25)
-[ 17: atom -> . <false> ] (s26)
-[ 16: atom -> . <true> ] (s27)
-[ 15: atom -> . <num> ] (s28)
+[ 0: (accept) -> . json, { <EOF> } ]* (s1)
+[ 3: json -> . atom, { <EOF> } ] (s15)
+[ 2: json -> . <[> array <]>, { <EOF> } ] (s16)
+[ 1: json -> . <{> obj <}>, { <EOF> } ] (s19)
+[ 19: atom -> . <id>, { <EOF> } ] (s24)
+[ 18: atom -> . <string>, { <EOF> } ] (s25)
+[ 17: atom -> . <false>, { <EOF> } ] (s26)
+[ 16: atom -> . <true>, { <EOF> } ] (s27)
+[ 15: atom -> . <num>, { <EOF> } ] (s28)
 
 i1
-[ 0: (accept) -> json . ]* (r)
+[ 0: (accept) -> json ., { <EOF> } ]* (r)
 
 i2
-[ 11: array -> nonEmptyArray . possibleComma ]* (s3)
-[ 13: nonEmptyArray -> nonEmptyArray . <,> json ]* (s4)
-[ 21: possibleComma -> . ] (r)
-[ 20: possibleComma -> . <,> ] (s4)
+[ 11: array -> nonEmptyArray . possibleComma, { <]> } ]* (s3)
+[ 13: nonEmptyArray -> nonEmptyArray . <,> json, { <,>,<]> } ]* (s4)
+[ 21: possibleComma -> ., { <]> } ] (r)
+[ 20: possibleComma -> . <,>, { <]> } ] (s4)
 
 i3
-[ 11: array -> nonEmptyArray possibleComma . ]* (r)
+[ 11: array -> nonEmptyArray possibleComma ., { <]> } ]* (r)
 
 i4
-[ 13: nonEmptyArray -> nonEmptyArray <,> . json ]* (s5)
-[ 20: possibleComma -> <,> . ]* (r)
-[ 3: json -> . atom ] (s15)
-[ 2: json -> . <[> array <]> ] (s16)
-[ 1: json -> . <{> obj <}> ] (s19)
-[ 19: atom -> . <id> ] (s24)
-[ 18: atom -> . <string> ] (s25)
-[ 17: atom -> . <false> ] (s26)
-[ 16: atom -> . <true> ] (s27)
-[ 15: atom -> . <num> ] (s28)
+[ 13: nonEmptyArray -> nonEmptyArray <,> . json, { <,>,<]> } ]* (s5)
+[ 20: possibleComma -> <,> ., { <]> } ]* (r)
+[ 3: json -> . atom, { <,>,<]> } ] (s15)
+[ 2: json -> . <[> array <]>, { <,>,<]> } ] (s16)
+[ 1: json -> . <{> obj <}>, { <,>,<]> } ] (s19)
+[ 19: atom -> . <id>, { <,>,<]> } ] (s24)
+[ 18: atom -> . <string>, { <,>,<]> } ] (s25)
+[ 17: atom -> . <false>, { <,>,<]> } ] (s26)
+[ 16: atom -> . <true>, { <,>,<]> } ] (s27)
+[ 15: atom -> . <num>, { <,>,<]> } ] (s28)
 
 i5
-[ 13: nonEmptyArray -> nonEmptyArray <,> json . ]* (r)
+[ 13: nonEmptyArray -> nonEmptyArray <,> json ., { <,>,<]> } ]* (r)
 
 i6
-[ 14: nonEmptyArray -> json . ]* (r)
+[ 14: nonEmptyArray -> json ., { <,>,<]> } ]* (r)
 
 i7
-[ 4: obj -> nonEmptyObj . possibleComma ]* (s8)
-[ 6: nonEmptyObj -> nonEmptyObj . <,> objItem ]* (s9)
-[ 21: possibleComma -> . ] (r)
-[ 20: possibleComma -> . <,> ] (s9)
+[ 4: obj -> nonEmptyObj . possibleComma, { <}> } ]* (s8)
+[ 6: nonEmptyObj -> nonEmptyObj . <,> objItem, { <}>,<,> } ]* (s9)
+[ 21: possibleComma -> ., { <}> } ] (r)
+[ 20: possibleComma -> . <,>, { <}> } ] (s9)
 
 i8
-[ 4: obj -> nonEmptyObj possibleComma . ]* (r)
+[ 4: obj -> nonEmptyObj possibleComma ., { <}> } ]* (r)
 
 i9
-[ 6: nonEmptyObj -> nonEmptyObj <,> . objItem ]* (s10)
-[ 20: possibleComma -> <,> . ]* (r)
-[ 8: objItem -> . objKey <:> json ] (s12)
-[ 10: objKey -> . <string> ] (s22)
-[ 9: objKey -> . <id> ] (s23)
+[ 6: nonEmptyObj -> nonEmptyObj <,> . objItem, { <}>,<,> } ]* (s10)
+[ 20: possibleComma -> <,> ., { <}> } ]* (r)
+[ 8: objItem -> . objKey <:> json, { <}>,<,> } ] (s12)
+[ 10: objKey -> . <string>, { <:> } ] (s22)
+[ 9: objKey -> . <id>, { <:> } ] (s23)
 
 i10
-[ 6: nonEmptyObj -> nonEmptyObj <,> objItem . ]* (r)
+[ 6: nonEmptyObj -> nonEmptyObj <,> objItem ., { <}>,<,> } ]* (r)
 
 i11
-[ 7: nonEmptyObj -> objItem . ]* (r)
+[ 7: nonEmptyObj -> objItem ., { <}>,<,> } ]* (r)
 
 i12
-[ 8: objItem -> objKey . <:> json ]* (s13)
+[ 8: objItem -> objKey . <:> json, { <}>,<,> } ]* (s13)
 
 i13
-[ 8: objItem -> objKey <:> . json ]* (s14)
-[ 3: json -> . atom ] (s15)
-[ 2: json -> . <[> array <]> ] (s16)
-[ 1: json -> . <{> obj <}> ] (s19)
-[ 19: atom -> . <id> ] (s24)
-[ 18: atom -> . <string> ] (s25)
-[ 17: atom -> . <false> ] (s26)
-[ 16: atom -> . <true> ] (s27)
-[ 15: atom -> . <num> ] (s28)
+[ 8: objItem -> objKey <:> . json, { <}>,<,> } ]* (s14)
+[ 3: json -> . atom, { <}>,<,> } ] (s15)
+[ 2: json -> . <[> array <]>, { <}>,<,> } ] (s16)
+[ 1: json -> . <{> obj <}>, { <}>,<,> } ] (s19)
+[ 19: atom -> . <id>, { <}>,<,> } ] (s24)
+[ 18: atom -> . <string>, { <}>,<,> } ] (s25)
+[ 17: atom -> . <false>, { <}>,<,> } ] (s26)
+[ 16: atom -> . <true>, { <}>,<,> } ] (s27)
+[ 15: atom -> . <num>, { <}>,<,> } ] (s28)
 
 i14
-[ 8: objItem -> objKey <:> json . ]* (r)
+[ 8: objItem -> objKey <:> json ., { <}>,<,> } ]* (r)
 
 i15
-[ 3: json -> atom . ]* (r)
+[ 3: json -> atom ., { <EOF>,<}>,<,>,<]> } ]* (r)
 
 i16
-[ 2: json -> <[> . array <]> ]* (s17)
-[ 12: array -> . ] (r)
-[ 11: array -> . nonEmptyArray possibleComma ] (s2)
-[ 14: nonEmptyArray -> . json ] (s6)
-[ 13: nonEmptyArray -> . nonEmptyArray <,> json ] (s2)
-[ 3: json -> . atom ] (s15)
-[ 2: json -> . <[> array <]> ] (s16)
-[ 1: json -> . <{> obj <}> ] (s19)
-[ 19: atom -> . <id> ] (s24)
-[ 18: atom -> . <string> ] (s25)
-[ 17: atom -> . <false> ] (s26)
-[ 16: atom -> . <true> ] (s27)
-[ 15: atom -> . <num> ] (s28)
+[ 2: json -> <[> . array <]>, { <EOF>,<}>,<,>,<]> } ]* (s17)
+[ 12: array -> ., { <]> } ] (r)
+[ 11: array -> . nonEmptyArray possibleComma, { <]> } ] (s2)
+[ 14: nonEmptyArray -> . json, { <,>,<]> } ] (s6)
+[ 13: nonEmptyArray -> . nonEmptyArray <,> json, { <,>,<]> } ] (s2)
+[ 3: json -> . atom, { <,>,<]> } ] (s15)
+[ 2: json -> . <[> array <]>, { <,>,<]> } ] (s16)
+[ 1: json -> . <{> obj <}>, { <,>,<]> } ] (s19)
+[ 19: atom -> . <id>, { <,>,<]> } ] (s24)
+[ 18: atom -> . <string>, { <,>,<]> } ] (s25)
+[ 17: atom -> . <false>, { <,>,<]> } ] (s26)
+[ 16: atom -> . <true>, { <,>,<]> } ] (s27)
+[ 15: atom -> . <num>, { <,>,<]> } ] (s28)
 
 i17
-[ 2: json -> <[> array . <]> ]* (s18)
+[ 2: json -> <[> array . <]>, { <EOF>,<}>,<,>,<]> } ]* (s18)
 
 i18
-[ 2: json -> <[> array <]> . ]* (r)
+[ 2: json -> <[> array <]> ., { <EOF>,<}>,<,>,<]> } ]* (r)
 
 i19
-[ 1: json -> <{> . obj <}> ]* (s20)
-[ 5: obj -> . ] (r)
-[ 4: obj -> . nonEmptyObj possibleComma ] (s7)
-[ 7: nonEmptyObj -> . objItem ] (s11)
-[ 6: nonEmptyObj -> . nonEmptyObj <,> objItem ] (s7)
-[ 8: objItem -> . objKey <:> json ] (s12)
-[ 10: objKey -> . <string> ] (s22)
-[ 9: objKey -> . <id> ] (s23)
+[ 1: json -> <{> . obj <}>, { <EOF>,<}>,<,>,<]> } ]* (s20)
+[ 5: obj -> ., { <}> } ] (r)
+[ 4: obj -> . nonEmptyObj possibleComma, { <}> } ] (s7)
+[ 7: nonEmptyObj -> . objItem, { <}>,<,> } ] (s11)
+[ 6: nonEmptyObj -> . nonEmptyObj <,> objItem, { <}>,<,> } ] (s7)
+[ 8: objItem -> . objKey <:> json, { <}>,<,> } ] (s12)
+[ 10: objKey -> . <string>, { <:> } ] (s22)
+[ 9: objKey -> . <id>, { <:> } ] (s23)
 
 i20
-[ 1: json -> <{> obj . <}> ]* (s21)
+[ 1: json -> <{> obj . <}>, { <EOF>,<}>,<,>,<]> } ]* (s21)
 
 i21
-[ 1: json -> <{> obj <}> . ]* (r)
+[ 1: json -> <{> obj <}> ., { <EOF>,<}>,<,>,<]> } ]* (r)
 
 i22
-[ 10: objKey -> <string> . ]* (r)
+[ 10: objKey -> <string> ., { <:> } ]* (r)
 
 i23
-[ 9: objKey -> <id> . ]* (r)
+[ 9: objKey -> <id> ., { <:> } ]* (r)
 
 i24
-[ 19: atom -> <id> . ]* (r)
+[ 19: atom -> <id> ., { <EOF>,<}>,<,>,<]> } ]* (r)
 
 i25
-[ 18: atom -> <string> . ]* (r)
+[ 18: atom -> <string> ., { <EOF>,<}>,<,>,<]> } ]* (r)
 
 i26
-[ 17: atom -> <false> . ]* (r)
+[ 17: atom -> <false> ., { <EOF>,<}>,<,>,<]> } ]* (r)
 
 i27
-[ 16: atom -> <true> . ]* (r)
+[ 16: atom -> <true> ., { <EOF>,<}>,<,>,<]> } ]* (r)
 
 i28
-[ 15: atom -> <num> . ]* (r)
+[ 15: atom -> <num> ., { <EOF>,<}>,<,>,<]> } ]* (r)
 
 test 1:
 | <{> <id> <:> <[> <num> <,> <num> <]> <,> <id> <:> <true> <}> [0 ]

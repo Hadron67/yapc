@@ -117,18 +117,24 @@ jjlex:
             goto jjunexpected;
     }
 jjparse:
-    if(jmParser_acceptToken(&m->parser,id)){
-        fprintf(m->errout,"error in pattern string:\n");
-        jmParser_printError(&m->parser,m->errout);
-        
-        goto jjerr;
-    }
     if(m->err){
         goto jjerr;
     }
-    if(!m->parser.done){
-        goto jjlex;
+    switch(jmParser_acceptToken(&m->parser,id)){
+        case YY_ERR:
+            fprintf(m->errout,"error in pattern string:\n");
+            jmParser_printError(&m->parser,m->errout);
+            
+            goto jjerr;
+        case YY_SHIFT:
+            goto jjlex;
+        case YY_REDUCE:
+            goto jjparse;
+        case YY_ACCEPT:
+            goto jjaccept;
     }
+    
+    jjaccept:
     return 0;
 jjunexpected:
     fprintf(m->errout,"error in pattern string:\n");

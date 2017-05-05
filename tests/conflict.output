@@ -21,48 +21,48 @@ state 6,shift/reduce conflict:
 warning: 4 conflict(s) detected.
 
 i0
-[ 0: (accept) -> . start ]* (s1)
-[ 1: start -> . expr ] (s2)
-[ 4: expr -> . atom ] (s7)
-[ 3: expr -> . expr <*> expr ] (s2)
-[ 2: expr -> . expr <+> expr ] (s2)
-[ 5: atom -> . <id> ] (s8)
+[ 0: (accept) -> . start, { <EOF> } ]* (s1)
+[ 1: start -> . expr, { <EOF> } ] (s2)
+[ 4: expr -> . atom, { <EOF>,<+>,<*> } ] (s7)
+[ 3: expr -> . expr <*> expr, { <EOF>,<+>,<*> } ] (s2)
+[ 2: expr -> . expr <+> expr, { <EOF>,<+>,<*> } ] (s2)
+[ 5: atom -> . <id>, { <EOF>,<+>,<*> } ] (s8)
 
 i1
-[ 0: (accept) -> start . ]* (r)
+[ 0: (accept) -> start ., { <EOF> } ]* (r)
 
 i2
-[ 1: start -> expr . ]* (r)
-[ 3: expr -> expr . <*> expr ]* (s3)
-[ 2: expr -> expr . <+> expr ]* (s5)
+[ 1: start -> expr ., { <EOF> } ]* (r)
+[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<*> } ]* (s3)
+[ 2: expr -> expr . <+> expr, { <EOF>,<+>,<*> } ]* (s5)
 
 i3
-[ 3: expr -> expr <*> . expr ]* (s4)
-[ 4: expr -> . atom ] (s7)
-[ 3: expr -> . expr <*> expr ] (s4)
-[ 2: expr -> . expr <+> expr ] (s4)
-[ 5: atom -> . <id> ] (s8)
+[ 3: expr -> expr <*> . expr, { <EOF>,<+>,<*> } ]* (s4)
+[ 4: expr -> . atom, { <EOF>,<+>,<*> } ] (s7)
+[ 3: expr -> . expr <*> expr, { <EOF>,<+>,<*> } ] (s4)
+[ 2: expr -> . expr <+> expr, { <EOF>,<+>,<*> } ] (s4)
+[ 5: atom -> . <id>, { <EOF>,<+>,<*> } ] (s8)
 
 i4
-[ 3: expr -> expr <*> expr . ]* (r)
-[ 3: expr -> expr . <*> expr ]* (s3)
-[ 2: expr -> expr . <+> expr ]* (s5)
+[ 3: expr -> expr <*> expr ., { <EOF>,<+>,<*> } ]* (r)
+[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<*> } ]* (s3)
+[ 2: expr -> expr . <+> expr, { <EOF>,<+>,<*> } ]* (s5)
 
 i5
-[ 2: expr -> expr <+> . expr ]* (s6)
-[ 4: expr -> . atom ] (s7)
-[ 3: expr -> . expr <*> expr ] (s6)
-[ 2: expr -> . expr <+> expr ] (s6)
-[ 5: atom -> . <id> ] (s8)
+[ 2: expr -> expr <+> . expr, { <EOF>,<+>,<*> } ]* (s6)
+[ 4: expr -> . atom, { <EOF>,<+>,<*> } ] (s7)
+[ 3: expr -> . expr <*> expr, { <EOF>,<+>,<*> } ] (s6)
+[ 2: expr -> . expr <+> expr, { <EOF>,<+>,<*> } ] (s6)
+[ 5: atom -> . <id>, { <EOF>,<+>,<*> } ] (s8)
 
 i6
-[ 2: expr -> expr <+> expr . ]* (r)
-[ 3: expr -> expr . <*> expr ]* (s3)
-[ 2: expr -> expr . <+> expr ]* (s5)
+[ 2: expr -> expr <+> expr ., { <EOF>,<+>,<*> } ]* (r)
+[ 3: expr -> expr . <*> expr, { <EOF>,<+>,<*> } ]* (s3)
+[ 2: expr -> expr . <+> expr, { <EOF>,<+>,<*> } ]* (s5)
 
 i7
-[ 4: expr -> atom . ]* (r)
+[ 4: expr -> atom ., { <EOF>,<+>,<*> } ]* (r)
 
 i8
-[ 5: atom -> <id> . ]* (r)
+[ 5: atom -> <id> ., { <EOF>,<+>,<*> } ]* (r)
 

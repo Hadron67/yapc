@@ -1,33 +1,32 @@
-
 i0
-[ 0: (accept) -> . start, { <EOF> } ]* (s1)
-[ 1: start -> . start <[> <num> <]>, { <EOF>,<[>,<member> } ] (s1)
-[ 2: start -> . start <[> <string> <]>, { <EOF>,<[>,<member> } ] (s1)
-[ 3: start -> . start <member>, { <EOF>,<[>,<member> } ] (s1)
-[ 4: start -> ., { <EOF>,<[>,<member> } ] (r)
+[ 0: (accept) -> . start ]* (s1)
+[ 4: start -> . ] (r)
+[ 3: start -> . start <member> ] (s1)
+[ 2: start -> . start <[> <string> <]> ] (s1)
+[ 1: start -> . start <[> <num> <]> ] (s1)
 
 i1
-[ 0: (accept) -> start ., { <EOF> } ]* (r)
-[ 1: start -> start . <[> <num> <]>, { <EOF>,<[>,<member> } ]* (s2)
-[ 2: start -> start . <[> <string> <]>, { <EOF>,<[>,<member> } ]* (s2)
-[ 3: start -> start . <member>, { <EOF>,<[>,<member> } ]* (s7)
+[ 0: (accept) -> start . ]* (r)
+[ 3: start -> start . <member> ]* (s2)
+[ 2: start -> start . <[> <string> <]> ]* (s3)
+[ 1: start -> start . <[> <num> <]> ]* (s3)
 
 i2
-[ 1: start -> start <[> . <num> <]>, { <EOF>,<[>,<member> } ]* (s3)
-[ 2: start -> start <[> . <string> <]>, { <EOF>,<[>,<member> } ]* (s5)
+[ 3: start -> start <member> . ]* (r)
 
 i3
-[ 1: start -> start <[> <num> . <]>, { <EOF>,<[>,<member> } ]* (s4)
+[ 2: start -> start <[> . <string> <]> ]* (s4)
+[ 1: start -> start <[> . <num> <]> ]* (s6)
 
 i4
-[ 1: start -> start <[> <num> <]> ., { <EOF>,<[>,<member> } ]* (r)
+[ 2: start -> start <[> <string> . <]> ]* (s5)
 
 i5
-[ 2: start -> start <[> <string> . <]>, { <EOF>,<[>,<member> } ]* (s6)
+[ 2: start -> start <[> <string> <]> . ]* (r)
 
 i6
-[ 2: start -> start <[> <string> <]> ., { <EOF>,<[>,<member> } ]* (r)
+[ 1: start -> start <[> <num> . <]> ]* (s7)
 
 i7
-[ 3: start -> start <member> ., { <EOF>,<[>,<member> } ]* (r)
+[ 1: start -> start <[> <num> <]> . ]* (r)
 

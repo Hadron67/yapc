@@ -48,19 +48,19 @@ static const int jmshift[] = {
     /* state 0 */
         -5,    -5,     0,    -5,     0,     0,
     /* state 1 */
-        -1,     3,     0,     8,     0,     0,
+        -1,     4,     0,     3,     0,     0,
     /* state 2 */
-         0,     0,     0,     0,     4,     6,
-    /* state 3 */
-         0,     0,     5,     0,     0,     0,
-    /* state 4 */
-        -2,    -2,     0,    -2,     0,     0,
-    /* state 5 */
-         0,     0,     7,     0,     0,     0,
-    /* state 6 */
-        -3,    -3,     0,    -3,     0,     0,
-    /* state 7 */
         -4,    -4,     0,    -4,     0,     0,
+    /* state 3 */
+         0,     0,     0,     0,     7,     5,
+    /* state 4 */
+         0,     0,     6,     0,     0,     0,
+    /* state 5 */
+        -3,    -3,     0,    -3,     0,     0,
+    /* state 6 */
+         0,     0,     8,     0,     0,     0,
+    /* state 7 */
+        -2,    -2,     0,    -2,     0,     0,
 };
 /*
     goto table
@@ -187,29 +187,26 @@ int jmParser_free(jmParser *jmparser){
     return 0;
 }
 int jmParser_acceptToken(jmParser *jmparser,int jmtokenid){
-    int shifted = 0;
-    while(!shifted){
-        int jmaction = jmshift[YYSTATE() * jmtokenCount + jmtokenid];
-        if(jmaction > 0){
-            YYCHECK_PUSH_TOKEN();
-            *jmparser->sp++ = jmparser->token;
-            YYPUSH_STATE(jmaction - 1);
-            shifted = 1;
-        }
-        else if(jmaction < 0){
-            if(jmaction == -1){
-                jmparser->done = 1;
-                return YY_OK;
-            }
-            jmParser_reduce(jmparser,-1 - jmaction);
-        }
-        else {
-            jmparser->error = 1;
-            jmparser->errToken = jmtokenid;
-            return YY_ERR;
-        }
+    int jmaction = jmshift[YYSTATE() * jmtokenCount + jmtokenid];
+    if(jmaction > 0){
+        YYCHECK_PUSH_TOKEN();
+        *jmparser->sp++ = jmparser->token;
+        YYPUSH_STATE(jmaction - 1);
+        return YY_SHIFT;
     }
-    return YY_OK;
+    else if(jmaction < 0){
+        if(jmaction == -1){
+            jmparser->done = 1;
+            return YY_ACCEPT;
+        }
+        jmParser_reduce(jmparser,-1 - jmaction);
+        return YY_REDUCE;
+    }
+    else {
+        jmparser->error = 1;
+        jmparser->errToken = jmtokenid;
+        return YY_ERR;
+    }
 }
 int jmParser_printError(jmParser *jmparser,FILE *out){
     if(jmparser->error){

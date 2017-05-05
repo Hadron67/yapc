@@ -24,37 +24,49 @@
 #include "gen.h"
 #include "hash.h"
 
-
+static int YItem_comp(const void *d1,const void *d2,void *arg){
+    const YItem *i1 = (const YItem *)d1;
+    const YItem *i2 = (const YItem *)d2;
+    if(i1->rule->index > i2->rule->index){
+        return 1;
+    }
+    else if(i1->rule->index < i2->rule->index){
+        return -1;
+    }
+    else {
+        if(i1->marker > i2->marker){
+            return 1;
+        }
+        else if(i1->marker < i2->marker){
+            return -1;
+        }
+        else{
+            return 0;
+        }
+    }
+}
 static YItemSet *YItemSet_new(YGrammar *g){
     int size = 8;
     size_t itemSize = YGrammar_getTokenSetSize(g) * sizeof(char) + sizeof(YItem);
     YItemSet *set = (YItemSet *)ya_malloc(sizeof(YItemSet));
-    set->items = (YItem *)ya_malloc(size * itemSize);
+    //set->items = (YItem *)ya_malloc(size * itemSize);
     set->prev = set->next = NULL;
     set->g = g;
     set->index = -1;
-    set->len = 0;
-    set->size = size;
+    ///set->len = 0;
+    //set->size = size;
     set->itemSize = itemSize;
     set->complete = 0;
-    memset(set->items,0,set->itemSize * size);
+    //memset(set->items,0,set->itemSize * size);
     
+    YTree_init(&set->itemr,size,itemSize,YItem_comp,NULL);
+
     return set;
 }
 
 static inline YItem *YItemSet_getItem(YItemSet *set,int index){
-    return (YItem *)((char *)set->items + set->itemSize * index);
-}
-
-static YItem *YItemSet_addItemRaw(YItemSet *set1){
-    if(set1->len >= set1->size){
-        set1->size *= 2;
-        set1->items = (YItem *)ya_realloc(set1->items,set1->size * set1->itemSize);
-    }
-    YItem *item = YItemSet_getItem(set1,set1->len++);
-    memset(item,0,set1->itemSize);
-    item->actionType = YACTION_NONE;
-    return item;
+    //return (YItem *)((char *)set->items + set->itemSize * index);
+    return (YItem *)YTree_getNode(&set->itemr,index)->data;
 }
 
 static YRuleItem *YItem_getShift(YItem *item){
@@ -96,37 +108,50 @@ static int YItem_getFollowSet(YItem *item,char *set,YGrammar *g,YFirstSets *fset
 
 static int YItemSet_addItem(YItemSet *set,YRule *rule,int marker,int isKernel,const char *lah,int reset){
     YGrammar *g = set->g;
-    // check for duplications
-    int i;
-    for(i = 0;i < set->len;i++){
-        YItem *item1 = YItemSet_getItem(set,i);
-        if(item1->rule == rule && item1->marker == marker){
+    YItem temp;
+    temp.rule = rule;
+    temp.marker = marker;
+    ynptr node;
+    ynptr *pos = YTree_findEX(&set->itemr,&temp,&node);
+    if(*pos == YTNODE_NULL){
+        YItem *item = (YItem *)YTree_insertAt(&set->itemr,node,pos);
+        memset(item,0,set->itemSize);
+        item->rule = rule;
+        item->marker = marker;
+        item->isKernel = isKernel;
+        item->actionType = YACTION_NONE;
+        item->changed = 1;
+        if(lah != NULL){
+            YTokenSet_union(g,item->lah,lah);
+        }
+        return 1;
+    }
+    else{
+        YItem *item1 = (YItem *)YTree_getNode(&set->itemr,*pos)->data;
+        if(lah != NULL){
             int ret = YTokenSet_union(set->g,item1->lah,lah);
             if(reset && ret && YItem_canShift(item1)){
                 item1->actionType = YACTION_NONE;
             }
+            if(ret){
+                item1->changed = 1;
+            }
             return ret;
         }
+        else {
+            return 0;
+        }
     }
-    
-    YItem *item1 = YItemSet_addItemRaw(set);
-    item1->rule = rule;
-    item1->marker = marker;
-    item1->isKernel = isKernel;
-    
-    YTokenSet_union(set->g,item1->lah,lah);
-    
-    return 1;
 }
 
 static int YItemSet_canMergeTo(YItemSet *set1,YItemSet *set2){
     YGrammar *g = set1->g;
     int i,j;
-    for(i = 0;i < set1->len;i++){
+    for(i = 0;i < YITEMSET_LEN(set1);i++){
         int found = 0;
         int hasConflict = 0,hasIdentical = 0;
         YItem *i1 = YItemSet_getItem(set1,i);
-        for(j = 0;j < set2->len;j++){
+        for(j = 0;j < YITEMSET_LEN(set2);j++){
             YItem *i2 = YItemSet_getItem(set2,j);
             if(i1->rule == i2->rule && i1->marker == i2->marker){
                 hasIdentical = YTokenSet_isIdentical(i1->lah,i2->lah,g);
@@ -138,11 +163,11 @@ static int YItemSet_canMergeTo(YItemSet *set1,YItemSet *set2){
             return 0;
         }
     }
-    for(j = 0;j < set2->len;j++){
+    for(j = 0;j < YITEMSET_LEN(set2);j++){
         YItem *i2 = YItemSet_getItem(set2,j);
         if(i2->isKernel){
             int found = 0;
-            for(i = 0;i < set1->len;i++){
+            for(i = 0;i < YITEMSET_LEN(set1);i++){
                 YItem *i1 = YItemSet_getItem(set1,i);
                 if(i1->isKernel && i2->isKernel && i1->rule == i2->rule && i1->marker == i2->marker){
                     found = 1;
@@ -158,7 +183,7 @@ static int YItemSet_canMergeTo(YItemSet *set1,YItemSet *set2){
 static int YItemSet_mergeTo(YItemSet *dest,YItemSet *src){
     int i;
     int ret = 0;
-    for(i = 0;i < src->len;i++){
+    for(i = 0;i < YITEMSET_LEN(src);i++){
         YItem *item = YItemSet_getItem(src,i);
         char ret2 = YItemSet_addItem(dest,item->rule,item->marker,0,item->lah,1);
         ret = ret || ret2;
@@ -168,15 +193,13 @@ static int YItemSet_mergeTo(YItemSet *dest,YItemSet *src){
 
 YItemSet *yGenInitialItemSet(YGrammar *g){
     YItemSet *ret = YItemSet_new(g);
-    YItem *item = YItemSet_addItemRaw(ret);
-    item->rule = g->rules;
-    item->marker = 0;
-    item->isKernel = 1;
+    YItemSet_addItem(ret,g->rules,0,1,NULL,0);
+    YItem *item = YItemSet_getItem(ret,0);
     YTokenSet_add(g,item->lah,1);
     return ret;
 }
 int YItemSet_free(YItemSet *set){
-    ya_free(set->items);
+    YTree_free(&set->itemr);
     ya_free(set);
 }
 static int YItemSet_closure(YItemSet *set,YFirstSets *fsets){
@@ -188,9 +211,9 @@ static int YItemSet_closure(YItemSet *set,YFirstSets *fsets){
     while(changed){
         changed = 0;
         int i,j;
-        for(i = 0;i < set->len;i++){
+        for(i = 0;i < YITEMSET_LEN(set);i++){
             YItem *item = YItemSet_getItem(set,i);
-            if(YItem_canShift(item)){
+            if(item->changed && YItem_canShift(item)){
                 YRuleItem *rItem = YItem_getShift(item);
                 if(!rItem->isTerminal){
                     YItem_getFollowSet(item,tSet,g,fsets);
@@ -199,16 +222,18 @@ static int YItemSet_closure(YItemSet *set,YFirstSets *fsets){
                         if(rule->lhs == rItem->id){
                             int changed2 = YItemSet_addItem(set,rule,0,0,tSet,0);
                             changed = changed || changed2;
+                            item = YItemSet_getItem(set,i);
                         }
                     }
                 }
+                item->changed = 0;
             }
         }
     }
 
     int i;
     unsigned int ret = 0;
-    for(i = 0;i < set->len;i++){
+    for(i = 0;i < YITEMSET_LEN(set);i++){
         YItem *item = YItemSet_getItem(set,i);
         if(item->isKernel){
             ret = (ret << 5 + ret) + item->rule->index;
@@ -222,7 +247,7 @@ static int YItemSet_closure(YItemSet *set,YFirstSets *fsets){
 }
 int YItemSet_markReduce(YItemSet *set){
     int i;
-    for(i = 0;i < set->len;i++){
+    for(i = 0;i < YITEMSET_LEN(set);i++){
         YItem *item = YItemSet_getItem(set,i);
         if(!YItem_canShift(item)){
             item->actionType = YACTION_REDUCE;
@@ -234,7 +259,7 @@ int YItemSet_markReduce(YItemSet *set){
 int YItemSet_dump(YItemSet *set,int showLah,FILE *out){
     int i;
     fprintf(out,"i%d\n",set->index);
-    for(i = 0;i < set->len;i++){
+    for(i = 0;i < set->itemr.len;i++){
         YItem_dump(YItemSet_getItem(set,i),set->g,showLah,out);
         fprintf(out,"\n");
     }
@@ -299,6 +324,9 @@ int YItem_dump(YItem *item,YGrammar *g,int showLah,FILE *out){
             break;
         case YACTION_REDUCE:
             fprintf(out," (r)");
+            break;
+        default:
+            assert(0);
     }
     
     return 0;
@@ -391,20 +419,20 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
         if(incList.size != 0){
             YItemSet *set = comeFrom = YItemSetList_poll(&incList);
             int i;
-            for(i = 0;i < set->len;i++){
+            for(i = 0;i < YITEMSET_LEN(set);i++){
                 YItem *item = YItemSet_getItem(set,i);
                 if(item->actionType == YACTION_NONE){
                     assert(YItem_canShift(item));
                     YRuleItem *shift = YItem_getShift(item);
                     YItemSet *newSet = trash.size > 0 ? YItemSetList_poll(&trash) : YItemSet_new(g);
-                    newSet->len = 0;
+                    YTree_reInit(&newSet->itemr);
                     newSet->complete = 0;
                     newSet->index = index++;
                     YItemSetList_append(&todoList,newSet);
 
                     //mark all the symbols in 'set'
                     int j;
-                    for(j = 0;j < set->len;j++){
+                    for(j = 0;j < YITEMSET_LEN(set);j++){
                         YItem *item1 = YItemSet_getItem(set,j);
                         YRuleItem *rItem = YItem_getShift(item1);
                         if(YItem_canShift(item1) && rItem->id == shift->id && rItem->isTerminal == shift->isTerminal){
@@ -490,7 +518,7 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
                         //fix previous transition actions to merged set
                         if(comeFrom != NULL){
                             int i;
-                            for(i = 0;i < comeFrom->len;i++){
+                            for(i = 0;i < YITEMSET_LEN(comeFrom);i++){
                                 YItem *sItem = YItemSet_getItem(comeFrom,i);
                                 if(sItem->actionType == YACTION_SHIFT && sItem->shift == set){
                                     sItem->shift = gSet;
@@ -653,7 +681,7 @@ YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YConflictList *clist)
     YItemSet *set;
     for(set = list->head.next;set != &list->tail;set = set->next){
         int j,k;
-        for(i = 0;i < set->len;i++){
+        for(i = 0;i < YITEMSET_LEN(set);i++){
             YItem *item = YItemSet_getItem(set,i);
             if(item->actionType == YACTION_SHIFT){
                 YRuleItem *rItem = YItem_getShift(item);

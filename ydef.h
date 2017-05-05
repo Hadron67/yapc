@@ -30,6 +30,12 @@
     #endif
 #endif
 
+#ifdef __GNUC__
+    #define YA_NORETURN __attribute(("noreturn"))
+#else
+    #define YA_NORETURN 
+#endif
+
 #define YYTAB "    "
 
 #endif
