@@ -3,14 +3,9 @@
 
 #include <stdio.h>
 #include "token.h"
+#include "ydef.h"
 
 extern const char *tokenNames[];
-
-typedef struct _yyStringBlock{
-    struct _yyStringBlock *next;
-    int len,size;
-    char data[1];
-}yyStringBlock;
 
 typedef struct _yyScanner{
     FILE *in,*err;
@@ -18,15 +13,15 @@ typedef struct _yyScanner{
     char c;
     int first;
     
-    yyStringBlock *head;
+    YSPool pool;
     
     char *buf;
     int len,size;
 }yyScanner;
 
 int yyScanner_init(yyScanner *s,FILE *in,FILE *err);
-int yyScanner_free(yyScanner *s);
-int yyScanner_next(yyScanner *s,yyToken *t);
+int yyScanner_free(yyScanner *s,char **pool);
+int yyScanner_next(yyScanner *s,yynode *t);
 
 
 #endif

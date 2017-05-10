@@ -5,122 +5,98 @@ state 68,reduce/reduce conflict:
     token: <)>
     used:[ 18: exprList -> assignExpr . ]* (r)
     discarded:[ 53: nonEmptyArgList -> assignExpr . ]* (r)
-
 state 68,reduce/reduce conflict:
     token: <,>
     used:[ 18: exprList -> assignExpr . ]* (r)
     discarded:[ 53: nonEmptyArgList -> assignExpr . ]* (r)
-
 state 91,shift/reduce conflict:
     token: </=>
     used:[ 25: assignOptr -> . </=> ] (s3)
     discarded:[ 48: lambdaBody -> assignExpr . ]* (r)
-
 state 91,shift/reduce conflict:
     token: <*=>
     used:[ 24: assignOptr -> . <*=> ] (s4)
     discarded:[ 48: lambdaBody -> assignExpr . ]* (r)
-
 state 91,shift/reduce conflict:
     token: <-=>
     used:[ 23: assignOptr -> . <-=> ] (s5)
     discarded:[ 48: lambdaBody -> assignExpr . ]* (r)
-
 state 91,shift/reduce conflict:
     token: <+=>
     used:[ 22: assignOptr -> . <+=> ] (s6)
     discarded:[ 48: lambdaBody -> assignExpr . ]* (r)
-
 state 91,shift/reduce conflict:
     token: <=>
     used:[ 21: assignOptr -> . <=> ] (s7)
     discarded:[ 48: lambdaBody -> assignExpr . ]* (r)
-
 state 95,shift/reduce conflict:
     token: <?>
     used:[ 27: conditionalExpr -> binaryExpr . <?> assignExpr <:> assignExpr ]* (s96)
     discarded:[ 26: conditionalExpr -> binaryExpr . ]* (r)
-
 state 95,shift/reduce conflict:
     token: <->
     used:[ 29: binaryExpr -> binaryExpr . <-> multiplyExpr ]* (s100)
     discarded:[ 26: conditionalExpr -> binaryExpr . ]* (r)
-
 state 95,shift/reduce conflict:
     token: <+>
     used:[ 28: binaryExpr -> binaryExpr . <+> multiplyExpr ]* (s106)
     discarded:[ 26: conditionalExpr -> binaryExpr . ]* (r)
-
 state 99,shift/reduce conflict:
     token: </=>
     used:[ 25: assignOptr -> . </=> ] (s3)
     discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr . ]* (r)
-
 state 99,shift/reduce conflict:
     token: <*=>
     used:[ 24: assignOptr -> . <*=> ] (s4)
     discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr . ]* (r)
-
 state 99,shift/reduce conflict:
     token: <-=>
     used:[ 23: assignOptr -> . <-=> ] (s5)
     discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr . ]* (r)
-
 state 99,shift/reduce conflict:
     token: <+=>
     used:[ 22: assignOptr -> . <+=> ] (s6)
     discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr . ]* (r)
-
 state 99,shift/reduce conflict:
     token: <=>
     used:[ 21: assignOptr -> . <=> ] (s7)
     discarded:[ 27: conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr . ]* (r)
-
 state 101,shift/reduce conflict:
     token: </>
     used:[ 32: multiplyExpr -> multiplyExpr . </> unaryExpr ]* (s102)
     discarded:[ 29: binaryExpr -> binaryExpr <-> multiplyExpr . ]* (r)
-
 state 101,shift/reduce conflict:
     token: <*>
     used:[ 31: multiplyExpr -> multiplyExpr . <*> unaryExpr ]* (s104)
     discarded:[ 29: binaryExpr -> binaryExpr <-> multiplyExpr . ]* (r)
-
 state 107,shift/reduce conflict:
     token: </>
     used:[ 32: multiplyExpr -> multiplyExpr . </> unaryExpr ]* (s102)
     discarded:[ 28: binaryExpr -> binaryExpr <+> multiplyExpr . ]* (r)
-
 state 107,shift/reduce conflict:
     token: <*>
     used:[ 31: multiplyExpr -> multiplyExpr . <*> unaryExpr ]* (s104)
     discarded:[ 28: binaryExpr -> binaryExpr <+> multiplyExpr . ]* (r)
-
 state 108,shift/reduce conflict:
     token: </>
     used:[ 32: multiplyExpr -> multiplyExpr . </> unaryExpr ]* (s102)
     discarded:[ 30: binaryExpr -> multiplyExpr . ]* (r)
-
 state 108,shift/reduce conflict:
     token: <*>
     used:[ 31: multiplyExpr -> multiplyExpr . <*> unaryExpr ]* (s104)
     discarded:[ 30: binaryExpr -> multiplyExpr . ]* (r)
-
 state 112,shift/reduce conflict:
     token: <member>
     used:[ 38: trailer -> trailer . <member> ]* (s54)
     discarded:[ 35: atomicExpr -> atom trailer . ]* (r)
-
 state 112,shift/reduce conflict:
     token: <(>
     used:[ 37: trailer -> trailer . <(> argList <)> ]* (s55)
     discarded:[ 35: atomicExpr -> atom trailer . ]* (r)
-
 state 112,shift/reduce conflict:
     token: <[>
     used:[ 36: trailer -> trailer . <[> subscript <]> ]* (s58)
     discarded:[ 35: atomicExpr -> atom trailer . ]* (r)
-
 warning: 24 conflict(s) detected.
 
 i0

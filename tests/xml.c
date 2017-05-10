@@ -6,13 +6,13 @@
 static const int yytokenCount = 11;
 static const int yyntCount = 9;
 #ifndef YYMALLOC
-    #define YYMALLOC malloc
+    #define YYMALLOC(parser,size) malloc(size)
 #endif
 #ifndef YYREALLOC
-    #define YYREALLOC realloc
+    #define YYREALLOC(parser,ptr,size) realloc((ptr),(size))
 #endif
 #ifndef YYFREE
-    #define YYFREE free
+    #define YYFREE(parser,ptr) free((ptr))
 #endif
 #ifndef YYDESTRUCTOR
     #define YYDESTRUCTOR(a)
@@ -20,7 +20,7 @@ static const int yyntCount = 9;
 #define YYPUSH_STATE(s) \
     if(yyparser->sLen >= yyparser->sSize){ \
         yyparser->sSize *= 2; \
-        yyparser->state = (int *)YYREALLOC(yyparser->state,sizeof(int) * yyparser->sSize); \
+        yyparser->state = (int *)YYREALLOC(yyparser,yyparser->state,sizeof(int) * yyparser->sSize); \
     } \
     yyparser->state[yyparser->sLen++] = (s);
 
@@ -29,7 +29,7 @@ static const int yyntCount = 9;
     if(yyparser->sp - yyparser->pstack >= yyparser->pSize){\
         size_t offset = yyparser->sp - yyparser->pstack;\
         yyparser->pSize *= 2;\
-        yyparser->pstack = (int *)YYREALLOC(yyparser->pstack,sizeof(int) * yyparser->pSize);\
+        yyparser->pstack = (int *)YYREALLOC(yyparser,yyparser->pstack,sizeof(int) * yyparser->pSize);\
         yyparser->sp = yyparser->pstack + offset;\
     }
 /*
@@ -226,110 +226,110 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
     switch(yyrule){
         case 0:
             /* (accept) -> xml  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 1:
             /* xml -> head body  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 2:
             /* head -> <lt?> <id> properties <gt?>  */
-            /* no action. */
             yyval = yyparser->sp[-4];
+            /* no action. */
             yyparser->sp -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 3:
             /* head ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 4:
             /* body -> tag  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 5:
             /* tag -> <lt> <id> properties <gt> innerTag <lt> </> <id> <gt>  */
-            /* no action. */
             yyval = yyparser->sp[-9];
+            /* no action. */
             yyparser->sp -= 9;
             *yyparser->sp++ = yyval;
             break;
         case 6:
             /* tag -> <lt> <id> properties </> <gt>  */
-            /* no action. */
             yyval = yyparser->sp[-5];
+            /* no action. */
             yyparser->sp -= 5;
             *yyparser->sp++ = yyval;
             break;
         case 7:
             /* innerTag -> tag  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 8:
             /* innerTag -> <content>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 9:
             /* innerTag ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 10:
             /* properties -> properties property  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 11:
             /* properties ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 12:
             /* property -> propertyName  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 13:
             /* property -> propertyName <=> <string>  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 14:
             /* propertyName -> <id> <:> <id>  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 15:
             /* propertyName -> <id>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
@@ -343,9 +343,9 @@ int yyParser_init(yyParser *yyparser){
     yyparser->sLen = 1;
     yyparser->done = 0;
     yyparser->sSize = yyparser->pSize = 16;
-    yyparser->state = (int *)YYMALLOC(sizeof(int) * yyparser->sSize);
+    yyparser->state = (int *)YYMALLOC(yyparser,sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
-    yyparser->sp = yyparser->pstack = (int *)YYMALLOC(sizeof(int) * yyparser->pSize);
+    yyparser->sp = yyparser->pstack = (int *)YYMALLOC(yyparser,sizeof(int) * yyparser->pSize);
     return 0;
 }
 static int yyParser_clearStack(yyParser *yyparser){
@@ -365,8 +365,8 @@ int yyParser_reInit(yyParser *yyparser){
 }
 int yyParser_free(yyParser *yyparser){
     yyParser_clearStack(yyparser);
-    YYFREE(yyparser->state);
-    YYFREE(yyparser->pstack);
+    YYFREE(yyparser,yyparser->state);
+    YYFREE(yyparser,yyparser->pstack);
     return 0;
 }
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid){

@@ -49,9 +49,9 @@ int YGrammar_dump(YGrammar *g,FILE *out){
     return 0;
 }
 int YGrammar_free(YGrammar *g){
-    ya_free(g->tests);
-    ya_free(g->spool);
-    ya_free(g);
+    ya_free(g->heap,g->tests);
+    ya_free(g->heap,g->spool);
+    ya_free(g->heap,g);
     return 0;
 }
 
@@ -149,7 +149,7 @@ YFirstSets *YGrammar_generateFirstSets(YGrammar *g){
     if(count % SBITS != 0){
         size++;
     }
-    YFirstSets *sets = (YFirstSets *)ya_malloc(sizeof(YFirstSets) + g->ntCount * size * sizeof(char));
+    YFirstSets *sets = (YFirstSets *)ya_malloc(g->heap,sizeof(YFirstSets) + g->ntCount * size * sizeof(char));
     memset(sets->data,0,g->ntCount * size * sizeof(char));
     sets->g = g;
     sets->size = size;
@@ -238,6 +238,6 @@ int YFirstSets_dump(YFirstSets *sets,FILE *out){
     return 0;
 }
 int YFirstSets_free(YFirstSets *sets){
-    ya_free(sets);
+    ya_free(sets->g->heap,sets);
     return 0;
 }

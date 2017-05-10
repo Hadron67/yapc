@@ -19,14 +19,14 @@
 
 #ifndef __PARSER_H__
 #define __PARSER_H__
-#include <setjmp.h>
+
 #include "spool.h"
 #include "grammar_builder.h"
 #include "yparser.h"
 
 typedef struct _YGParser{
     FILE *in,*err;
-    
+    yheap_t *heap;
     char c;
     char *buf;
     int len,size;
@@ -38,7 +38,7 @@ typedef struct _YGParser{
     yyParser parser;
 }YGParser;
 
-int YGParser_init(YGParser *parser,FILE *err);
+int YGParser_init(YGParser *parser,FILE *err,yheap_t *heap);
 YGrammar *YGParser_parse(YGParser *parser,FILE *in);
 
 #endif

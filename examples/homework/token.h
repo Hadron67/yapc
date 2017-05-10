@@ -1,27 +1,50 @@
 #ifndef __TOKEN_H__
 #define __TOKEN_H__
 
-#include "parser.h"
+#include "execute_def.h"
 
-#define YTYPEID_REAL   1
-#define YTYPEID_CHAR   2
-#define YTYPEID_STRING 3
+typedef enum _yynodetype_t {
+    YY_IS_CONST = 1,
+    YY_IS_TEMP,
+    YY_IS_VAR
+}yynodetype_t;
 
+typedef enum _yyvartype_t{
+    YY_TYPE_INT = 1,
+    YY_TYPE_ANY
+}yyvartype_t;
 
-typedef struct _yyToken{
+typedef enum _ybop_t{
+    YBOP_MINUS = 1,
+    YBOP_TIMES,
+    YBOP_LT,
+    YBOP_GT,
+    YBOP_LTOE,
+    YBOP_GTOE,
+    YBOP_EQ,
+    YBOP_NE
+}ybop_t;
+
+#include "spool.h"
+
+typedef struct _yynode{
     int id;
     int line;
     int lineCount;
+    yynodetype_t type;
+    yyvartype_t varType;
     union{
-        struct _yyTokenImage{
-            char *s;
+        struct _yyImage{
+            ysptr s;
             int len;
         }image;
         int i;    
-        int typeid;
-        double d;    
+        double d;   
+        int opline;
+        int varPos;
+        void *ptr;
     }u;
-}yyToken;
+}yynode;
 
 
 #endif

@@ -41,6 +41,11 @@ extern "C" {
 #define T_BRA 21
 #define T_KET 22
 #define T_SEMI_COLLON 23
+#define T_COMMA 24
+#define T_PLUS 25
+#define T_DIVIDE 26
+#define T_MOD 27
+#define T_HALT_COMPILER 28
 
 
 extern const char *yytokenNames[];
@@ -64,11 +69,11 @@ typedef struct _yyParser{
     int *state;
     int sLen,sSize;
     //sematic stack
-    int *pstack,*sp;
+    yynode *pstack,*sp;
     int pSize;
     //current token,this token would be accepted
     //when yyParser_acceptTokenis called.
-    int token;
+    yynode token;
     //this would be set to 1 when input is accepted.
     int done;
     //this would be set to 1 when a syntax error is detected.

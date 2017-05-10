@@ -2,7 +2,6 @@ state 12,shift/reduce conflict:
     token: <lt>
     used:[ 6: tag -> . <lt> <id> properties </> <gt> ] (s7)
     discarded:[ 9: innerTag -> . ] (r)
-
 warning: 1 conflict(s) detected.
 
 i0

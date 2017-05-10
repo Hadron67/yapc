@@ -6,13 +6,13 @@
 static const int yytokenCount = 7;
 static const int yyntCount = 5;
 #ifndef YYMALLOC
-    #define YYMALLOC malloc
+    #define YYMALLOC(parser,size) malloc(size)
 #endif
 #ifndef YYREALLOC
-    #define YYREALLOC realloc
+    #define YYREALLOC(parser,ptr,size) realloc((ptr),(size))
 #endif
 #ifndef YYFREE
-    #define YYFREE free
+    #define YYFREE(parser,ptr) free((ptr))
 #endif
 #ifndef YYDESTRUCTOR
     #define YYDESTRUCTOR(a)
@@ -20,7 +20,7 @@ static const int yyntCount = 5;
 #define YYPUSH_STATE(s) \
     if(yyparser->sLen >= yyparser->sSize){ \
         yyparser->sSize *= 2; \
-        yyparser->state = (int *)YYREALLOC(yyparser->state,sizeof(int) * yyparser->sSize); \
+        yyparser->state = (int *)YYREALLOC(yyparser,yyparser->state,sizeof(int) * yyparser->sSize); \
     } \
     yyparser->state[yyparser->sLen++] = (s);
 
@@ -29,7 +29,7 @@ static const int yyntCount = 5;
     if(yyparser->sp - yyparser->pstack >= yyparser->pSize){\
         size_t offset = yyparser->sp - yyparser->pstack;\
         yyparser->pSize *= 2;\
-        yyparser->pstack = (int *)YYREALLOC(yyparser->pstack,sizeof(int) * yyparser->pSize);\
+        yyparser->pstack = (int *)YYREALLOC(yyparser,yyparser->pstack,sizeof(int) * yyparser->pSize);\
         yyparser->sp = yyparser->pstack + offset;\
     }
 /*
@@ -118,42 +118,42 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
     switch(yyrule){
         case 0:
             /* (accept) -> simpleExpr  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 1:
             /* simpleExpr -> sign factor  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 2:
             /* sign ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 3:
             /* factor -> <NUM>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 4:
             /* factor -> variable  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 5:
             /* variable -> <ID> <[> simpleExpr <]>  */
-            /* no action. */
             yyval = yyparser->sp[-4];
+            /* no action. */
             yyparser->sp -= 4;
             *yyparser->sp++ = yyval;
             break;
@@ -167,9 +167,9 @@ int yyParser_init(yyParser *yyparser){
     yyparser->sLen = 1;
     yyparser->done = 0;
     yyparser->sSize = yyparser->pSize = 16;
-    yyparser->state = (int *)YYMALLOC(sizeof(int) * yyparser->sSize);
+    yyparser->state = (int *)YYMALLOC(yyparser,sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
-    yyparser->sp = yyparser->pstack = (int *)YYMALLOC(sizeof(int) * yyparser->pSize);
+    yyparser->sp = yyparser->pstack = (int *)YYMALLOC(yyparser,sizeof(int) * yyparser->pSize);
     return 0;
 }
 static int yyParser_clearStack(yyParser *yyparser){
@@ -189,8 +189,8 @@ int yyParser_reInit(yyParser *yyparser){
 }
 int yyParser_free(yyParser *yyparser){
     yyParser_clearStack(yyparser);
-    YYFREE(yyparser->state);
-    YYFREE(yyparser->pstack);
+    YYFREE(yyparser,yyparser->state);
+    YYFREE(yyparser,yyparser->pstack);
     return 0;
 }
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid){

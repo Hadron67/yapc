@@ -8,18 +8,24 @@
 #include "grammar_builder.h"
 #include "grammar.h"
 #include "spool.h"
+#define YYMALLOC(parser,size) \
+    ya_malloc(((YGBuilder *)parser->userData)->heap,(size))
+#define YYREALLOC(parser,ptr,size) \
+    ya_realloc(((YGBuilder *)parser->userData)->heap,(ptr),(size))
+#define YYFREE(parser,ptr) \
+    ya_free(((YGBuilder *)parser->userData)->heap,(ptr))
 
 #include "yparser.h"
 static const int yytokenCount = 24;
 static const int yyntCount = 24;
 #ifndef YYMALLOC
-    #define YYMALLOC malloc
+    #define YYMALLOC(parser,size) malloc(size)
 #endif
 #ifndef YYREALLOC
-    #define YYREALLOC realloc
+    #define YYREALLOC(parser,ptr,size) realloc((ptr),(size))
 #endif
 #ifndef YYFREE
-    #define YYFREE free
+    #define YYFREE(parser,ptr) free((ptr))
 #endif
 #ifndef YYDESTRUCTOR
     #define YYDESTRUCTOR(a)
@@ -27,7 +33,7 @@ static const int yyntCount = 24;
 #define YYPUSH_STATE(s) \
     if(yyparser->sLen >= yyparser->sSize){ \
         yyparser->sSize *= 2; \
-        yyparser->state = (int *)YYREALLOC(yyparser->state,sizeof(int) * yyparser->sSize); \
+        yyparser->state = (int *)YYREALLOC(yyparser,yyparser->state,sizeof(int) * yyparser->sSize); \
     } \
     yyparser->state[yyparser->sLen++] = (s);
 
@@ -36,7 +42,7 @@ static const int yyntCount = 24;
     if(yyparser->sp - yyparser->pstack >= yyparser->pSize){\
         size_t offset = yyparser->sp - yyparser->pstack;\
         yyparser->pSize *= 2;\
-        yyparser->pstack = (YToken *)YYREALLOC(yyparser->pstack,sizeof(YToken) * yyparser->pSize);\
+        yyparser->pstack = (YToken *)YYREALLOC(yyparser,yyparser->pstack,sizeof(YToken) * yyparser->pSize);\
         yyparser->sp = yyparser->pstack + offset;\
     }
 /*
@@ -671,369 +677,395 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
     switch(yyrule){
         case 0:
             /* (accept) -> file  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 1:
             /* file -> prologue options <%%> body <%%>  */
-            /* no action. */
             yyval = yyparser->sp[-5];
+            /* no action. */
             yyparser->sp -= 5;
             *yyparser->sp++ = yyval;
             break;
         case 2:
             /* options -> options option  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 3:
             /* options ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 4:
             /* option -> <%token> tokenDefs  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 5:
             /* option -> <%type> <string>  */
-            #line 80 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 86 "yparser.y"
             { yydata->stype = (yyparser->sp[-1]).image; }
-            #line 711 "yparser.c"
+            #line 718 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 6:
             /* option -> <%datatype> <string>  */
-            #line 81 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 87 "yparser.y"
             { yydata->dataType = (yyparser->sp[-1]).image; }
-            #line 719 "yparser.c"
+            #line 727 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 7:
             /* option -> <%token_prefix> <string>  */
-            #line 82 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 88 "yparser.y"
             { yydata->tokenPrefix = (yyparser->sp[-1]).image; }
-            #line 727 "yparser.c"
+            #line 736 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 8:
             /* option -> <%namespace> <string>  */
-            #line 83 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 89 "yparser.y"
             { yydata->nameSpace = (yyparser->sp[-1]).image; }
-            #line 735 "yparser.c"
+            #line 745 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 9:
             /* option -> <%enable_cst>  */
-            #line 84 "yparser.y"
+            yyval = yyparser->sp[-1];
+            #line 90 "yparser.y"
             { yydata->genCst = 1; }
-            #line 743 "yparser.c"
+            #line 754 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 10:
             /* option -> <%left> incPr leftTokens  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 11:
             /* option -> <%right> incPr rightTokens  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 12:
             /* option -> <%nonassoc> incPr nonassocTokens  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 13:
             /* prologue -> <prologue>  */
-            #line 90 "yparser.y"
+            yyval = yyparser->sp[-1];
+            #line 96 "yparser.y"
             { yydata->prologue = (yyparser->sp[-1]).image; }
-            #line 772 "yparser.c"
+            #line 784 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 14:
             /* prologue ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 15:
             /* tokenDefs -> tokenDefs <token> <string>  */
-            #line 93 "yparser.y"
+            yyval = yyparser->sp[-3];
+            #line 99 "yparser.y"
             { YGBuilder_addToken(yydata,&(yyparser->sp[-2]),&(yyparser->sp[-1])); }
-            #line 786 "yparser.c"
+            #line 799 "yparser.c"
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 16:
             /* tokenDefs -> <token> <string>  */
-            #line 94 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 100 "yparser.y"
             { YGBuilder_addToken(yydata,&(yyparser->sp[-2]),&(yyparser->sp[-1])); }
-            #line 794 "yparser.c"
+            #line 808 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 17:
             /* incPr ->  */
-            #line 97 "yparser.y"
+            yyval = yyparser->sp[0];
+            #line 103 "yparser.y"
             { yydata->prLevel++; }
-            #line 802 "yparser.c"
+            #line 817 "yparser.c"
             *yyparser->sp++ = yyval;
             break;
         case 18:
             /* leftTokens -> leftTokens <token>  */
-            #line 100 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 106 "yparser.y"
             { YGBuilder_setTokenPrecedence(yydata,&(yyparser->sp[-1]),YP_LEFT); }
-            #line 809 "yparser.c"
+            #line 825 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 19:
             /* leftTokens -> <token>  */
-            #line 101 "yparser.y"
+            yyval = yyparser->sp[-1];
+            #line 107 "yparser.y"
             { YGBuilder_setTokenPrecedence(yydata,&(yyparser->sp[-1]),YP_LEFT); }
-            #line 817 "yparser.c"
+            #line 834 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 20:
             /* rightTokens -> rightTokens <token>  */
-            #line 104 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 110 "yparser.y"
             { YGBuilder_setTokenPrecedence(yydata,&(yyparser->sp[-1]),YP_RIGHT); }
-            #line 825 "yparser.c"
+            #line 843 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 21:
             /* rightTokens -> <token>  */
-            #line 105 "yparser.y"
+            yyval = yyparser->sp[-1];
+            #line 111 "yparser.y"
             { YGBuilder_setTokenPrecedence(yydata,&(yyparser->sp[-1]),YP_RIGHT); }
-            #line 833 "yparser.c"
+            #line 852 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 22:
             /* nonassocTokens -> nonassocTokens <token>  */
-            #line 108 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 114 "yparser.y"
             { YGBuilder_setTokenPrecedence(yydata,&(yyparser->sp[-1]),YP_NONASSOC); }
-            #line 841 "yparser.c"
+            #line 861 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 23:
             /* nonassocTokens -> <token>  */
-            #line 109 "yparser.y"
+            yyval = yyparser->sp[-1];
+            #line 115 "yparser.y"
             { YGBuilder_setTokenPrecedence(yydata,&(yyparser->sp[-1]),YP_NONASSOC); }
-            #line 849 "yparser.c"
+            #line 870 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 24:
             /* body -> body bodyItem  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 25:
             /* body -> bodyItem  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 26:
             /* bodyItem -> compoundRule <;>  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 27:
             /* bodyItem -> test <;>  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 28:
             /* test -> <%test> tokenList  */
-            #line 116 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 122 "yparser.y"
             { YGBuilder_commitTest(yydata); }
-            #line 885 "yparser.c"
+            #line 907 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 29:
             /* tokenList -> tokenList <token>  */
-            #line 118 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 124 "yparser.y"
             { YGBuilder_addTestToken(yydata,&(yyparser->sp[-1])); }
-            #line 893 "yparser.c"
+            #line 916 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 30:
             /* tokenList ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 31:
             /* @1 ->  */
-            #line 121 "yparser.y"
+            #line 127 "yparser.y"
             { yydata->lhs = (yyparser->sp[-1]).image;YGBuilder_prepareRule(yydata,yydata->lhs); }
-            #line 907 "yparser.c"
+            #line 930 "yparser.c"
             break;
         case 32:
             /* compoundRule -> <name> @1 <:> ruleBody  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 33:
             /* ruleBody -> rule  */
-            #line 126 "yparser.y"
+            yyval = yyparser->sp[-1];
+            #line 132 "yparser.y"
             { YGBuilder_commitRule(yydata); }
-            #line 920 "yparser.c"
+            #line 944 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 34:
             /* @2 ->  */
-            #line 127 "yparser.y"
+            #line 133 "yparser.y"
             { YGBuilder_prepareRule(yydata,yydata->lhs); }
-            #line 928 "yparser.c"
+            #line 952 "yparser.c"
             break;
         case 35:
             /* ruleBody -> ruleBody @2 <|> rule  */
-            #line 128 "yparser.y"
+            yyval = yyparser->sp[-3];
+            #line 134 "yparser.y"
             { YGBuilder_commitRule(yydata); }
-            #line 934 "yparser.c"
+            #line 959 "yparser.c"
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 36:
             /* rule -> ruleItems rulePrec  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 37:
             /* ruleItems -> ruleItems ruleItem  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 38:
             /* ruleItems -> <%empty>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 39:
             /* ruleItems ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 40:
             /* rulePrec ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 41:
             /* rulePrec -> nonEmptyRulePrec  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 42:
             /* rulePrec -> nonEmptyRulePrec <block>  */
-            #line 138 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 144 "yparser.y"
             { YGBuilder_addBlockItem(yydata,(yyparser->sp[-1]).image,(yyparser->sp[-1]).line); }
-            #line 982 "yparser.c"
+            #line 1008 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 43:
             /* nonEmptyRulePrec -> <%prec> <token>  */
-            #line 142 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 148 "yparser.y"
             { YGBuilder_setRulePrecedence(yydata,&(yyparser->sp[-1]),NULL); }
-            #line 990 "yparser.c"
+            #line 1017 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 44:
             /* nonEmptyRulePrec -> <%prec> <token> num  */
-            #line 143 "yparser.y"
+            yyval = yyparser->sp[-3];
+            #line 149 "yparser.y"
             { YGBuilder_setRulePrecedence(yydata,&(yyparser->sp[-2]),&(yyparser->sp[-1])); }
-            #line 998 "yparser.c"
+            #line 1026 "yparser.c"
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 45:
             /* num -> <NUM>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 46:
             /* num -> <-> <NUM>  */
-            #line 146 "yparser.y"
+            yyval = yyparser->sp[-2];
+            #line 152 "yparser.y"
             { yyval.num = -(yyparser->sp[-1]).num; }
-            #line 1013 "yparser.c"
+            #line 1042 "yparser.c"
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 47:
             /* ruleItem -> <token>  */
-            #line 149 "yparser.y"
+            yyval = yyparser->sp[-1];
+            #line 155 "yparser.y"
             { YGBuilder_addRuleItem(yydata,(yyparser->sp[-1]).image,1); }
-            #line 1021 "yparser.c"
+            #line 1051 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 48:
             /* ruleItem -> <name>  */
-            #line 150 "yparser.y"
+            yyval = yyparser->sp[-1];
+            #line 156 "yparser.y"
             { YGBuilder_addRuleItem(yydata,(yyparser->sp[-1]).image,0); }
-            #line 1029 "yparser.c"
+            #line 1060 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 49:
             /* ruleItem -> <block>  */
-            #line 151 "yparser.y"
+            yyval = yyparser->sp[-1];
+            #line 157 "yparser.y"
             { YGBuilder_addBlockItem(yydata,(yyparser->sp[-1]).image,(yyparser->sp[-1]).line); }
-            #line 1037 "yparser.c"
+            #line 1069 "yparser.c"
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
@@ -1047,9 +1079,9 @@ int yyParser_init(yyParser *yyparser){
     yyparser->sLen = 1;
     yyparser->done = 0;
     yyparser->sSize = yyparser->pSize = 16;
-    yyparser->state = (int *)YYMALLOC(sizeof(int) * yyparser->sSize);
+    yyparser->state = (int *)YYMALLOC(yyparser,sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
-    yyparser->sp = yyparser->pstack = (YToken *)YYMALLOC(sizeof(YToken) * yyparser->pSize);
+    yyparser->sp = yyparser->pstack = (YToken *)YYMALLOC(yyparser,sizeof(YToken) * yyparser->pSize);
     return 0;
 }
 static int yyParser_clearStack(yyParser *yyparser){
@@ -1069,8 +1101,8 @@ int yyParser_reInit(yyParser *yyparser){
 }
 int yyParser_free(yyParser *yyparser){
     yyParser_clearStack(yyparser);
-    YYFREE(yyparser->state);
-    YYFREE(yyparser->pstack);
+    YYFREE(yyparser,yyparser->state);
+    YYFREE(yyparser,yyparser->pstack);
     return 0;
 }
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid){

@@ -21,88 +21,48 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ytest.h"
+#include "array.h"
 
 typedef struct _YTStackItem{
     int isTerminal;
     int id;
 }YTStackItem;
 
-typedef struct _YTStack{
-    int len,size;
-    YTStackItem *items;
-}YTStack; 
-
 typedef struct _YTest{
+    yheap_t *heap;
     YGrammar *g;
     YParseTable *table;
     FILE *out;
-    YTStack stack;
+    YArray stack;
+    YArray state;
+    
     int *test;
     int len,p;
 
-    int *state;
-    int sLen,sSize;
 }YTest;
 
-static int YTStack_init(YTStack *s){
-    s->len = 0;
-    s->size = 16;
-    s->items = (YTStackItem *)ya_malloc(sizeof(YTStack) * s->size);
-}
-
-static int YTStack_free(YTStack *s){
-    ya_free(s->items);
-}
-
-static int YTStack_push(YTStack *s,int isTerminal,int id){
-    if(s->len >= s->size){
-        s->size *= 2;
-        s->items = (YTStackItem *)ya_realloc(s->items,sizeof(YTStack) * s->size);
-    }
-    YTStackItem *i = s->items + s->len++;
-    i->isTerminal = isTerminal;
-    i->id = id;
-}
-
-static int YTStack_pop(YTStack *s,int count){
-    while(count --> 0){
-        s->len--;
-    }
-    return 0;
-}
-
 static int YTest_init(YTest *t){
-    YTStack_init(&t->stack);
-    t->sLen = 0;
-    t->sSize = 16;
-    t->state = (int *)ya_malloc(sizeof(int) * t->sSize);
+    YArray_init(&t->stack,sizeof(YTStackItem),16,t->heap);
+    YArray_init(&t->state,sizeof(int),16,t->heap);
     return 0;
 }
 
 static int YTest_free(YTest *t){
-    YTStack_free(&t->stack);
-    ya_free(t->state);
-}
-
-static int YTest_pushS(YTest *t,int s){
-    if(t->sLen >= t->sSize){
-        t->sSize *= 2;
-        t->state = (int *)ya_realloc(t->state,sizeof(int) * t->sSize);
-    }
-    t->state[t->sLen++] = s;
+    YArray_free(&t->stack,NULL);
+    YArray_free(&t->state,NULL);
     return 0;
 }
 
 static int YTest_pop(YTest *t,int count){
     while(count --> 0){
-        t->sLen--;
+        YArray_pop(&t->state);
     }
 }
 
 static int YTest_dump(YTest *t){
     int i;
     for(i = 0;i < t->stack.len;i++){
-        YTStackItem *item = t->stack.items + i;
+        YTStackItem *item = (YTStackItem *)YArray_get(&t->stack,i);
         if(item->isTerminal){
             fprintf(t->out,"<%s> ",t->g->tokens[item->id].name);
         }
@@ -115,21 +75,22 @@ static int YTest_dump(YTest *t){
         fprintf(t->out,"<%s> ",t->g->tokens[t->test[i]].name);
     }
     fprintf(t->out,"[");
-    for(i = 0;i < t->sLen;i++){
-        fprintf(t->out,"%d ",t->state[i]);
+    for(i = 0;i < t->state.len;i++){
+        fprintf(t->out,"%d ",*(int *)YArray_get(&t->state,i));
     }
     fprintf(t->out,"]\n");
     return 0;
 }
 
 static int yRunTest(YTest *t){
-    t->sLen = t->p = 0;
+    t->p = 0;
     t->stack.len = 0;
-    YTest_pushS(t,0);
+    t->state.len = 0;
+    *(int *)YArray_push(&t->state) = 0;
     while(1){
         YTest_dump(t);
         int token = t->p >= t->len ? 0 : t->test[t->p];
-        int state = t->state[t->sLen - 1];
+        int state = *(int *)YArray_get(&t->state,t->state.len - 1);
         int index = state * t->g->tokenCount + token;
         YItem *item = t->table->shift[index];
         if(item == NULL){
@@ -138,8 +99,10 @@ static int yRunTest(YTest *t){
         }
         else if(item->actionType == YACTION_SHIFT){
             //do a shift
-            YTStack_push(&t->stack,1,token);
-            YTest_pushS(t,item->shift->index);
+            YTStackItem *si = (YTStackItem *)YArray_push(&t->stack);
+            si->id = token;
+            si->isTerminal = 1;
+            *(int *)YArray_push(&t->state) = item->shift->index;
             t->p++;
         }
         else if(item->actionType == YACTION_REDUCE){
@@ -148,19 +111,26 @@ static int yRunTest(YTest *t){
                 fprintf(t->out,"accepted!\n\n");
                 break;//accept
             }
-            YTest_pop(t,item->rule->length);
-            YTStack_pop(&t->stack,item->rule->length);
-            YTStack_push(&t->stack,0,item->rule->lhs);
-            state = t->state[t->sLen - 1];
+            int i = item->rule->length;
+            while(i --> 0){
+                YArray_pop(&t->state);
+                YArray_pop(&t->stack);
+            }
+            YTStackItem *si = (YTStackItem *)YArray_push(&t->stack);
+            si->id = item->rule->lhs;
+            si->isTerminal = 0;
+            state = *(int *)YArray_get(&t->state,t->state.len - 1);
             index = state * t->g->ntCount + item->rule->lhs;
             YItem *i2 = t->table->gotot[index];
-            YTest_pushS(t,i2->shift->index);
+            *(int *)YArray_push(&t->state) = i2->shift->index;
         }
     }
 }
 
 int yRunTests(YGrammar *g,YParseTable *table,FILE *out){
     YTest test;
+    // XXX: replace with a valid heap
+    test.heap = NULL;
     YTest_init(&test);
     test.g = g;
     test.out = out;

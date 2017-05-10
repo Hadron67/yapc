@@ -23,16 +23,22 @@
 #include "ydef.h"
 #include <stdio.h>
 
-YAPC_API void *yNewContext();
-YAPC_API void yDestroyContext(void *ctx);
+typedef struct _YContext YContext;
 
-YAPC_API int yParseFile(void *ctx,FILE *file,const char *fname,FILE *err);
-YAPC_API int yGenerateTable(void *ctx);
-YAPC_API int yPrintItemSets(void *ctx,int showLah,FILE *out);
-YAPC_API int yPrintGenerationWarnings(void *ctx,FILE *out);
-YAPC_API int yPrintTestResult(void *ctx,FILE *out);
-YAPC_API int yGenerateCCode(void *ctx,FILE *header,FILE *source,const char *headern,const char *sourcen);
+typedef void (*ybad_alloc_cb)(void *arg);
 
-YAPC_API int yConvertFileNames(void *ctx,const char *ysource,const char **header,const char **source,const char **out);
+YAPC_API YContext *yNewContext();
+YAPC_API void yDestroyContext(YContext *ctx);
+
+YAPC_API void ySetBadAllocCb(YContext *ctx,ybad_alloc_cb cb,void *arg);
+
+YAPC_API int yParseFile(YContext *ctx,FILE *file,const char *fname,FILE *err);
+YAPC_API int yGenerateTable(YContext *ctx);
+YAPC_API int yPrintItemSets(YContext *ctx,int showLah,FILE *out);
+YAPC_API int yPrintGenerationWarnings(YContext *ctx,FILE *out);
+YAPC_API int yPrintTestResult(YContext *ctx,FILE *out);
+YAPC_API int yGenerateCCode(YContext *ctx,FILE *header,FILE *source,const char *headern,const char *sourcen);
+
+YAPC_API int yConvertFileNames(YContext *ctx,const char *ysource,const char **header,const char **source,const char **out);
 
 #endif

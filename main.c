@@ -64,35 +64,39 @@ static int parseArg(YConfig *config,int agv,const char *ags[]){
 int main(int agv,const char *ags[]){
     int ret = 0;
     YConfig config;
+    YContext *yctx = NULL;
+    FILE *gram = NULL,*out = NULL,*source = NULL,*header = NULL;
+
     if(parseArg(&config,agv,ags)){
         return -1;
     }
 
     if(config.input == NULL){
-        fprintf(stderr,"%s: fatal error: no input file.\n",ags[0]);
+        fprintf(stderr,YFATAL_ERROR_COLORED "no input file.\n");
         return -1;
     }
 
-    FILE *f = fopen(config.input,"ro");
+    gram = fopen(config.input,"ro");
     
-    if(f == NULL){
-        fprintf(stderr,"%s: fatal error: %s: %s\n",ags[0],ags[1],strerror(errno));
-        return -1;
+    if(gram == NULL){
+        fprintf(stderr,YFATAL_ERROR_COLORED "%s: %s\n",config.input,strerror(errno));
+        ret = -1;
+        goto ret;
     }
 
-    void *yctx = yNewContext();
+    yctx = yNewContext();
 
-    if(!yParseFile(yctx,f,ags[1],stderr)){
+    if(!yParseFile(yctx,gram,config.input,stderr)){
         const char *sourcen,*headern,*outn;
-        FILE *out;
 
         yConvertFileNames(yctx,config.input,&headern,&sourcen,&outn);
 
-        if(config.output != NULL){
-            out = fopen(config.output,"wo");
-        }
-        else {
-            out = fopen(outn,"wo");
+        outn = config.output == NULL ? outn : config.output;
+        out = fopen(outn,"wo");
+        if(out == NULL){
+            fprintf(stderr,YERROR_COLORED "cannot create output file %s: %s\n",outn,strerror(errno));
+            ret = -1;
+            goto ret;
         }
 
         yGenerateTable(yctx);
@@ -102,21 +106,32 @@ int main(int agv,const char *ags[]){
 
         yPrintGenerationWarnings(yctx,stdout);
 
-        FILE *source = fopen(sourcen,"wo");
-        FILE *header = fopen(headern,"wo");
+        source = fopen(sourcen,"wo");
+        header = fopen(headern,"wo");
+        if(source == NULL){
+            fprintf(stderr,YERROR_COLORED "cannot create source file %s: %s\n",sourcen,strerror(errno));
+            ret = -1;
+            goto ret;
+        }
+        if(header == NULL){
+            fprintf(stderr,YERROR_COLORED "cannot create header file %s: %s\n",headern,strerror(errno));
+            ret = -1;
+            goto ret;
+        }
+
         yGenerateCCode(yctx,header,source,headern,sourcen);
-        fclose(out);
-        fclose(source);
-        fclose(header);
     }
     else {
-        fprintf(stderr,"%s: error: failed to parse grammar file.\n",ags[0]);
+        fprintf(stderr,YFATAL_ERROR_COLORED "failed to parse grammar file.\n");
         ret = -1;
+        goto ret;
     }
 
-    yDestroyContext(yctx);
-
-    fclose(f);
-
+    ret:
+    if(yctx != NULL) yDestroyContext(yctx);
+    if(gram != NULL) fclose(gram);
+    if(out != NULL) fclose(out);
+    if(source != NULL) fclose(source);
+    if(header != NULL) fclose(header);
     return ret;
 }

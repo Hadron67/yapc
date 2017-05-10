@@ -390,7 +390,7 @@ static int yConvertActionBlock(YGen *g,FILE *out,const char *action,int stackOff
                         num *= 10;
                         num += *action++ - '0';
                     }
-                    fprintf(out,"(%sparser->sp[-%d])",g->g->nameSpace,stackOffset - num + 1);
+                    fprintf(out,"(%sparser->sp[%d])",g->g->nameSpace,-(stackOffset - num + 1));
                 }
                 else {
                     fputc('$',out);
@@ -459,6 +459,14 @@ static int yGenReduce(YGen *g,FILE *out){
         YRule_dump(g->g,rule,out);
         fprintf(out," */\n");
         g->line2++;
+        if(!rule->isGen || rule->hasValue){
+            fprintf(out,
+                YYTAB YYTAB YYTAB "%sval = %sparser->sp[%d];\n"
+                ,g->g->nameSpace,g->g->nameSpace
+                ,-rule->stackOffset
+            );
+            g->line2 += 1;
+        }
         if(rule->actionBlock){
             fprintf(out,YYTAB YYTAB YYTAB "#line %d \"%s\"\n",rule->line,g->ysource);
             g->line2++;
@@ -471,12 +479,7 @@ static int yGenReduce(YGen *g,FILE *out){
         }
         else {
             fprintf(out,YYTAB YYTAB YYTAB "/* no action. */\n");
-            fprintf(out,
-                YYTAB YYTAB YYTAB "%sval = %sparser->sp[%d];\n"
-                ,g->g->nameSpace,g->g->nameSpace
-                ,-rule->stackOffset
-            );
-            g->line2 += 2;
+            g->line2 += 1;
         }
         if(!rule->isGen){
             if(rule->stackOffset > 0){
@@ -572,13 +575,13 @@ static int yGenParseCode(YGen *g,FILE *out){
 
     fprintf(out,
         "#ifndef YYMALLOC\n"
-        YYTAB "#define YYMALLOC malloc\n"
+        YYTAB "#define YYMALLOC(parser,size) malloc(size)\n"
         "#endif\n"
         "#ifndef YYREALLOC\n"
-        YYTAB "#define YYREALLOC realloc\n"
+        YYTAB "#define YYREALLOC(parser,ptr,size) realloc((ptr),(size))\n"
         "#endif\n"
         "#ifndef YYFREE\n"
-        YYTAB "#define YYFREE free\n"
+        YYTAB "#define YYFREE(parser,ptr) free((ptr))\n"
         "#endif\n"
     );
     g->line2 += 9;
@@ -594,14 +597,14 @@ static int yGenParseCode(YGen *g,FILE *out){
         "#define YYPUSH_STATE(s) \\\n"
         YYTAB "if(%sparser->sLen >= %sparser->sSize){ \\\n"
         YYTAB YYTAB "%sparser->sSize *= 2; \\\n"
-        YYTAB YYTAB "%sparser->state = (int *)YYREALLOC(%sparser->state,sizeof(int) * %sparser->sSize); \\\n"
+        YYTAB YYTAB "%sparser->state = (int *)YYREALLOC(%sparser,%sparser->state,sizeof(int) * %sparser->sSize); \\\n"
         YYTAB "} \\\n"
         YYTAB "%sparser->state[%sparser->sLen++] = (s);\n"
         "\n"
         "#define YYSTATE() (%sparser->state[%sparser->sLen - 1])\n"
         ,ns,ns
         ,ns
-        ,ns,ns,ns
+        ,ns,ns,ns,ns
         ,ns,ns
         ,ns,ns
     );
@@ -612,13 +615,13 @@ static int yGenParseCode(YGen *g,FILE *out){
         YYTAB "if(%sparser->sp - %sparser->pstack >= %sparser->pSize){\\\n"
         YYTAB YYTAB "size_t offset = %sparser->sp - %sparser->pstack;\\\n"
         YYTAB YYTAB "%sparser->pSize *= 2;\\\n"
-        YYTAB YYTAB "%sparser->pstack = (%s *)YYREALLOC(%sparser->pstack,sizeof(%s) * %sparser->pSize);\\\n"
+        YYTAB YYTAB "%sparser->pstack = (%s *)YYREALLOC(%sparser,%sparser->pstack,sizeof(%s) * %sparser->pSize);\\\n"
         YYTAB YYTAB "%sparser->sp = %sparser->pstack + offset;\\\n"
         YYTAB "}\n"
         ,ns,ns,ns
         ,ns,ns
         ,ns
-        ,ns,stype,ns,stype,ns
+        ,ns,stype,ns,ns,stype,ns
         ,ns,ns
     );
     g->line2 += 7;
@@ -635,11 +638,11 @@ static int yGenParseCode(YGen *g,FILE *out){
             "static int %sParser_pushCst(%sParser *parser,int isT,int id,int length){\n"
             YYTAB "if(parser->cstLen >= parser->cstSize){\n"
             YYTAB YYTAB "parser->cstSize *= 2;\n"
-            YYTAB YYTAB "parser->cst = (%sCst *)YYREALLOC(parser->cst,sizeof(%sCst) * parser->cstSize);\n"
+            YYTAB YYTAB "parser->cst = (%sCst *)YYREALLOC(parser,parser->cst,sizeof(%sCst) * parser->cstSize);\n"
             YYTAB "}\n"
             YYTAB "if(parser->cLen >= parser->cSize){\n"
             YYTAB YYTAB "parser->cSize *= 2;\n"
-            YYTAB YYTAB "parser->cStack = (int *)YYREALLOC(parser->cStack,sizeof(int) * parser->cSize);\n"
+            YYTAB YYTAB "parser->cStack = (int *)YYREALLOC(parser,parser->cStack,sizeof(int) * parser->cSize);\n"
             YYTAB "}\n"
             YYTAB "%sCst *cst = parser->cst + parser->cstLen++;\n"
             YYTAB "cst->index = parser->cstLen - 1;\n"
@@ -653,7 +656,9 @@ static int yGenParseCode(YGen *g,FILE *out){
             YYTAB YYTAB "for(i = parser->cLen - length;i < parser->cLen - 1;i++){\n"
             YYTAB YYTAB YYTAB "parser->cst[parser->cStack[i]].cousin = parser->cst[parser->cStack[i + 1]].index;\n"
             YYTAB YYTAB "}\n"
-            YYTAB YYTAB "cst->child = parser->cst[parser->cStack[parser->cLen - length]].index;\n"
+            YYTAB YYTAB "if(length > 0){\n"
+            YYTAB YYTAB YYTAB "cst->child = parser->cst[parser->cStack[parser->cLen - length]].index;\n"
+            YYTAB YYTAB "}\n"
             YYTAB YYTAB "parser->cLen -= length;\n"
             YYTAB "}\n"
             YYTAB "parser->cStack[parser->cLen++] = cst->index;\n"
@@ -664,7 +669,7 @@ static int yGenParseCode(YGen *g,FILE *out){
             ,ns,ns
             ,ns
         );
-        g->line2 += 27;
+        g->line2 += 29;
     }
     yGenReduce(g,out);
 
@@ -674,16 +679,16 @@ static int yGenParseCode(YGen *g,FILE *out){
         YYTAB "%sparser->sLen = 1;\n"
         YYTAB "%sparser->done = 0;\n"
         YYTAB "%sparser->sSize = %sparser->pSize = 16;\n"
-        YYTAB "%sparser->state = (int *)YYMALLOC(sizeof(int) * %sparser->sSize);\n"
+        YYTAB "%sparser->state = (int *)YYMALLOC(%sparser,sizeof(int) * %sparser->sSize);\n"
         YYTAB "%sparser->state[0] = 0;\n"
-        YYTAB "%sparser->sp = %sparser->pstack = (%s *)YYMALLOC(sizeof(%s) * %sparser->pSize);\n"
+        YYTAB "%sparser->sp = %sparser->pstack = (%s *)YYMALLOC(%sparser,sizeof(%s) * %sparser->pSize);\n"
         ,ns,ns,ns
         ,ns
         ,ns
         ,ns,ns
-        ,ns,ns
+        ,ns,ns,ns
         ,ns
-        ,ns,ns,stype,stype,ns
+        ,ns,ns,stype,ns,stype,ns
     );
     g->line2 += 7;
 
@@ -691,17 +696,17 @@ static int yGenParseCode(YGen *g,FILE *out){
         fprintf(out,
             YYTAB "%sparser->cstSize = 64;\n"
             YYTAB "%sparser->cstLen = 0;\n"
-            YYTAB "%sparser->cst = (%sCst *)YYMALLOC(sizeof(%sCst) * %sparser->cstSize);\n"
+            YYTAB "%sparser->cst = (%sCst *)YYMALLOC(%sparser,sizeof(%sCst) * %sparser->cstSize);\n"
             YYTAB "%sparser->cLen = 0;\n"
             YYTAB "%sparser->cSize = 16;\n"
-            YYTAB "%sparser->cStack = (int *)YYMALLOC(sizeof(int) * %sparser->cSize);\n"
+            YYTAB "%sparser->cStack = (int *)YYMALLOC(%sparser,sizeof(int) * %sparser->cSize);\n"
             ,ns
             ,ns
-            ,ns,ns,ns,ns
+            ,ns,ns,ns,ns,ns
 
             ,ns
             ,ns
-            ,ns,ns
+            ,ns,ns,ns
         );
         g->line2 += 6;
     }
@@ -762,21 +767,22 @@ static int yGenParseCode(YGen *g,FILE *out){
     fprintf(out,
         "int %sParser_free(%sParser *%sparser){\n"
         YYTAB "%sParser_clearStack(%sparser);\n"
-        YYTAB "YYFREE(%sparser->state);\n"
-        YYTAB "YYFREE(%sparser->pstack);\n"
+        YYTAB "YYFREE(%sparser,%sparser->state);\n"
+        YYTAB "YYFREE(%sparser,%sparser->pstack);\n"
         ,ns,ns,ns
         ,ns,ns
-        ,ns
-        ,ns
+
+        ,ns,ns
+        ,ns,ns
     );
     g->line2 += 4;
 
     if(g->g->genCst){
         fprintf(out,
-            "YYFREE(%sparser->cst);\n"
-            "YYFREE(%sparser->cStack);\n"
-            ,ns
-            ,ns
+            YYTAB "YYFREE(%sparser,%sparser->cst);\n"
+            YYTAB "YYFREE(%sparser,%sparser->cStack);\n"
+            ,ns,ns
+            ,ns,ns
         );
         g->line2 += 2;
     }
@@ -929,17 +935,17 @@ static int yGenParseCode(YGen *g,FILE *out){
         g->line2 += 23;
 
         fprintf(out,
-            "int %sParser_printCst(%sParser *parser,FILE *out){\n"
-            YYTAB "%sCst **cstack = (%sCst **)YYMALLOC(sizeof(%sCst *) * parser->cstLen);\n"
+            "int %sParser_printCst(%sParser *%sparser,FILE *out){\n"
+            YYTAB "%sCst **cstack = (%sCst **)YYMALLOC(%sparser,sizeof(%sCst *) * %sparser->cstLen);\n"
             YYTAB "int sp = 0;\n"
-            YYTAB "%sCst *root = &parser->cst[parser->cStack[0]];\n"
+            YYTAB "%sCst *root = &%sparser->cst[%sparser->cStack[0]];\n"
             YYTAB "root->printP = 0;\n"
             YYTAB "root->level = 1;\n"
             YYTAB "%sCst_printNode(root,cstack,sp,out);\n"
             YYTAB "cstack[sp++] = root;\n"
             YYTAB "while(sp > 0){\n"
             YYTAB YYTAB "%sCst *node = cstack[sp - 1];\n"
-            YYTAB YYTAB "%sCst *childn = %sCst_getChild(parser->cst,node,node->printP);\n"
+            YYTAB YYTAB "%sCst *childn = %sCst_getChild(%sparser->cst,node,node->printP);\n"
             YYTAB YYTAB "childn->level = node->level + 1;\n"
             YYTAB YYTAB "%sCst_printNode(childn,cstack,sp,out);\n"
             YYTAB YYTAB "if(++node->printP >= node->length){\n"
@@ -950,17 +956,18 @@ static int yGenParseCode(YGen *g,FILE *out){
             YYTAB YYTAB YYTAB "childn->printP = 0;\n"
             YYTAB YYTAB "}\n"
             YYTAB "}\n"
-            YYTAB "YYFREE(cstack);\n"
+            YYTAB "YYFREE(%sparser,cstack);\n"
             YYTAB "return YY_OK;\n"
             "}\n"
-            ,ns,ns
             ,ns,ns,ns
+            ,ns,ns,ns,ns,ns
             
-            ,ns
+            ,ns,ns,ns
             ,ns
 
             ,ns
-            ,ns,ns
+            ,ns,ns,ns
+            ,ns
             ,ns
         );
         g->line2 += 24;

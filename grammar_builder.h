@@ -19,6 +19,8 @@
 
 #ifndef __GRAMMAR_BUILDER_H__
 #define __GRAMMAR_BUILDER_H__
+
+#include "ydef.h"
 #include <stdio.h>
 #include "grammar.h"
 #include "spool.h"
@@ -62,6 +64,7 @@ typedef struct _YRawToken{
 }YRawToken;
 
 typedef struct _YGBuilder{
+    yheap_t *heap;
     YSPool pool;
     FILE *err;
     int status;
@@ -98,7 +101,7 @@ typedef struct _YGBuilder{
     int prLevel;
 }YGBuilder;
 
-int YGBuilder_init(YGBuilder *gb,FILE *err);
+int YGBuilder_init(YGBuilder *gb,FILE *err,yheap_t *heap);
 int YGBuilder_reInit(YGBuilder *gb);
 int YGBuilder_free(YGBuilder *gb,char **spool);
 ysptr YGBuilder_addString(YGBuilder *gb,const char *s);

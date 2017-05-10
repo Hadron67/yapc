@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 
+#include "array.h"
 #include "spool.h"
 #include "grammar.h"
 
@@ -69,7 +70,6 @@ typedef struct _YItemSetList{
     int size;
 }YItemSetList;
 
-
 typedef struct _YParseTable{
     YGrammar *g;
     int stateCount;
@@ -87,32 +87,25 @@ typedef struct _YConflict{
     YItem *used,*discarded;
 }YConflict;
 
-typedef struct _YConflictList{
-    int len,size;
-    YConflict *conflicts;
-}YConflictList;
-
 YItemSet *yGenInitialItemSet(YGrammar *g);
-int YItemSet_free(YItemSet *set);
+int YItemSet_free(YItemSet *set,yheap_t *heap);
 int YItemSet_dump(YItemSet *set,int showLah,FILE *out);
 int YItem_dump(YItem *item,YGrammar *g,int showLah,FILE *out);
 
 int YItemSetList_init(YItemSetList *list);
-int YItemSetList_clear(YItemSetList *list);
+int YItemSetList_clear(YItemSetList *list,yheap_t *heap);
 int YItemSetList_append(YItemSetList *list,YItemSet *set);
 int YItemSetList_remove(YItemSetList *list,YItemSet *set);
 int YItemSetList_number(YItemSetList *list);
 int YItemSetList_dump(YItemSetList *list,int showLah,FILE *out);
 YItemSet *YItemSetList_poll(YItemSetList *list);
 
-int YConflictList_init(YConflictList *list,int size);
-int YConflictList_free(YConflictList *list);
-int YConflictList_print(YConflictList *list,FILE *out);
+int YConflicts_print(YArray *c,FILE *out);
 
 int YParseTable_free(YParseTable *table);
 
 int yGenItemSets(YGrammar *g,YItemSetList *out);
-YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YConflictList *clist);
+YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YArray *clist);
 
 
 

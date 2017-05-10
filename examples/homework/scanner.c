@@ -1,7 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+
+#include "ydef.h"
 #include "scanner.h"
+#include "parser.h"
 
 const char *tokenNames[] = {
     "begin",
@@ -34,10 +37,6 @@ const char *tokenNames[] = {
     ":"
 };
 
-#define ymalloc malloc
-#define yrealloc realloc
-#define yfree free
-
 #define C (scanner->c)
 #define NC() (yyScanner_getChar(scanner))
 #define NC2() (yyScanner_pushChar(scanner,C),yyScanner_getChar(scanner))
@@ -47,33 +46,6 @@ const char *tokenNames[] = {
 #define ISNUM(c) ((c) >= '0' && (c) <= '9')
 #define ISNAMEHEAD(c) (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z') ||(c) == '_' || (c) == '$' )
 #define ISNAME(c) (ISNAMEHEAD(c) || ISNUM(c))
-
-static char *newString(yyStringBlock **prev,const char *s,int len){
-    static const int isize = 128;
-    yyStringBlock *yb = *prev;
-    if(yb == NULL || len > yb->size - yb->len){
-        int si = len > isize ? len : isize;
-        yyStringBlock *b = (yyStringBlock *)ymalloc(sizeof(yyStringBlock) + si * sizeof(char));
-        b->size = si;
-        b->len = 0;
-        b->next = *prev;
-        yb = *prev = b;
-    }
-    char *ret = yb->data + yb->len;
-    strncpy(ret,s,len);
-    yb->len += len;
-    return ret;
-}
-
-static int deleteStringBlock(yyStringBlock *head){
-    yyStringBlock *temp;
-    while(head != NULL){
-        temp = head->next;
-        yfree(head);
-        head = temp;
-    }
-    return 0;
-}
 
 static int yyScanner_vaerr(yyScanner *s,const char *fmt,va_list args){
     if(s->err != NULL){
@@ -93,20 +65,20 @@ static int yyScanner_err(yyScanner *s,const char *fmt,...){
 }
 
 int yyScanner_init(yyScanner *s,FILE *in,FILE *err){
+    YSPool_init(&s->pool,64,16,NULL);
     s->len = 0;
     s->size = 16;
+    s->buf = (char *)ya_malloc(NULL,sizeof(char) * s->size);
     s->line = 1;
     s->first = 1;
-    s->buf = (char *)ymalloc(sizeof(char) * s->size);
-    s->head = NULL;
     
     s->in = in;
     s->err = err;
     return 0;
 }
-int yyScanner_free(yyScanner *s){
-    yfree(s->buf);
-    deleteStringBlock(s->head);
+int yyScanner_free(yyScanner *s,char **buf){
+    ya_free(NULL,s->buf);
+    YSPool_free(&s->pool,buf);
     
     return 0;
 }
@@ -120,7 +92,7 @@ int yyScanner_getChar(yyScanner *s){
 int yyScanner_pushChar(yyScanner *s,char c){
     if(s->len >= s->size){
         s->size *= 2;
-        s->buf = (char *)yrealloc(s->buf,sizeof(char) * s->size);
+        s->buf = (char *)ya_realloc(NULL,s->buf,sizeof(char) * s->size);
     }
     s->buf[s->len++] = c;
     return 0;
@@ -135,7 +107,7 @@ int yyScanner_isS(yyScanner *scanner,const char *c){
     }
     return 1;
 }
-int yyScanner_next(yyScanner *scanner,yyToken *t){
+int yyScanner_next(yyScanner *scanner,yynode *t){
     if(scanner->first){
         scanner->first = 0;
         NC();
@@ -173,84 +145,71 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
                 found = 1;
                 goto yycheckname;
             }
-            else if(C == 'n'){
-                NC2();
-                if(C == 't'){
-                    NC2();
-                    if(ISS("eger")){
-                        t->id = T_INTEGER;
-                        found = 1;
-                        goto yycheckname;
-                    }
-                }
+            else if(ISS("nteger")){
+                t->id = T_INTEGER;
+                found = 1;
+                goto yycheckname;
             }
             goto yycheckname;
         case 't'://then,to,type
             NC2();
-            if(C == 'h'){
-                NC2();
-                if(ISS("en")){
-                    t->id = T_THEN;
-                    found = 1;
-                    goto yycheckname;
-                }
+            if(ISS("hen")){
+                t->id = T_THEN;
+                found = 1;
+                goto yycheckname;
             }
             goto yycheckname;
         case 'e'://end,else
             NC2();
-            if(C == 'n'){
-                NC2();
-                if(C == 'd'){
-                    NC2();
-                    t->id = T_END;
-                    found = 1;
-                    goto yycheckname;
-                }
+            if(ISS("nd")){
+                t->id = T_END;
+                found = 1;
+                goto yycheckname;
             }
-            else if(C == 'l'){
-                NC2();
-                if(ISS("se")){
-                    t->id = T_ELSE;
-                    found = 1;
-                    goto yycheckname;
-                }
+            else if(ISS("lse")){
+                t->id = T_ELSE;
+                found = 1;
+                goto yycheckname;
             }
             goto yycheckname;
-        case 'f'://function,for,file
+        case 'f'://function
             NC2();
-            if(C == 'u'){
-                NC2();
-                if(ISS("nction")){
-                    t->id = T_FUNCTION;
-                    found = 1;
-                    goto yycheckname;
-                }
+            if(ISS("unction")){
+                t->id = T_FUNCTION;
+                found = 1;
+                goto yycheckname;
             }
             goto yycheckname;
         case 'r'://read
             NC2();
-            if(C == 'e'){
-                NC2();
-                if(C == 'a'){
-                    NC2();
-                    if(C == 'd'){
-                        NC2();
-                        t->id = T_READ;
-                        found = 1;
-                        goto yycheckname;
-                    }
-                }
+            if(ISS("ead")){
+                t->id = T_READ;
+                found = 1;
+                goto yycheckname;
             }
             goto yycheckname;
         case 'w'://write,while,with
             NC2();
-            if(C == 'r'){
-                NC2();
-                if(ISS("ite")){
-                    t->id = T_WRITE;
-                    found = 1;
-                    goto yycheckname;
-                }
+            if(ISS("rite")){
+                t->id = T_WRITE;
+                found = 1;
+                goto yycheckname;
+            }
+            goto yycheckname;
+        case '_':
+            NC2();
+            if(ISS("_halt_compiler")){
+                t->id = T_HALT_COMPILER;
+                found = 1;
+                goto yycheckname;
+            }
+            goto yycheckname;
+        case 'm':
+            NC2();
+            if(ISS("od")){
+                t->id = T_MOD;
+                found = 1;
+                goto yycheckname;
             }
             goto yycheckname;
         case '=':
@@ -283,7 +242,6 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
                 t->id = T_GT;
                 return 0;
             }
-
         case '-':
             NC();
             t->id = T_MINUS;
@@ -291,6 +249,10 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
         case '*':
             NC();
             t->id = T_MULTIPLY;
+            return 0;
+        case ',':
+            NC();
+            t->id = T_COMMA;
             return 0;
         case '(':
             NC();
@@ -359,6 +321,14 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
             NC();
             t->id = T_SEMI_COLLON;
             return 0;
+        case '+':
+            NC();
+            t->id = T_PLUS;
+            return 0;
+        case '/':
+            NC();
+            t->id = T_DIVIDE;
+            return 0;
         case ':':
             NC();
             if(C == '='){
@@ -378,6 +348,7 @@ int yyScanner_next(yyScanner *scanner,yyToken *t){
             else if(ISNUM(C)){
                 int num = 0;
                 while(ISNUM(C)){
+                    num *= 10;
                     num += C - '0';
                     NC();
                 }
@@ -399,7 +370,7 @@ yyname:
     }
     yyScanner_pushChar(scanner,'\0');
     t->id = T_ID;
-    t->u.image.s = newString(&scanner->head,scanner->buf,scanner->len);
+    t->u.image.s = YSPool_addString(&scanner->pool,scanner->buf);
     t->u.image.len = scanner->len - 1;
     return 0;
 yyunexpected:

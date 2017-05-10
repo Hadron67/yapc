@@ -35,7 +35,7 @@
 static int YGParser_scan(YGParser *parser,YToken *tk);
 
 static void YGParser_vaerr(YGParser *parser,int line,const char *fmt,va_list args){
-    fprintf(parser->err,"error: ");
+    fprintf(parser->err,YERROR_COLORED);
     vfprintf(parser->err,fmt,args);
     fprintf(parser->err,"\n at line %d\n",line);
 }
@@ -49,7 +49,7 @@ static void YGParser_err(YGParser *parser,int line,const char *fmt,...){
 static void YGParser_pushChar(YGParser *parser,char c){
     if(parser->len >= parser->size){
         parser->size *= 2;
-        parser->buf = (char *)ya_realloc(parser->buf,sizeof(char) * parser->size);
+        parser->buf = (char *)ya_realloc(parser->heap,parser->buf,sizeof(char) * parser->size);
     }
     parser->buf[parser->len++] = c;
 }
@@ -206,7 +206,6 @@ static int YGParser_scan(YGParser *parser,YToken *tk){
         case '%':
             NC();
             return YGParser_handleDirs(parser,tk);
-            break;
         case ':':
             NC();
             tk->id = T_ARROW;
@@ -358,16 +357,17 @@ yyunexpected:
 }
 
 
-int YGParser_init(YGParser *parser,FILE *err){
-    memset(parser,0,sizeof(YGParser));
-    YGBuilder_init(&parser->builder,err);
+int YGParser_init(YGParser *parser,FILE *err,yheap_t *heap){
+    //memset(parser,0,sizeof(YGParser));
+    YGBuilder_init(&parser->builder,err,heap);
     parser->err = err;
+    parser->heap = heap;
 
     parser->size = 16;
-    parser->buf = (char *)ya_malloc(sizeof(char) * parser->size);
+    parser->buf = (char *)ya_malloc(heap,sizeof(char) * parser->size);
 
-    yyParser_init(&parser->parser);
     parser->parser.userData = &parser->builder;
+    yyParser_init(&parser->parser);
 
     return 0;   
 }
@@ -413,11 +413,11 @@ YGrammar *YGParser_parse(YGParser *parser,FILE *in){
     }
     YGBuilder_free(&parser->builder,&ret->spool);
     yyParser_free(&parser->parser);
-    ya_free(parser->buf);
+    ya_free(parser->heap,parser->buf);
     return ret;
 yyerr:
     YGBuilder_free(&parser->builder,NULL);
     yyParser_free(&parser->parser);
-    ya_free(parser->buf);
+    ya_free(parser->heap,parser->buf);
     return NULL;
 }

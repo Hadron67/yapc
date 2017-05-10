@@ -6,13 +6,13 @@
 static const int yytokenCount = 30;
 static const int yyntCount = 31;
 #ifndef YYMALLOC
-    #define YYMALLOC malloc
+    #define YYMALLOC(parser,size) malloc(size)
 #endif
 #ifndef YYREALLOC
-    #define YYREALLOC realloc
+    #define YYREALLOC(parser,ptr,size) realloc((ptr),(size))
 #endif
 #ifndef YYFREE
-    #define YYFREE free
+    #define YYFREE(parser,ptr) free((ptr))
 #endif
 #ifndef YYDESTRUCTOR
     #define YYDESTRUCTOR(a)
@@ -20,7 +20,7 @@ static const int yyntCount = 31;
 #define YYPUSH_STATE(s) \
     if(yyparser->sLen >= yyparser->sSize){ \
         yyparser->sSize *= 2; \
-        yyparser->state = (int *)YYREALLOC(yyparser->state,sizeof(int) * yyparser->sSize); \
+        yyparser->state = (int *)YYREALLOC(yyparser,yyparser->state,sizeof(int) * yyparser->sSize); \
     } \
     yyparser->state[yyparser->sLen++] = (s);
 
@@ -29,7 +29,7 @@ static const int yyntCount = 31;
     if(yyparser->sp - yyparser->pstack >= yyparser->pSize){\
         size_t offset = yyparser->sp - yyparser->pstack;\
         yyparser->pSize *= 2;\
-        yyparser->pstack = (int *)YYREALLOC(yyparser->pstack,sizeof(int) * yyparser->pSize);\
+        yyparser->pstack = (int *)YYREALLOC(yyparser,yyparser->pstack,sizeof(int) * yyparser->pSize);\
         yyparser->sp = yyparser->pstack + offset;\
     }
 /*
@@ -1005,443 +1005,444 @@ static int yyParser_reduce(yyParser *yyparser,int yyrule){
     switch(yyrule){
         case 0:
             /* (accept) -> start  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 1:
             /* start -> statementList  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 2:
             /* statementList -> statementList statement  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 3:
             /* statementList ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 4:
             /* statement -> ifStatement <;>  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 5:
             /* statement -> forStatement <;>  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 6:
             /* statement -> whileStatement <;>  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 7:
             /* statement -> <{> statementList <}>  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 8:
             /* statement -> exprList <;>  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 9:
             /* statement -> <;>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 10:
             /* @1 ->  */
-            #line 43 "--show-lah"
+            #line 43 "./test.y"
             { printf("before expression"); }
             #line 1080 "./test.c"
             break;
         case 11:
             /* ifStatement -> <if> @1 <(> exprList <)> statement elseStatement  */
-            /* no action. */
             yyval = yyparser->sp[-6];
+            /* no action. */
             yyparser->sp -= 6;
             *yyparser->sp++ = yyval;
             break;
         case 12:
             /* elseStatement -> <else> statement  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 13:
             /* elseStatement ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 14:
             /* whileStatement -> <while> <(> exprList <)> statement  */
-            /* no action. */
             yyval = yyparser->sp[-5];
+            /* no action. */
             yyparser->sp -= 5;
             *yyparser->sp++ = yyval;
             break;
         case 15:
             /* forStatement -> <for> <(> forExpr <;> exprList <;> exprList <;> <)> statement  */
-            /* no action. */
             yyval = yyparser->sp[-10];
+            /* no action. */
             yyparser->sp -= 10;
             *yyparser->sp++ = yyval;
             break;
         case 16:
             /* forExpr -> assignExpr  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 17:
             /* exprList -> exprList <,> assignExpr  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 18:
             /* exprList -> assignExpr  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 19:
             /* assignExpr -> assignExpr assignOptr conditionalExpr  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 20:
             /* assignExpr -> conditionalExpr  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 21:
             /* assignOptr -> <=>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 22:
             /* assignOptr -> <+=>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 23:
             /* assignOptr -> <-=>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 24:
             /* assignOptr -> <*=>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 25:
             /* assignOptr -> </=>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 26:
             /* conditionalExpr -> binaryExpr  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 27:
             /* conditionalExpr -> binaryExpr <?> assignExpr <:> assignExpr  */
-            /* no action. */
             yyval = yyparser->sp[-5];
+            /* no action. */
             yyparser->sp -= 5;
             *yyparser->sp++ = yyval;
             break;
         case 28:
             /* binaryExpr -> binaryExpr <+> multiplyExpr  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 29:
             /* binaryExpr -> binaryExpr <-> multiplyExpr  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 30:
             /* binaryExpr -> multiplyExpr  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 31:
             /* multiplyExpr -> multiplyExpr <*> unaryExpr  */
-            #line 63 "--show-lah"
+            yyval = yyparser->sp[-3];
+            #line 63 "./test.y"
             { yyval = (yyparser->sp[-3]) + (yyparser->sp[-1]); }
-            #line 1225 "./test.c"
+            #line 1226 "./test.c"
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 32:
             /* multiplyExpr -> multiplyExpr </> unaryExpr  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 33:
             /* multiplyExpr -> unaryExpr  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 34:
             /* unaryExpr -> atomicExpr  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 35:
             /* atomicExpr -> atom trailer  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 36:
             /* trailer -> trailer <[> subscript <]>  */
-            /* no action. */
             yyval = yyparser->sp[-4];
+            /* no action. */
             yyparser->sp -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 37:
             /* trailer -> trailer <(> argList <)>  */
-            /* no action. */
             yyval = yyparser->sp[-4];
+            /* no action. */
             yyparser->sp -= 4;
             *yyparser->sp++ = yyval;
             break;
         case 38:
             /* trailer -> trailer <member>  */
-            /* no action. */
             yyval = yyparser->sp[-2];
+            /* no action. */
             yyparser->sp -= 2;
             *yyparser->sp++ = yyval;
             break;
         case 39:
             /* trailer ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 40:
             /* atom -> <id>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 41:
             /* atom -> <num>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 42:
             /* atom -> <(> exprList <)>  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 43:
             /* atom -> lambda  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 44:
             /* atom -> aFunction  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 45:
             /* lambda -> lambdaHead <arrow> lambdaBody  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 46:
             /* lambdaHead -> <id>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 47:
             /* lambdaHead -> <(> argList <)>  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 48:
             /* lambdaBody -> assignExpr  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 49:
             /* lambdaBody -> <{> statementList <}>  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 50:
             /* argList -> nonEmptyArgList  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 51:
             /* argList ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 52:
             /* nonEmptyArgList -> nonEmptyArgList <,> assignExpr  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 53:
             /* nonEmptyArgList -> assignExpr  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 54:
             /* argDefList -> nonEmptyArgDefList  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 55:
             /* argDefList ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 56:
             /* nonEmptyArgDefList -> nonEmptyArgDefList <,> argDef  */
-            /* no action. */
             yyval = yyparser->sp[-3];
+            /* no action. */
             yyparser->sp -= 3;
             *yyparser->sp++ = yyval;
             break;
         case 57:
             /* nonEmptyArgDefList -> argDef  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 58:
             /* argDef -> <id>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 59:
             /* subscript -> exprList  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 60:
             /* subscript ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
         case 61:
             /* aFunction -> <function> funcName <(> argDefList <)> <{> statementList <}>  */
-            /* no action. */
             yyval = yyparser->sp[-8];
+            /* no action. */
             yyparser->sp -= 8;
             *yyparser->sp++ = yyval;
             break;
         case 62:
             /* funcName -> <id>  */
-            /* no action. */
             yyval = yyparser->sp[-1];
+            /* no action. */
             yyparser->sp -= 1;
             *yyparser->sp++ = yyval;
             break;
         case 63:
             /* funcName ->  */
-            /* no action. */
             yyval = yyparser->sp[0];
+            /* no action. */
             *yyparser->sp++ = yyval;
             break;
     }
@@ -1454,9 +1455,9 @@ int yyParser_init(yyParser *yyparser){
     yyparser->sLen = 1;
     yyparser->done = 0;
     yyparser->sSize = yyparser->pSize = 16;
-    yyparser->state = (int *)YYMALLOC(sizeof(int) * yyparser->sSize);
+    yyparser->state = (int *)YYMALLOC(yyparser,sizeof(int) * yyparser->sSize);
     yyparser->state[0] = 0;
-    yyparser->sp = yyparser->pstack = (int *)YYMALLOC(sizeof(int) * yyparser->pSize);
+    yyparser->sp = yyparser->pstack = (int *)YYMALLOC(yyparser,sizeof(int) * yyparser->pSize);
     return 0;
 }
 static int yyParser_clearStack(yyParser *yyparser){
@@ -1476,8 +1477,8 @@ int yyParser_reInit(yyParser *yyparser){
 }
 int yyParser_free(yyParser *yyparser){
     yyParser_clearStack(yyparser);
-    YYFREE(yyparser->state);
-    YYFREE(yyparser->pstack);
+    YYFREE(yyparser,yyparser->state);
+    YYFREE(yyparser,yyparser->pstack);
     return 0;
 }
 int yyParser_acceptToken(yyParser *yyparser,int yytokenid){

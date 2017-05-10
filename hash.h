@@ -16,6 +16,7 @@ typedef struct _ybucket{
 }YBucket;
 
 typedef struct _YHashTable{
+    yheap_t *heap;
     YBucket **buckets;
     int bucketCount;
     int entryCount;

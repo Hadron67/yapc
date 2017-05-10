@@ -58,20 +58,21 @@ static int Ynt_comp(const void *d1,const void *d2,void *arg){
     return strcmp(s1,YSPool_getString(&gb->pool,s2));
 }
 
-int YGBuilder_init(YGBuilder *gb,FILE *err){
+int YGBuilder_init(YGBuilder *gb,FILE *err,yheap_t *heap){
     memset(gb,0,sizeof(YGBuilder));
-    YSPool_init(&gb->pool,32,32);
+    YSPool_init(&gb->pool,32,32,heap);
 
-    YTree_init(&gb->tokenEntry,32,sizeof(YRawToken),YTokenName_comp,gb);
-    YTree_init(&gb->ntEntry,32,sizeof(const char *),Ynt_comp,gb);
+    YTree_init(&gb->tokenEntry,32,sizeof(YRawToken),YTokenName_comp,gb,heap);
+    YTree_init(&gb->ntEntry,32,sizeof(const char *),Ynt_comp,gb,heap);
     
+    gb->heap = heap;
     gb->ruleSize = 8;
     gb->first = 1;
     gb->err = err;
     gb->status = 0;
 
     gb->testSize = 16;
-    gb->tests = (int *)ya_malloc(sizeof(int) * gb->testSize);
+    gb->tests = (int *)ya_malloc(gb->heap,sizeof(int) * gb->testSize);
     gb->tests[gb->currentTest = 0] = 0;
     gb->testLen = 1;
 
@@ -100,17 +101,17 @@ int YGBuilder_free(YGBuilder *gb,char **spool){
     YSPool_free(&gb->pool,spool);
 
     if(!gb->built){
-        ya_free(gb->tests);
+        ya_free(gb->heap,gb->tests);
     }
 
     YRawRule *raw = gb->startRule;
     while(raw != NULL){
         YRawRule *temp = raw->next;
-        ya_free(raw);
+        ya_free(gb->heap,raw);
         raw = temp;
     }
     if(gb->currentRule != NULL){
-        ya_free(gb->currentRule);
+        ya_free(gb->heap,gb->currentRule);
     }
 
     return 0;
@@ -172,7 +173,7 @@ const char *YGBuilder_getString(YGBuilder *gb,ysptr s){
     return YSPool_getString(&gb->pool,s);
 }
 static YRawRule *YGBuilder_newRule(YGBuilder *gb){
-    YRawRule *raw = (YRawRule *)ya_malloc(sizeof(YRawRule) + gb->ruleSize * sizeof(YRawRuleItem));
+    YRawRule *raw = (YRawRule *)ya_malloc(gb->heap,sizeof(YRawRule) + gb->ruleSize * sizeof(YRawRuleItem));
     raw->next = NULL;
     raw->iLen = 0;
     raw->iSize = gb->ruleSize;
@@ -232,7 +233,7 @@ int YGBuilder_addRuleItem(YGBuilder *gb,ysptr name,int isTerminal){
     YRawRule *raw = gb->currentRule;
     if(raw->iLen >= raw->iSize){
         raw->iSize *= 2;
-        gb->currentRule = raw = (YRawRule *)ya_realloc(raw,sizeof(YRawRule) + raw->iSize * sizeof(YRawRuleItem));
+        gb->currentRule = raw = (YRawRule *)ya_realloc(gb->heap,raw,sizeof(YRawRule) + raw->iSize * sizeof(YRawRuleItem));
     }
     if(raw->hasAction){
         raw->hasAction = 0;
@@ -334,7 +335,7 @@ int YGBuilder_addTestToken(YGBuilder *gb,const YToken *tk){
     }
     if(gb->testLen >= gb->testSize){
         gb->testSize *= 2;
-        gb->tests = (int *)ya_realloc(gb->tests,sizeof(int) * gb->testSize);
+        gb->tests = (int *)ya_realloc(gb->heap,gb->tests,sizeof(int) * gb->testSize);
     }
     gb->tests[gb->testLen++] = t;
     gb->tests[gb->currentTest]++;
@@ -343,7 +344,7 @@ int YGBuilder_addTestToken(YGBuilder *gb,const YToken *tk){
 int YGBuilder_commitTest(YGBuilder *gb){
     if(gb->testLen >= gb->testSize){
         gb->testSize *= 2;
-        gb->tests = (int *)ya_realloc(gb->tests,sizeof(int) * gb->testSize);
+        gb->tests = (int *)ya_realloc(gb->heap,gb->tests,sizeof(int) * gb->testSize);
     }
     gb->currentTest = gb->testLen++;
     gb->tests[gb->currentTest] = 0;
@@ -353,12 +354,14 @@ int YGBuilder_commitTest(YGBuilder *gb){
 
 YGrammar *YGBuilder_build(YGBuilder *gb){
     YGrammar *g = (YGrammar *)ya_malloc(
+        gb->heap,
         sizeof(YGrammar) + 
         sizeof(YTokenDef) * gb->tokenEntry.len +
         sizeof(YNtDef) * gb->ntEntry.len +
         sizeof(YRule) * gb->ruleCount + 
         sizeof(YRuleItem) * gb->itemCount
     );
+    g->heap = gb->heap;
     g->tokenCount = gb->tokenEntry.len;
     g->ntCount = gb->ntEntry.len;
     g->ruleCount = gb->ruleCount;
@@ -459,7 +462,7 @@ YGrammar *YGBuilder_build(YGBuilder *gb){
     gb->built = 1;
     return g;
 err:
-    ya_free(g);
+    ya_free(gb->heap,g);
     return NULL;
 }
 

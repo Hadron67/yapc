@@ -45,10 +45,10 @@ static int YItem_comp(const void *d1,const void *d2,void *arg){
         }
     }
 }
-static YItemSet *YItemSet_new(YGrammar *g){
+static YItemSet *YItemSet_new(YGrammar *g,yheap_t *heap){
     int size = 8;
     size_t itemSize = YGrammar_getTokenSetSize(g) * sizeof(char) + sizeof(YItem);
-    YItemSet *set = (YItemSet *)ya_malloc(sizeof(YItemSet));
+    YItemSet *set = (YItemSet *)ya_malloc(heap,sizeof(YItemSet));
     //set->items = (YItem *)ya_malloc(size * itemSize);
     set->prev = set->next = NULL;
     set->g = g;
@@ -59,7 +59,7 @@ static YItemSet *YItemSet_new(YGrammar *g){
     set->complete = 0;
     //memset(set->items,0,set->itemSize * size);
     
-    YTree_init(&set->itemr,size,itemSize,YItem_comp,NULL);
+    YTree_init(&set->itemr,size,itemSize,YItem_comp,NULL,heap);
 
     return set;
 }
@@ -192,15 +192,15 @@ static int YItemSet_mergeTo(YItemSet *dest,YItemSet *src){
 }
 
 YItemSet *yGenInitialItemSet(YGrammar *g){
-    YItemSet *ret = YItemSet_new(g);
+    YItemSet *ret = YItemSet_new(g,g->heap);
     YItemSet_addItem(ret,g->rules,0,1,NULL,0);
     YItem *item = YItemSet_getItem(ret,0);
     YTokenSet_add(g,item->lah,1);
     return ret;
 }
-int YItemSet_free(YItemSet *set){
+int YItemSet_free(YItemSet *set,yheap_t *heap){
     YTree_free(&set->itemr);
-    ya_free(set);
+    ya_free(heap,set);
 }
 static int YItemSet_closure(YItemSet *set,YFirstSets *fsets){
     YGrammar *g = set->g;
@@ -338,11 +338,11 @@ int YItemSetList_init(YItemSetList *list){
     list->tail.prev = &list->head;
     return 0;
 }
-int YItemSetList_clear(YItemSetList *list){
+int YItemSetList_clear(YItemSetList *list,yheap_t *heap){
     YItemSet *set = list->head.next;
     while(set != &list->tail){
         YItemSet *temp = set->next;
-        YItemSet_free(set);
+        YItemSet_free(set,heap);
         set = temp;
     }
     list->head.next = &list->tail;
@@ -424,7 +424,7 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
                 if(item->actionType == YACTION_NONE){
                     assert(YItem_canShift(item));
                     YRuleItem *shift = YItem_getShift(item);
-                    YItemSet *newSet = trash.size > 0 ? YItemSetList_poll(&trash) : YItemSet_new(g);
+                    YItemSet *newSet = trash.size > 0 ? YItemSetList_poll(&trash) : YItemSet_new(g,g->heap);
                     YTree_reInit(&newSet->itemr);
                     newSet->complete = 0;
                     newSet->index = index++;
@@ -547,40 +547,11 @@ int yGenItemSets(YGrammar *g,YItemSetList *doneList){
     }
     YHashTable_free(&htable);
     YFirstSets_free(fsets);
-    YItemSetList_clear(&trash);
+    YItemSetList_clear(&trash,g->heap);
     YItemSetList_number(doneList);
     return 0;
 }
-int YConflictList_init(YConflictList *list,int size){
-    list->len = 0;
-    list->size = size;
-    list->conflicts = (YConflict *)ya_malloc(sizeof(YConflict) * size);
-    return 0;
-}
-static int YConflictList_addConflict(YConflictList *list,yconflict_t type,YItemSet *set,int token,YItem *used,YItem *discarded){
-    if(list->len >= list->size){
-        list->size *= 2;
-        list->conflicts = (YConflict *)ya_realloc(list->conflicts,sizeof(YConflict) * list->size);
-    }
-    /*int i;
-    for(i = 0;i < list->len;i++){
-        YConflict *c = list->conflicts + i;
-        if(c->type == type && c->set == set && c->used == used && c->discarded == discarded){
-            return 0;
-        }
-    }*/
-    YConflict *c = list->conflicts + list->len++;
-    c->set = set;
-    c->token = token;
-    c->used = used;
-    c->type = type;
-    c->discarded = discarded;
 
-    return 0;
-}
-int YConflictList_free(YConflictList *list){
-    ya_free(list->conflicts);
-}
 static int YConflict_print(YConflict *c,FILE *out){
     YGrammar *g = c->set->g;
     if(c->type == YCONFLICT_RR){
@@ -601,18 +572,18 @@ static int YConflict_print(YConflict *c,FILE *out){
     fprintf(out,"\n");
     return 0;
 }
-int YConflictList_print(YConflictList *list,FILE *out){
+
+int YConflicts_print(YArray *c,FILE *out){
     int i;
-    for(i = 0;i < list->len;i++){
-        YConflict_print(list->conflicts + i,out);
-        fprintf(out,"\n");
+    for(i = 0;i < c->len;i++){
+        YConflict_print((YConflict *)YArray_get(c,i),out);
     }
     return 0;
 }
 int YParseTable_free(YParseTable *table){
-    ya_free(table);
+    ya_free(table->g->heap,table);
 }
-static YItem *yResolveSRConflict(YGrammar *g,YConflictList *list,YItemSet *set,YItem *shift,YItem *reduce,int token){
+static YItem *yResolveSRConflict(YGrammar *g,YArray *clist,YItemSet *set,YItem *shift,YItem *reduce,int token){
     YTokenDef *td = g->tokens + token;
 
     //first,try to resolve conflict using operator precedence
@@ -644,19 +615,24 @@ static YItem *yResolveSRConflict(YGrammar *g,YConflictList *list,YItemSet *set,Y
     }
     
     //no precedence available,so do shift and report conflict.
-    YConflictList_addConflict(list,YCONFLICT_SR,set,token,shift,reduce);
+    YConflict *cf = (YConflict *)YArray_push(clist);
+    cf->type = YCONFLICT_SR;
+    cf->set = set;
+    cf->token = token;
+    cf->used = shift;
+    cf->discarded = reduce;
     return shift;
 
 }
 
-YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YConflictList *clist){
+YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YArray *clist){
     YParseTable *table = (YParseTable *)ya_malloc(
+        g->heap,
         sizeof(YParseTable) +
         sizeof(YItem *) * g->tokenCount * list->size +
         sizeof(YItem *) * g->ntCount * list->size +
         sizeof(int) * g->ntCount * list->size
     );
-    //YConflictList_init(clist,4);
     table->stateCount = list->size;
     char *p =  table->data;
 
@@ -717,10 +693,13 @@ YParseTable *yGenParseTable(YGrammar *g,YItemSetList *list,YConflictList *clist)
                         if(*cItem != NULL){
                             if((*cItem)->actionType == YACTION_REDUCE){
                                 //we've got a reduce-reduce conflict.
-                                YItem *taken = item->rule->index > (*cItem)->rule->index ? *cItem : item;
-                                YItem *discarded = item->rule->index < (*cItem)->rule->index ? *cItem : item;
-                                YConflictList_addConflict(clist,YCONFLICT_RR,set,j,taken,discarded);
-                                *cItem = taken;
+                                YConflict *cf = (YConflict *)YArray_push(clist);
+                                cf->type = YCONFLICT_RR;
+                                cf->set = set;
+                                cf->token = j;
+                                cf->used = item->rule->index > (*cItem)->rule->index ? *cItem : item;
+                                cf->discarded = item->rule->index < (*cItem)->rule->index ? *cItem : item;
+                                *cItem = cf->used;
                             }
                             else if((*cItem)->actionType == YACTION_SHIFT){
                                 //YConflictList_addConflict(clist,YCONFLICT_SR,set,j,*cItem,item);

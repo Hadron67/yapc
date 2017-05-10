@@ -21,6 +21,7 @@
 #define __GRAMMAR_H__
 
 #include <stdio.h>
+#include "ydef.h"
 
 typedef struct _YRuleItem YRuleItem;
 typedef struct _YRule YRule;
@@ -73,6 +74,8 @@ typedef struct _YNtDef{
 }YNtDef;
 
 typedef struct _YGrammar{
+    // heap that allocated this grammar
+    yheap_t *heap;
     // token definations
     YTokenDef *tokens;
     int tokenCount;

@@ -34,6 +34,12 @@
 #include "grammar_builder.h"
 #include "grammar.h"
 #include "spool.h"
+#define YYMALLOC(parser,size) \
+    ya_malloc(((YGBuilder *)parser->userData)->heap,(size))
+#define YYREALLOC(parser,ptr,size) \
+    ya_realloc(((YGBuilder *)parser->userData)->heap,(ptr),(size))
+#define YYFREE(parser,ptr) \
+    ya_free(((YGBuilder *)parser->userData)->heap,(ptr))
 
 %}
 

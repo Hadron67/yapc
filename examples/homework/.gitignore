@@ -2,4 +2,9 @@ pascal/*
 vscode/*
 *.o
 
+# cmake files
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles/**
+
 main

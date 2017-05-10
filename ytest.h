@@ -20,6 +20,7 @@
 #ifndef __YTEST_H__
 #define __YTEST_H__
 
+#include "ydef.h"
 #include "grammar.h"
 #include "gen.h"
 
